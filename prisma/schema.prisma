@@ -4,11 +4,77 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["rhel-openssl-1.0.x", "windows"]
+}
+
+model Hotel {
+  id     Int     @id @default(autoincrement())
+  name   String
+  floors Floor[] @relation(name: "FloorToHotel")
+  rooms  Room[]  @relation(name: "HotelToRoom")
+}
+
+model Floor {
+  id          Int    @id @default(autoincrement())
+  floorNumber Int
+  hotelId     Int
+  hotel       Hotel  @relation(name: "FloorToHotel", fields: [hotelId], references: [id])
+  rooms       Room[] @relation(name: "FloorToRoom")
+}
+
+model Room {
+  id           Int         @id @default(autoincrement())
+  roomNumber   Int
+  hotelId      Int
+  floorId      Int
+  hotel        Hotel       @relation(name: "HotelToRoom", fields: [hotelId], references: [id])
+  floor        Floor       @relation(name: "FloorToRoom", fields: [floorId], references: [id])
+  minibarItems RoomStock[] @relation(name: "RoomToRoomStock")
+  invoices     Invoice[]   @relation(name: "InvoiceToRoom")
+  locked       Boolean     @default(false) 
+  state        Int 
+}
+
+model Product {
+  id           Int           @id @default(autoincrement())
+  name         String
+  price        Float?
+  roomStocks   RoomStock[]   @relation(name: "ProductToRoomStock")
+  invoiceItems InvoiceItem[] @relation(name: "InvoiceItemToProduct")
+}
+
+model RoomStock {
+  id        Int     @id @default(autoincrement())
+  roomId    Int
+  productId Int
+  quantity  Int
+  room      Room    @relation(name: "RoomToRoomStock", fields: [roomId], references: [id])
+  product   Product @relation(name: "ProductToRoomStock", fields: [productId], references: [id])
+
+  @@unique([roomId, productId])
+}
+
+model Invoice {
+  id     Int           @id @default(autoincrement())
+  roomId Int
+  total  Float?
+  room   Room          @relation(name: "InvoiceToRoom", fields: [roomId], references: [id])
+  items  InvoiceItem[] @relation(name: "InvoiceToInvoiceItem")
+}
+
+model InvoiceItem {
+  id        Int     @id @default(autoincrement())
+  invoiceId Int
+  productId Int
+  quantity  Int
+  price     Float
+  invoice   Invoice @relation(name: "InvoiceToInvoiceItem", fields: [invoiceId], references: [id])
+  product   Product @relation(name: "InvoiceItemToProduct", fields: [productId], references: [id])
 }
