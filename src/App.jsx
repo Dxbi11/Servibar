@@ -22,7 +22,7 @@ function App() {
   }, []);
 
   return (
-    <div className="bp3-dark">
+    <div>
       {user ? <Home user={user} /> : <Login />}
     </div>
   );

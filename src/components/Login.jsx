@@ -1,7 +1,7 @@
 import React from 'react';
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, provider } from '../config/firebaseConfig';
-import { Button } from "@blueprintjs/core";
+
 
 const Login = () => {
   const handleSignIn = () => {
@@ -28,13 +28,8 @@ const Login = () => {
 
   return (
     <div>
-      <h1 class="bp5-heading {{.modifier}}">Servibar</h1>
-      <Button
-  type="button"
-  onClick={handleSignIn}
-  intent="primary"
-  text="Sign in with Google"
-/>
+      <h1>Servibar</h1>
+      <button onClick={handleSignIn}>Sign In</button>
     </div>
   );
 };
