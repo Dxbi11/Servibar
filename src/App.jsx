@@ -3,7 +3,7 @@ import { auth } from './config/firebaseConfig';
 import { onAuthStateChanged } from "firebase/auth";
 import Login from './components/Login';
 import Home from './components/Home';
-import './App.css';
+
 
 function App() {
   const [user, setUser] = useState(null);
@@ -22,7 +22,7 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    <div className="bp3-dark">
       {user ? <Home user={user} /> : <Login />}
     </div>
   );

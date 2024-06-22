@@ -1,6 +1,7 @@
 import React from 'react';
 import { signOut } from "firebase/auth";
 import { auth } from '../config/firebaseConfig';
+import { Navbar, Alignment, Button } from '@blueprintjs/core';
 
 const Home = ({ user }) => {
   const handleSignOut = () => {
@@ -15,9 +16,9 @@ const Home = ({ user }) => {
 
   return (
     <div>
-      <h4 className='title is-4' >Welcome, {user.displayName}</h4>
+      <h4 className='bp5-heading {{.modifier}}'>Welcome, {user.displayName}</h4>
       <p>Email: {user.email}</p>
-      <button onClick={handleSignOut} className="button">Sign Out</button>
+      <Button onClick={handleSignOut} text="sign out"/>
     </div>
   );
 };

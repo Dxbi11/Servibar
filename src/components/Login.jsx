@@ -28,8 +28,13 @@ const Login = () => {
 
   return (
     <div>
-      <h1 className="title is-1">Servibar WebApp</h1>
-      <button onClick={handleSignIn} intent="primary" text="Sign in with Google" />
+      <h1 class="bp5-heading {{.modifier}}">Servibar</h1>
+      <Button
+  type="button"
+  onClick={handleSignIn}
+  intent="primary"
+  text="Sign in with Google"
+/>
     </div>
   );
 };
