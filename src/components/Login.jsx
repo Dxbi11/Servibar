@@ -1,7 +1,7 @@
 import React from 'react';
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, provider } from '../config/firebaseConfig';
-
+import { Button, ButtonGroup } from '@chakra-ui/react'
 
 const Login = () => {
   const handleSignIn = () => {
@@ -29,7 +29,7 @@ const Login = () => {
   return (
     <div>
       <h1>Servibar</h1>
-      <button onClick={handleSignIn}>Sign In</button>
+      <Button onClick={handleSignIn} colorScheme='blue'>Sign In</Button>
     </div>
   );
 };

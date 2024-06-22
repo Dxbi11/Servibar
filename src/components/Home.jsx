@@ -1,6 +1,7 @@
 import React from 'react';
 import { signOut } from "firebase/auth";
 import { auth } from '../config/firebaseConfig';
+import { Button, ButtonGroup } from '@chakra-ui/react'
 
 
 const Home = ({ user }) => {
@@ -18,7 +19,7 @@ const Home = ({ user }) => {
     <div>
       <h4>Welcome, {user.displayName}</h4>
       <p>Email: {user.email}</p>
-      <button onClick={handleSignOut}>iiiii</button>
+      <Button colorScheme='red' onClick={handleSignOut}>sign out</Button>
     </div>
   );
 };
