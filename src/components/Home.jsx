@@ -1,23 +1,22 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { signOut } from "firebase/auth";
 import { auth } from '../config/firebaseConfig';
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import { Button, ButtonGroup } from '@chakra-ui/react';
 import HotelRoomsTable from './HotelRoomsTable';
-import AddHotelForm from './AddHotel';
-import AddFloors from './AddFloor';
+import RackMenu from './RackMenu';
+import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+
 
 import {
   Menu,
   MenuButton,
   MenuList,
-  MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuDivider,
-} from '@chakra-ui/react'
+  MenuItem
+} from '@chakra-ui/react';
 
 const Home = ({ user }) => {
+  const hotelRoomsTableRef = useRef(null);
+
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
@@ -28,23 +27,41 @@ const Home = ({ user }) => {
       });
   };
 
+  const handleRefresh = () => {
+    if (hotelRoomsTableRef.current) {
+      hotelRoomsTableRef.current.refresh();
+    }
+  };
+
   return (
     <div>
       <h4>Logged in as {user.displayName}</h4>
-      <Menu>
-        <MenuButton as={Button}>
-          Actions
-        </MenuButton>
-        <MenuList>
-          <MenuItem><AddHotelForm/></MenuItem>
+      <RackMenu/>
+      <Tabs>
 
-          <MenuItem><AddFloors/></MenuItem>
 
-        </MenuList>
-      </Menu>
-      <HotelRoomsTable/>
-      <Button colorScheme='red' onClick={handleSignOut}>sign out</Button>
-      
+        <TabList>
+          <Tab>Rack</Tab>
+          <Tab>Two</Tab>
+          <Tab>Three</Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            <Button colorScheme='blue' onClick={handleRefresh}>Refresh</Button>
+            <HotelRoomsTable ref={hotelRoomsTableRef} />
+            
+          </TabPanel>
+          <TabPanel>
+            <p>two!</p>
+          </TabPanel>
+          <TabPanel>
+            <p>three!</p>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+
+      <Button colorScheme='red' onClick={handleSignOut}>Sign out</Button>
     </div>
   );
 };

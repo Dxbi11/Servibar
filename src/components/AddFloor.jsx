@@ -70,7 +70,7 @@ const AddFloors = ({ onFloorAdded }) => {
         hotelId: parseInt(selectedHotel),
       });
 
-      onFloorAdded(newFloor);
+
       toast({
         title: "Floor added.",
         description: `Floor ${floorNumber} has been added to the hotel.`,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   Box,
   Table,
@@ -34,47 +34,49 @@ const getRoomStatus = (state) => {
   }
 };
 
-const HotelRoomsTable = () => {
+const HotelRoomsTable = forwardRef((props, ref) => {
   const [hotels, setHotels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fetchData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const floorsData = await getAllFloors();
+      const floorsByHotel = floorsData.reduce((acc, floor) => {
+        if (!acc[floor.hotelId]) {
+          acc[floor.hotelId] = [];
+        }
+        acc[floor.hotelId].push(floor);
+        return acc;
+      }, {});
+
+      const hotelPromises = Object.keys(floorsByHotel).map(async (hotelId) => {
+        const hotelData = await getHotelById(hotelId);
+        return {
+          ...hotelData,
+          floors: floorsByHotel[hotelId],
+        };
+      });
+
+      const hotelsData = await Promise.all(hotelPromises);
+      setHotels(hotelsData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError('Failed to load hotel data. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch all floors
-        const floorsData = await getAllFloors();
-
-        // Group floors by hotelId
-        const floorsByHotel = floorsData.reduce((acc, floor) => {
-          if (!acc[floor.hotelId]) {
-            acc[floor.hotelId] = [];
-          }
-          acc[floor.hotelId].push(floor);
-          return acc;
-        }, {});
-
-        // Fetch hotel details for each unique hotelId
-        const hotelPromises = Object.keys(floorsByHotel).map(async (hotelId) => {
-          const hotelData = await getHotelById(hotelId);
-          return {
-            ...hotelData,
-            floors: floorsByHotel[hotelId],
-          };
-        });
-
-        const hotelsData = await Promise.all(hotelPromises);
-        setHotels(hotelsData);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Failed to load hotel data. Please try again later.');
-        setIsLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
+
+  useImperativeHandle(ref, () => ({
+    refresh: fetchData,
+  }));
 
   if (isLoading) {
     return (
@@ -168,6 +170,6 @@ const HotelRoomsTable = () => {
       </Accordion>
     </Box>
   );
-};
+});
 
 export default HotelRoomsTable;
