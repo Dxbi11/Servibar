@@ -33,7 +33,7 @@ const AddHotelForm = () => {
       
 
 
-      <Button onClick={handleModalOpen} colorScheme='blue' mt={4}>Open Modal</Button>
+      <Button onClick={handleModalOpen} colorScheme='blue' mt={4}>Add Hotel</Button>
 
       <Modal isOpen={isOpen} onClose={handleModalClose}>
         <ModalOverlay />

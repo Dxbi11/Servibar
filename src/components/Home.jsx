@@ -2,7 +2,9 @@ import React from 'react';
 import { signOut } from "firebase/auth";
 import { auth } from '../config/firebaseConfig';
 import { Button, ButtonGroup } from '@chakra-ui/react'
+import HotelRoomsTable from './HotelRoomsTable';
 import AddHotelForm from './AddHotel';
+import AddFloors from './AddFloor';
 
 import {
   Menu,
@@ -34,15 +36,15 @@ const Home = ({ user }) => {
           Actions
         </MenuButton>
         <MenuList>
-          <MenuItem>Add Hotel</MenuItem>
-          <MenuItem>Add Floor</MenuItem>
-          <MenuItem>Add Room</MenuItem>
-          <MenuItem>Delete</MenuItem>
+          <MenuItem><AddHotelForm/></MenuItem>
+
+          <MenuItem><AddFloors/></MenuItem>
 
         </MenuList>
       </Menu>
+      <HotelRoomsTable/>
       <Button colorScheme='red' onClick={handleSignOut}>sign out</Button>
-      <AddHotelForm/>
+      
     </div>
   );
 };

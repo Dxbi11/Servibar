@@ -46,9 +46,16 @@ export const getFloorById = async (floorId) => {
 };
 
 export const createFloor = async (floorData) => {
-  const response = await api.post('/floors', floorData);
-  return response.data;
-};
+    console.log('Attempting to create floor with data:', floorData);
+    try {
+      const response = await api.post('/floors', floorData);
+      console.log('Floor created successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating floor:', error.response ? error.response.data : error.message);
+      throw error;
+    }
+  };
 
 export const updateFloor = async (floorId, floorData) => {
   const response = await api.put(`/floors/${floorId}`, floorData);

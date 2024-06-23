@@ -79,16 +79,30 @@ app.delete('/hotels/:id', async (req, res) => {
 });
 
 // Floor routes
-app.get('/floors', async (req, res) => {
+app.post('/floors', async (req, res) => {
+  const { floorNumber, hotelId } = req.body;
+
   try {
-    const floors = await prisma.floor.findMany();
-    res.json(floors);
+    const newFloor = await prisma.floor.create({
+      data: {
+        floorNumber,
+        hotelId,
+      },
+    });
+    res.status(201).json(newFloor);
   } catch (error) {
-    console.error('Error fetching floors:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: error.message });
   }
 });
 
+app.get('/floors', async (req, res) => {
+  try {
+    const floors = await prisma.floor.findMany();
+    res.status(200).json(floors);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 app.get('/floors/:id', async (req, res) => {
   try {
     const floor = await prisma.floor.findUnique({
@@ -106,18 +120,6 @@ app.get('/floors/:id', async (req, res) => {
   }
 });
 
-app.post('/floors', async (req, res) => {
-  const { floorNumber, hotelId } = req.body;
-  try {
-    const newFloor = await prisma.floor.create({
-      data: { floorNumber, hotelId },
-    });
-    res.status(201).json(newFloor);
-  } catch (error) {
-    console.error('Error adding floor:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
 
 app.put('/floors/:id', async (req, res) => {
   const { floorNumber } = req.body;
