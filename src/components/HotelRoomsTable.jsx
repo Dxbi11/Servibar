@@ -17,7 +17,10 @@ import {
   Spinner,
   Center,
 } from '@chakra-ui/react';
-import { getHotelById, getAllFloors } from '../api'; // Import the API functions
+import RackMenu from './RackMenu';
+
+
+import { getHotelById, getAllHotels, getAllFloors } from '../api'; // Import the API functions
 
 const getRoomStatus = (state) => {
   switch (state) {
@@ -43,7 +46,8 @@ const HotelRoomsTable = forwardRef((props, ref) => {
     setIsLoading(true);
     setError(null);
     try {
-      const floorsData = await getAllFloors();
+      const [hotelsData, floorsData] = await Promise.all([getAllHotels(), getAllFloors()]);
+
       const floorsByHotel = floorsData.reduce((acc, floor) => {
         if (!acc[floor.hotelId]) {
           acc[floor.hotelId] = [];
@@ -52,16 +56,12 @@ const HotelRoomsTable = forwardRef((props, ref) => {
         return acc;
       }, {});
 
-      const hotelPromises = Object.keys(floorsByHotel).map(async (hotelId) => {
-        const hotelData = await getHotelById(hotelId);
-        return {
-          ...hotelData,
-          floors: floorsByHotel[hotelId],
-        };
-      });
+      const hotelsWithFloors = hotelsData.map((hotel) => ({
+        ...hotel,
+        floors: floorsByHotel[hotel.id] || [],
+      }));
 
-      const hotelsData = await Promise.all(hotelPromises);
-      setHotels(hotelsData);
+      setHotels(hotelsWithFloors);
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('Failed to load hotel data. Please try again later.');
@@ -104,6 +104,7 @@ const HotelRoomsTable = forwardRef((props, ref) => {
 
   return (
     <Box>
+      <RackMenu/>
       <Accordion allowMultiple>
         {hotels.map((hotel) => (
           <AccordionItem key={hotel.id}>

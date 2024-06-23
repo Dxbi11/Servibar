@@ -7,12 +7,7 @@ import RackMenu from './RackMenu';
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 
 
-import {
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem
-} from '@chakra-ui/react';
+
 
 const Home = ({ user }) => {
   const hotelRoomsTableRef = useRef(null);
@@ -36,7 +31,7 @@ const Home = ({ user }) => {
   return (
     <div>
       <h4>Logged in as {user.displayName}</h4>
-      <RackMenu/>
+      
       <Tabs>
 
 
