@@ -17,7 +17,7 @@ import {
   Spinner,
   Center,
 } from '@chakra-ui/react';
-import { getAllHotels } from '../api'; // Assuming you have this function in your api.js
+import { getHotelById, getAllFloors } from '../api'; // Import the API functions
 
 const getRoomStatus = (state) => {
   switch (state) {
@@ -40,19 +40,40 @@ const HotelRoomsTable = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchHotels = async () => {
+    const fetchData = async () => {
       try {
-        const hotelsData = await getAllHotels();
+        // Fetch all floors
+        const floorsData = await getAllFloors();
+
+        // Group floors by hotelId
+        const floorsByHotel = floorsData.reduce((acc, floor) => {
+          if (!acc[floor.hotelId]) {
+            acc[floor.hotelId] = [];
+          }
+          acc[floor.hotelId].push(floor);
+          return acc;
+        }, {});
+
+        // Fetch hotel details for each unique hotelId
+        const hotelPromises = Object.keys(floorsByHotel).map(async (hotelId) => {
+          const hotelData = await getHotelById(hotelId);
+          return {
+            ...hotelData,
+            floors: floorsByHotel[hotelId],
+          };
+        });
+
+        const hotelsData = await Promise.all(hotelPromises);
         setHotels(hotelsData);
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching hotels:', error);
-        setError('Failed to load hotels. Please try again later.');
+        console.error('Error fetching data:', error);
+        setError('Failed to load hotel data. Please try again later.');
         setIsLoading(false);
       }
     };
 
-    fetchHotels();
+    fetchData();
   }, []);
 
   if (isLoading) {
@@ -93,59 +114,54 @@ const HotelRoomsTable = () => {
               </AccordionButton>
             </h2>
             <AccordionPanel pb={4}>
-              <Accordion allowMultiple>
-                {hotel.floors && hotel.floors.length > 0 ? (
-                  hotel.floors.map((floor) => (
-                    <AccordionItem key={floor.id}>
-                      <h3>
-                        <AccordionButton>
-                          <Box flex="1" textAlign="left">
+              {hotel.floors && hotel.floors.length > 0 ? (
+                <Table variant="simple">
+                  <Thead>
+                    <Tr>
+                      <Th>Floor</Th>
+                      <Th>Room Number</Th>
+                      <Th>Status</Th>
+                      <Th>Locked</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {hotel.floors.map((floor) => (
+                      <React.Fragment key={floor.id}>
+                        <Tr>
+                          <Td colSpan={4} bg="gray.100">
                             <Text fontWeight="semibold">Floor {floor.floorNumber}</Text>
-                          </Box>
-                          <AccordionIcon />
-                        </AccordionButton>
-                      </h3>
-                      <AccordionPanel pb={4}>
-                        <Table variant="simple">
-                          <Thead>
-                            <Tr>
-                              <Th>Room Number</Th>
-                              <Th>Status</Th>
-                              <Th>Locked</Th>
-                            </Tr>
-                          </Thead>
-                          <Tbody>
-                            {floor.rooms && floor.rooms.length > 0 ? (
-                              floor.rooms.map((room) => {
-                                const status = getRoomStatus(room.state);
-                                return (
-                                  <Tr key={room.id}>
-                                    <Td>{room.roomNumber}</Td>
-                                    <Td>
-                                      <Badge colorScheme={status.color}>{status.label}</Badge>
-                                    </Td>
-                                    <Td>
-                                      <Badge colorScheme={room.locked ? 'red' : 'green'}>
-                                        {room.locked ? 'Locked' : 'Unlocked'}
-                                      </Badge>
-                                    </Td>
-                                  </Tr>
-                                );
-                              })
-                            ) : (
-                              <Tr>
-                                <Td colSpan={3}>No rooms found for this floor.</Td>
+                          </Td>
+                        </Tr>
+                        {floor.rooms && floor.rooms.length > 0 ? (
+                          floor.rooms.map((room) => {
+                            const status = getRoomStatus(room.state);
+                            return (
+                              <Tr key={room.id}>
+                                <Td></Td>
+                                <Td>{room.roomNumber}</Td>
+                                <Td>
+                                  <Badge colorScheme={status.color}>{status.label}</Badge>
+                                </Td>
+                                <Td>
+                                  <Badge colorScheme={room.locked ? 'red' : 'green'}>
+                                    {room.locked ? 'Locked' : 'Unlocked'}
+                                  </Badge>
+                                </Td>
                               </Tr>
-                            )}
-                          </Tbody>
-                        </Table>
-                      </AccordionPanel>
-                    </AccordionItem>
-                  ))
-                ) : (
-                  <Text>No floors found for this hotel.</Text>
-                )}
-              </Accordion>
+                            );
+                          })
+                        ) : (
+                          <Tr>
+                            <Td colSpan={4}>No rooms found for this floor.</Td>
+                          </Tr>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </Tbody>
+                </Table>
+              ) : (
+                <Text>No floors found for this hotel.</Text>
+              )}
             </AccordionPanel>
           </AccordionItem>
         ))}

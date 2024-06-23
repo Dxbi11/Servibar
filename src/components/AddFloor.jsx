@@ -14,44 +14,76 @@ import {
   Select,
   useDisclosure,
   VStack,
+  Text,
+  useToast,
 } from '@chakra-ui/react';
-import { createFloor, getAllHotels } from '../api'; // Import getAllHotels
+import { createFloor, getAllHotels, getAllFloors } from '../api';
 
 const AddFloors = ({ onFloorAdded }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [floorNumber, setFloorNumber] = useState('');
   const [selectedHotel, setSelectedHotel] = useState('');
-  const [hotels, setHotels] = useState([]); // State to store fetched hotels
+  const [hotels, setHotels] = useState([]);
+  const [floors, setFloors] = useState([]);
+  const [error, setError] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
-    // Fetch hotels when the component mounts
-    const fetchHotels = async () => {
+    const fetchData = async () => {
       try {
-        const fetchedHotels = await getAllHotels();
+        const [fetchedHotels, fetchedFloors] = await Promise.all([
+          getAllHotels(),
+          getAllFloors()
+        ]);
         setHotels(fetchedHotels);
+        setFloors(fetchedFloors);
       } catch (error) {
-        console.error('Error fetching hotels:', error);
-        // You might want to show an error message to the user here
+        console.error('Error fetching data:', error);
+        setError('Failed to load data. Please try again later.');
       }
     };
 
-    fetchHotels();
+    fetchData();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (!selectedHotel) {
+      setError('Please select a hotel.');
+      return;
+    }
+
+    const floorExists = floors.some(
+      floor => floor.hotelId === parseInt(selectedHotel) && floor.floorNumber === parseInt(floorNumber)
+    );
+
+    if (floorExists) {
+      setError(`Floor ${floorNumber} already exists in the selected hotel.`);
+      return;
+    }
+
     try {
       const newFloor = await createFloor({
         floorNumber: parseInt(floorNumber),
         hotelId: parseInt(selectedHotel),
       });
+
       onFloorAdded(newFloor);
+      toast({
+        title: "Floor added.",
+        description: `Floor ${floorNumber} has been added to the hotel.`,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
       onClose();
       setFloorNumber('');
       setSelectedHotel('');
     } catch (error) {
       console.error('Error creating floor:', error);
-      // You might want to show an error message to the user here
+      setError('Failed to create floor. Please try again.');
     }
   };
 
@@ -91,6 +123,7 @@ const AddFloors = ({ onFloorAdded }) => {
                     onChange={(e) => setFloorNumber(e.target.value)}
                   />
                 </FormControl>
+                {error && <Text color="red.500">{error}</Text>}
               </VStack>
             </form>
           </ModalBody>
