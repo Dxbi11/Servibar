@@ -49,10 +49,9 @@ const AddRoom = ({ onRoomAdded }) => {
         if (selectedHotel) {
           const hotel = await getHotelById(selectedHotel);
           setFloors(hotel.floors);
-        } else {
-          setFloors([]);
-        }
-      } catch (error) {
+          console.log(hotel.floors)}}
+
+      catch (error) {
         console.error('Error fetching floors:', error);
       }
     }
@@ -150,7 +149,7 @@ const AddRoom = ({ onRoomAdded }) => {
                   >
                     {floors.map((floor) => (
                       <option key={floor.id} value={floor.id}>
-                        {floor.name}
+                        {floor.floorNumber}
                       </option>
                     ))}
                   </Select>
