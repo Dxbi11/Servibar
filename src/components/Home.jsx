@@ -31,27 +31,31 @@ const Home = ({ user }) => {
   return (
     <div>
       <h4>Logged in as {user.displayName}</h4>
-      
+      <Button colorScheme='blue' onClick={handleRefresh}>Refresh</Button>
       <Tabs>
 
 
         <TabList>
           <Tab>Rack</Tab>
-          <Tab>Two</Tab>
-          <Tab>Three</Tab>
+          <Tab>invoice</Tab>
+          <Tab>inventory</Tab>
+          <Tab>Settings</Tab>
         </TabList>
 
         <TabPanels>
           <TabPanel>
-            <Button colorScheme='blue' onClick={handleRefresh}>Refresh</Button>
+            
             <HotelRoomsTable ref={hotelRoomsTableRef} />
             
           </TabPanel>
           <TabPanel>
-            <p>two!</p>
+            <h1>invoice component goes here</h1>
           </TabPanel>
           <TabPanel>
-            <p>three!</p>
+            <p>Inventory component goes here</p>
+          </TabPanel>
+          <TabPanel>
+            <RackMenu/>
           </TabPanel>
         </TabPanels>
       </Tabs>
