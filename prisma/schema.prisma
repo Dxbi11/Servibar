@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -11,19 +5,21 @@ datasource db {
 
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["rhel-openssl-1.0.x", "windows"]
+  binaryTargets = ["rhel-openssl-1.0.x"]
 }
 
 model Hotel {
-  id     Int     @id @default(autoincrement())
-  name   String
-  floors Floor[] @relation(name: "FloorToHotel")
-  rooms  Room[]  @relation(name: "HotelToRoom")
+  id         Int      @id @default(autoincrement())
+  name       String
+  floors     Floor[]  @relation(name: "FloorToHotel")
+  rooms      Room[]   @relation(name: "HotelToRoom")
+  products   Product? @relation(name: "ProductToHotel", fields: [productsId], references: [id])
+  productsId Int?     @unique
 }
 
 model Floor {
   id          Int    @id @default(autoincrement())
-  floorNumber Int
+  floorNumber Int    @unique
   hotelId     Int
   hotel       Hotel  @relation(name: "FloorToHotel", fields: [hotelId], references: [id])
   rooms       Room[] @relation(name: "FloorToRoom")
@@ -31,15 +27,15 @@ model Floor {
 
 model Room {
   id           Int         @id @default(autoincrement())
-  roomNumber   Int
+  roomNumber   Int         @unique
   hotelId      Int
   floorId      Int
   hotel        Hotel       @relation(name: "HotelToRoom", fields: [hotelId], references: [id])
   floor        Floor       @relation(name: "FloorToRoom", fields: [floorId], references: [id])
   minibarItems RoomStock[] @relation(name: "RoomToRoomStock")
   invoices     Invoice[]   @relation(name: "InvoiceToRoom")
-  locked       Boolean     @default(false) 
-  state        Int 
+  locked       Boolean     @default(false)
+  state        Int
 }
 
 model Product {
@@ -48,6 +44,7 @@ model Product {
   price        Float?
   roomStocks   RoomStock[]   @relation(name: "ProductToRoomStock")
   invoiceItems InvoiceItem[] @relation(name: "InvoiceItemToProduct")
+  hotel        Hotel?        @relation(name: "ProductToHotel")
 }
 
 model RoomStock {
