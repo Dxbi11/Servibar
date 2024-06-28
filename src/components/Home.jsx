@@ -1,9 +1,10 @@
 import React, { useRef } from 'react';
 import { signOut } from "firebase/auth";
 import { auth } from '../config/firebaseConfig';
-import { Button, ButtonGroup } from '@chakra-ui/react';
-import HotelRoomsTable from './HotelRoomsTable';
-import RackMenu from './RackMenu';
+import { Button } from '@chakra-ui/react';
+import HotelRoomsTable from './Rack/HotelRoomsTable';
+import RackMenu from './Rack/RackMenu';
+import AddProductToHotelModal from './Inventory/AddItems';
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 
 
@@ -39,6 +40,7 @@ const Home = ({ user }) => {
           <Tab>Rack</Tab>
           <Tab>invoice</Tab>
           <Tab>inventory</Tab>
+          
           <Tab>Settings</Tab>
         </TabList>
 
@@ -52,7 +54,7 @@ const Home = ({ user }) => {
             <h1>invoice component goes here</h1>
           </TabPanel>
           <TabPanel>
-            <p>Inventory component goes here</p>
+            <AddProductToHotelModal/>
           </TabPanel>
           <TabPanel>
             <RackMenu/>
