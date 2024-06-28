@@ -77,8 +77,8 @@ export const getAllRooms = async () => {
   return response.data;
 };
 
-export const getRoomById = async (roomId) => {
-  const response = await api.get(`/rooms/${roomId}`);
+export const getRoomByHotelId = async (HotelId) => {
+  const response = await api.get(`/rooms/${HotelId}`);
   return response.data;
 };
 
