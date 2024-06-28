@@ -181,23 +181,26 @@ app.get('/rooms', async (req, res) => {
   }
 });
 
-
-app.get('/rooms/:id', async (req, res) => {
+app.get('/rooms/:hotelId', async (req, res) => {
+  const { hotelId } = req.params;
+  
   try {
-    const room = await prisma.room.findUnique({
-      where: { id: parseInt(req.params.id) },
-      include: { minibarItems: true },
+    const rooms = await prisma.room.findMany({
+      where: {
+        hotelId: parseInt(hotelId),
+      },
+      orderBy: {
+        roomNumber: 'asc',
+      },
     });
-    if (room) {
-      res.json(room);
-    } else {
-      res.status(404).json({ error: 'Room not found' });
-    }
+    res.json(rooms);
   } catch (error) {
-    console.error('Error fetching room:', error);
+    console.error(`Error fetching rooms for hotelId ${hotelId}:`, error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+
 
 app.post('/rooms', async (req, res) => {
   const { roomNumber, hotelId, floorId, locked, state } = req.body;
