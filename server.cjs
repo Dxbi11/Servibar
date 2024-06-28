@@ -111,12 +111,17 @@ app.post('/floors', async (req, res) => {
 
 app.get('/floors', async (req, res) => {
   try {
-    const floors = await prisma.floor.findMany();
+    const floors = await prisma.floor.findMany({
+      orderBy: {
+        floorNumber: 'desc',
+      },
+    });
     res.status(200).json(floors);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 app.get('/floors/:id', async (req, res) => {
   try {
     const floor = await prisma.floor.findUnique({
@@ -164,13 +169,18 @@ app.delete('/floors/:id', async (req, res) => {
 // Room routes
 app.get('/rooms', async (req, res) => {
   try {
-    const rooms = await prisma.room.findMany();
+    const rooms = await prisma.room.findMany({
+      orderBy: {
+        roomNumber: 'asc',
+      },
+    });
     res.json(rooms);
   } catch (error) {
     console.error('Error fetching rooms:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 app.get('/rooms/:id', async (req, res) => {
   try {
