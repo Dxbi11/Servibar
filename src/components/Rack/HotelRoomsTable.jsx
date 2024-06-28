@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -22,13 +17,8 @@ import {
   Spinner,
   Center,
 } from "@chakra-ui/react";
-import RackMenu from "./RackMenu";
-import {
-  getHotelById,
-  getAllHotels,
-  getAllFloors,
-  getRoomsByHotelId,
-} from "../api"; // Import the API functions
+
+import { getRoomsByHotelId } from "../api"; // Import the API function
 
 const getRoomStatus = (state) => {
   switch (state) {
@@ -45,8 +35,8 @@ const getRoomStatus = (state) => {
   }
 };
 
-const HotelRoomsTable = forwardRef((props, ref) => {
-  const [hotels, setHotels] = useState([]);
+const HotelRoomsTable = ({ hotelId }) => {
+  const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -54,28 +44,12 @@ const HotelRoomsTable = forwardRef((props, ref) => {
     setIsLoading(true);
     setError(null);
     try {
-      const [hotelsData, floorsData] = await Promise.all([
-        getAllHotels(),
-        getAllFloors(),
-      ]);
-
-      const floorsByHotel = floorsData.reduce((acc, floor) => {
-        if (!acc[floor.hotelId]) {
-          acc[floor.hotelId] = [];
-        }
-        acc[floor.hotelId].push(floor);
-        return acc;
-      }, {});
-
-      const hotelsWithFloors = hotelsData.map((hotel) => ({
-        ...hotel,
-        floors: floorsByHotel[hotel.id] || [],
-      }));
-
-      setHotels(hotelsWithFloors);
+      const roomsData = await getRoomsByHotelId(hotelId);
+      console.log(roomsData);
+      setRooms(roomsData);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setError("Failed to load hotel data. Please try again later.");
+      setError("Failed to load room data. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -83,11 +57,7 @@ const HotelRoomsTable = forwardRef((props, ref) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  useImperativeHandle(ref, () => ({
-    refresh: fetchData,
-  }));
+  }, [hotelId]);
 
   if (isLoading) {
     return (
@@ -105,89 +75,58 @@ const HotelRoomsTable = forwardRef((props, ref) => {
     );
   }
 
-  if (hotels.length === 0) {
+  if (rooms.length === 0) {
     return (
       <Center h="100vh">
-        <Text>No hotels found.</Text>
+        <Text>No rooms found for this hotel.</Text>
       </Center>
     );
   }
 
   return (
     <Box>
-      <RackMenu />
       <Accordion allowMultiple>
-        {hotels.map((hotel) => (
-          <AccordionItem key={hotel.id}>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  <Text fontWeight="bold">{hotel.name}</Text>
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              {hotel.floors && hotel.floors.length > 0 ? (
-                <Table variant="simple">
-                  <Thead>
-                    <Tr>
-                      <Th>Floor</Th>
-                      <Th>Room Number</Th>
-                      <Th>Status</Th>
-                      <Th>Locked</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {hotel.floors.map((floor) => (
-                      <React.Fragment key={floor.id}>
-                        <Tr>
-                          <Td colSpan={4} bg="gray.100">
-                            <Text fontWeight="semibold">
-                              Floor {floor.floorNumber}
-                            </Text>
-                          </Td>
-                        </Tr>
-                        {floor.rooms && floor.rooms.length > 0 ? (
-                          floor.rooms.map((room) => {
-                            const status = getRoomStatus(room.state);
-                            return (
-                              <Tr key={room.roomNumber}>
-                                <Td></Td>
-                                <Td>{room.roomNumber}</Td>
-                                <Td>
-                                  <Badge colorScheme={status.color}>
-                                    {status.label}
-                                  </Badge>
-                                </Td>
-                                <Td>
-                                  <Badge
-                                    colorScheme={room.locked ? "red" : "green"}
-                                  >
-                                    {room.locked ? "Locked" : "Unlocked"}
-                                  </Badge>
-                                </Td>
-                              </Tr>
-                            );
-                          })
-                        ) : (
-                          <Tr>
-                            <Td colSpan={4}>No rooms found for this floor.</Td>
-                          </Tr>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </Tbody>
-                </Table>
-              ) : (
-                <Text>No floors found for this hotel.</Text>
-              )}
-            </AccordionPanel>
-          </AccordionItem>
-        ))}
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box flex="1" textAlign="left">
+                <Text fontWeight="bold">selected hotel</Text>
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel pb={4}>
+            <Table variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>Room Number</Th>
+                  <Th>Status</Th>
+                  <Th>Locked</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {rooms.map((room) => (
+                  <Tr key={room.id}>
+                    <Td>{room.roomNumber}</Td>
+                    <Td>
+                      <Badge colorScheme={getRoomStatus(room.state).color}>
+                        {getRoomStatus(room.state).label}
+                      </Badge>
+                    </Td>
+                    <Td>
+                      <Badge colorScheme={room.locked ? "red" : "green"}>
+                        {room.locked ? "Locked" : "Unlocked"}
+                      </Badge>
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </AccordionPanel>
+        </AccordionItem>
       </Accordion>
     </Box>
   );
-});
+};
 
 export default HotelRoomsTable;

@@ -11,20 +11,34 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { createProduct } from "../api"; // Adjust the import path as necessary
-
-const AddProduct = () => {
+const AddProduct = ({ hotelId }) => {
+  // Add hotelId as a prop
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [quantity, setQuantity] = useState("");
+
   const toast = useToast();
 
   const handleAddProduct = async () => {
+    if (!name || !price || !hotelId) {
+      // Check if all fields and hotelId are provided
+      toast({
+        title: "Error",
+        description: "Please fill in all the fields and provide a hotelId.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     try {
       const productData = {
         name,
         price: parseFloat(price),
-        quantity: parseInt(quantity),
+
+        hotelId, // Add hotelId to the product data
       };
+      console.log(productData);
       await createProduct(productData);
       toast({
         title: "Product added.",
@@ -36,7 +50,6 @@ const AddProduct = () => {
       // Clear form
       setName("");
       setPrice("");
-      setQuantity("");
     } catch (error) {
       toast({
         title: "Error",
@@ -47,7 +60,6 @@ const AddProduct = () => {
       });
     }
   };
-
   return (
     <Box p={4} borderWidth={1} borderRadius={8} boxShadow="lg">
       <VStack spacing={4}>
@@ -68,15 +80,7 @@ const AddProduct = () => {
             type="number"
           />
         </FormControl>
-        <FormControl id="quantity" isRequired>
-          <FormLabel>Quantity</FormLabel>
-          <Input
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            placeholder="Enter product quantity"
-            type="number"
-          />
-        </FormControl>
+
         <Button colorScheme="blue" onClick={handleAddProduct}>
           Add Product
         </Button>
@@ -84,5 +88,4 @@ const AddProduct = () => {
     </Box>
   );
 };
-
 export default AddProduct;
