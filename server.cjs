@@ -26,7 +26,7 @@ app.get('/hotels/:id', async (req, res) => {
   try {
     const hotel = await prisma.hotel.findUnique({
       where: { id: parseInt(req.params.id) },
-      include: { floors: true, rooms: true },
+      include: { floors: true, rooms: true, products: true },
     });
     if (hotel) {
       res.json(hotel);
@@ -44,6 +44,7 @@ app.get('/hotels/:id/floors', async (req, res) => {
     const floors = await prisma.floor.findMany({
       where: { hotelId: parseInt(req.params.id) },
       include: { rooms: true },
+
     });
     res.json(floors);
   } catch (error) {
@@ -283,6 +284,25 @@ app.post('/products', async (req, res) => {
     res.status(201).json(newProduct);
   } catch (error) {
     console.error('Error adding product:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/hotels/:id/products', async (req, res) => {
+  try {
+    const hotelId = parseInt(req.params.id);
+    const hotel = await prisma.hotel.findUnique({
+      where: { id: hotelId },
+      include: { products: true },
+    });
+
+    if (!hotel) {
+      return res.status(404).json({ error: 'Hotel not found' });
+    }
+
+    res.json(hotel.products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
