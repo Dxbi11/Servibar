@@ -1,5 +1,4 @@
-// src/api.js
-// src/api.js
+// src/components/api.js
 
 import axios from 'axios';
 
@@ -23,7 +22,7 @@ export const getHotelById = async (hotelId) => {
 export const getFloorsbyHotelId = async (hotelId) => {
   const response = await api.get(`/hotels/${hotelId}/floors`);
   return response.data;
-}
+};
 
 export const createHotel = async (hotelData) => {
   const response = await api.post('/hotels', hotelData);
@@ -51,16 +50,16 @@ export const getFloorById = async (floorId) => {
 };
 
 export const createFloor = async (floorData) => {
-    console.log('Attempting to create floor with data:', floorData);
-    try {
-      const response = await api.post('/floors', floorData);
-      console.log('Floor created successfully:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating floor:', error.response ? error.response.data : error.message);
-      throw error;
-    }
-  };
+  console.log('Attempting to create floor with data:', floorData);
+  try {
+    const response = await api.post('/floors', floorData);
+    console.log('Floor created successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating floor:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
 
 export const updateFloor = async (floorId, floorData) => {
   const response = await api.put(`/floors/${floorId}`, floorData);
@@ -77,8 +76,8 @@ export const getAllRooms = async () => {
   return response.data;
 };
 
-export const getRoomByHotelId = async (HotelId) => {
-  const response = await api.get(`/rooms/${HotelId}`);
+export const getRoomsByHotelId = async (hotelId) => {
+  const response = await api.get(`/rooms/${hotelId}`);
   return response.data;
 };
 
@@ -102,8 +101,8 @@ export const getAllProducts = async () => {
   return response.data;
 };
 
-export const getProductById = async (productId) => {
-  const response = await api.get(`/products/${productId}`);
+export const getProductsByHotelId = async (hotelId) => {
+  const response = await api.get(`/hotels/${hotelId}/products`);
   return response.data;
 };
 
@@ -128,15 +127,14 @@ export const getRoomStock = async (roomId) => {
 };
 
 export const updateRoomStock = async (roomId, productId, quantity) => {
-    try {
-      const response = await api.put(`/roomstocks/${roomId}/${productId}`, { quantity });
-      return response.data;
-    } catch (error) {
-      // Handle error, e.g., log it or throw a custom error
-      console.error('Failed to update room stock:', error);
-      throw error; // Optionally re-throw or handle differently
-    }
-  };
+  try {
+    const response = await api.put(`/roomstocks/${roomId}/${productId}`, { quantity });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update room stock:', error);
+    throw error;
+  }
+};
 
 // Invoice operations
 export const getAllInvoices = async () => {

@@ -9,12 +9,11 @@ generator client {
 }
 
 model Hotel {
-  id         Int      @id @default(autoincrement())
-  name       String
-  floors     Floor[]  @relation(name: "FloorToHotel")
-  rooms      Room[]   @relation(name: "HotelToRoom")
-  products   Product? @relation(name: "ProductToHotel", fields: [productsId], references: [id])
-  productsId Int?     @unique
+  id       Int       @id @default(autoincrement())
+  name     String
+  floors   Floor[]   @relation(name: "FloorToHotel")
+  rooms    Room[]    @relation(name: "HotelToRoom")
+  products Product[] @relation(name: "ProductToHotel")
 }
 
 model Floor {
@@ -27,7 +26,7 @@ model Floor {
 
 model Room {
   id           Int         @id @default(autoincrement())
-  roomNumber   Int         @unique
+  roomNumber   Int
   hotelId      Int
   floorId      Int
   hotel        Hotel       @relation(name: "HotelToRoom", fields: [hotelId], references: [id])
@@ -36,6 +35,8 @@ model Room {
   invoices     Invoice[]   @relation(name: "InvoiceToRoom")
   locked       Boolean     @default(false)
   state        Int
+
+  @@unique([roomNumber, hotelId])
 }
 
 model Product {
@@ -44,7 +45,8 @@ model Product {
   price        Float?
   roomStocks   RoomStock[]   @relation(name: "ProductToRoomStock")
   invoiceItems InvoiceItem[] @relation(name: "InvoiceItemToProduct")
-  hotel        Hotel?        @relation(name: "ProductToHotel")
+  hotel        Hotel?        @relation(name: "ProductToHotel", fields: [hotelId], references: [id])
+  hotelId      Int?
 }
 
 model RoomStock {

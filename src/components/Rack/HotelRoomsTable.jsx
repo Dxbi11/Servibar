@@ -1,4 +1,9 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, {
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import {
   Box,
   Table,
@@ -16,24 +21,27 @@ import {
   Badge,
   Spinner,
   Center,
-} from '@chakra-ui/react';
-import RackMenu from './RackMenu';
-
-
-import { getHotelById, getAllHotels, getAllFloors } from '../api'; // Import the API functions
+} from "@chakra-ui/react";
+import RackMenu from "./RackMenu";
+import {
+  getHotelById,
+  getAllHotels,
+  getAllFloors,
+  getRoomsByHotelId,
+} from "../api"; // Import the API functions
 
 const getRoomStatus = (state) => {
   switch (state) {
     case 0:
-      return { label: 'Available', color: 'green' };
+      return { label: "Available", color: "green" };
     case 1:
-      return { label: 'In House', color: 'blue' };
+      return { label: "In House", color: "blue" };
     case 2:
-      return { label: 'Leaving', color: 'orange' };
+      return { label: "Leaving", color: "orange" };
     case 3:
-      return { label: 'Already Left', color: 'red' };
+      return { label: "Already Left", color: "red" };
     default:
-      return { label: 'Unknown', color: 'gray' };
+      return { label: "Unknown", color: "gray" };
   }
 };
 
@@ -46,7 +54,10 @@ const HotelRoomsTable = forwardRef((props, ref) => {
     setIsLoading(true);
     setError(null);
     try {
-      const [hotelsData, floorsData] = await Promise.all([getAllHotels(), getAllFloors()]);
+      const [hotelsData, floorsData] = await Promise.all([
+        getAllHotels(),
+        getAllFloors(),
+      ]);
 
       const floorsByHotel = floorsData.reduce((acc, floor) => {
         if (!acc[floor.hotelId]) {
@@ -63,8 +74,8 @@ const HotelRoomsTable = forwardRef((props, ref) => {
 
       setHotels(hotelsWithFloors);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('Failed to load hotel data. Please try again later.');
+      console.error("Error fetching data:", error);
+      setError("Failed to load hotel data. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -104,7 +115,7 @@ const HotelRoomsTable = forwardRef((props, ref) => {
 
   return (
     <Box>
-      <RackMenu/>
+      <RackMenu />
       <Accordion allowMultiple>
         {hotels.map((hotel) => (
           <AccordionItem key={hotel.id}>
@@ -128,28 +139,32 @@ const HotelRoomsTable = forwardRef((props, ref) => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {console.log(hotel.floors)}
                     {hotel.floors.map((floor) => (
                       <React.Fragment key={floor.id}>
                         <Tr>
                           <Td colSpan={4} bg="gray.100">
-                            <Text fontWeight="semibold">Floor {floor.floorNumber}</Text>
+                            <Text fontWeight="semibold">
+                              Floor {floor.floorNumber}
+                            </Text>
                           </Td>
                         </Tr>
-                        {console.log(floor.rooms)}
                         {floor.rooms && floor.rooms.length > 0 ? (
                           floor.rooms.map((room) => {
                             const status = getRoomStatus(room.state);
                             return (
                               <Tr key={room.roomNumber}>
                                 <Td></Td>
-                                <Td>Hola</Td>
+                                <Td>{room.roomNumber}</Td>
                                 <Td>
-                                  <Badge colorScheme={status.color}>{status.label}</Badge>
+                                  <Badge colorScheme={status.color}>
+                                    {status.label}
+                                  </Badge>
                                 </Td>
                                 <Td>
-                                  <Badge colorScheme={room.locked ? 'red' : 'green'}>
-                                    {room.locked ? 'Locked' : 'Unlocked'}
+                                  <Badge
+                                    colorScheme={room.locked ? "red" : "green"}
+                                  >
+                                    {room.locked ? "Locked" : "Unlocked"}
                                   </Badge>
                                 </Td>
                               </Tr>
@@ -157,7 +172,6 @@ const HotelRoomsTable = forwardRef((props, ref) => {
                           })
                         ) : (
                           <Tr>
-                            
                             <Td colSpan={4}>No rooms found for this floor.</Td>
                           </Tr>
                         )}
