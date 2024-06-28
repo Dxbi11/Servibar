@@ -1,6 +1,4 @@
-// src/components/ProductList.js
-
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -13,76 +11,39 @@ import {
   Spinner,
   Text,
   VStack,
-  Select,
-  useToast,
 } from "@chakra-ui/react";
-import { getAllHotels, getProductsByHotelId } from "../api"; // Adjust the import path as necessary
+import { getProductsByHotelId } from "../api"; // Adjust the import path as necessary
+import { useToast } from "@chakra-ui/react";
 
-const ProductList = () => {
-  const [hotels, setHotels] = useState([]);
-  const [selectedHotelId, setSelectedHotelId] = useState("");
+const ProductList = ({ hotelId }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
 
   useEffect(() => {
-    const fetchHotels = async () => {
+    const fetchProducts = async () => {
+      setLoading(true);
       try {
-        const data = await getAllHotels();
-        setHotels(data);
+        const data = await getProductsByHotelId(hotelId);
+        setProducts(data);
       } catch (error) {
         toast({
           title: "Error",
-          description: "There was an error fetching the hotels.",
+          description: "There was an error fetching the products.",
           status: "error",
           duration: 5000,
           isClosable: true,
         });
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchHotels();
-  }, [toast]);
-
-  useEffect(() => {
-    if (selectedHotelId) {
-      const fetchProducts = async () => {
-        setLoading(true);
-        try {
-          const data = await getProductsByHotelId(selectedHotelId);
-          setProducts(data);
-        } catch (error) {
-          toast({
-            title: "Error",
-            description: "There was an error fetching the products.",
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchProducts();
-    }
-  }, [selectedHotelId, toast]);
+    fetchProducts();
+  }, [hotelId, toast]);
 
   return (
     <Box p={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-      <Select
-        placeholder="Select a hotel"
-        value={selectedHotelId}
-        onChange={(e) => setSelectedHotelId(e.target.value)}
-        mb={4}
-      >
-        {hotels.map((hotel) => (
-          <option key={hotel.id} value={hotel.id}>
-            {hotel.name}
-          </option>
-        ))}
-      </Select>
-
       {loading ? (
         <VStack mt={8}>
           <Spinner size="xl" />

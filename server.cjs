@@ -273,20 +273,26 @@ app.post('/products', async (req, res) => {
   const { name, price, hotelId } = req.body;
 
   try {
-    const newProductData = { name, price };
+    const newProductData = { 
+      name, 
+      price: parseFloat(price) // Ensure price is a float
+    };
+    
     if (hotelId) {
-      newProductData.hotel = { connect: { id: hotelId } };
+      newProductData.hotel = { connect: { id: parseInt(hotelId) } }; // Ensure hotelId is an integer
     }
 
     const newProduct = await prisma.product.create({
       data: newProductData,
     });
+    
     res.status(201).json(newProduct);
   } catch (error) {
     console.error('Error adding product:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 app.get('/hotels/:id/products', async (req, res) => {
   try {

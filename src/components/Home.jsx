@@ -1,15 +1,24 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { Button } from "@chakra-ui/react";
 import HotelRoomsTable from "./Rack/HotelRoomsTable";
 import RackMenu from "./Rack/RackMenu";
-import InventoryTable from "./Inventory/AddProduct";
-import ProductList from "./Inventory/ProductList";
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
+import { getAllHotels } from "./api";
+import {
+  Select,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+} from "@chakra-ui/react";
+import MainInventory from "./Inventory/MainInventory";
 
 const Home = ({ user }) => {
   const hotelRoomsTableRef = useRef(null);
+  const [hotels, setHotels] = useState([]);
+  const [selectedHotelId, setSelectedHotelId] = useState("1");
 
   const handleSignOut = () => {
     signOut(auth)
@@ -26,10 +35,39 @@ const Home = ({ user }) => {
       hotelRoomsTableRef.current.refresh();
     }
   };
+  useEffect(() => {
+    const fetchHotels = async () => {
+      try {
+        const data = await getAllHotels();
+        setHotels(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchHotels();
+  }, []);
+
+  const handleHotelChange = (e) => {
+    const selectedHotelId = e.target.value;
+    setSelectedHotelId(selectedHotelId);
+  };
 
   return (
     <div>
       <h4>Logged in as {user.displayName}</h4>
+      <Select
+        placeholder="value"
+        value={selectedHotelId}
+        onChange={handleHotelChange}
+        mb={4}
+      >
+        {hotels.map((hotel) => (
+          <option key={hotel.id} value={hotel.id}>
+            {hotel.name}
+          </option>
+        ))}
+      </Select>
       <Button colorScheme="blue" onClick={handleRefresh}>
         Refresh
       </Button>
@@ -44,14 +82,13 @@ const Home = ({ user }) => {
 
         <TabPanels>
           <TabPanel>
-            <HotelRoomsTable ref={hotelRoomsTableRef} />
+            <HotelRoomsTable hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
             <h1>invoice component goes here</h1>
           </TabPanel>
           <TabPanel>
-            <InventoryTable />
-            <ProductList />
+            <MainInventory hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
             <RackMenu />
