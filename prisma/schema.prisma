@@ -27,7 +27,7 @@ model Floor {
 
 model Room {
   id           Int         @id @default(autoincrement())
-  roomNumber   Int         @unique
+  roomNumber   Int
   hotelId      Int
   floorId      Int
   hotel        Hotel       @relation(name: "HotelToRoom", fields: [hotelId], references: [id])
@@ -36,6 +36,8 @@ model Room {
   invoices     Invoice[]   @relation(name: "InvoiceToRoom")
   locked       Boolean     @default(false)
   state        Int
+
+  @@unique([roomNumber, hotelId])
 }
 
 model Product {
