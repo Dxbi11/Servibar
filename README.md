@@ -23,13 +23,19 @@
 
 - invoices:
 
-1. "close register" functionality
+1. invoices can be "reported" or "in house" chosen by the 
 
-2. printing invoices
+2. "close register" functionality
 
-3. fetch specific invoices by room, ID or date
+3. printing invoices
+
+4. fetch specific invoices by room, ID or date
+
+5. always an "invoice approval" with all the invoices made
 
 - rack:
+
+mostly finished...
 
 
 
