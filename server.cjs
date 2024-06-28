@@ -39,6 +39,20 @@ app.get('/hotels/:id', async (req, res) => {
   }
 });
 
+app.get('/hotels/:id/floors', async (req, res) => {
+  try {
+    const floors = await prisma.floor.findMany({
+      where: { hotelId: parseInt(req.params.id) },
+      include: { rooms: true },
+    });
+    res.json(floors);
+  } catch (error) {
+    console.error('Error fetching floors:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 app.post('/hotels', async (req, res) => {
   const { name } = req.body;
   try {

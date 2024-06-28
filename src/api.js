@@ -20,6 +20,11 @@ export const getHotelById = async (hotelId) => {
   return response.data;
 };
 
+export const getFloorsbyHotelId = async (hotelId) => {
+  const response = await api.get(`/hotels/${hotelId}/floors`);
+  return response.data;
+}
+
 export const createHotel = async (hotelData) => {
   const response = await api.post('/hotels', hotelData);
   return response.data;

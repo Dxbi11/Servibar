@@ -128,6 +128,7 @@ const HotelRoomsTable = forwardRef((props, ref) => {
                     </Tr>
                   </Thead>
                   <Tbody>
+                    {console.log(hotel.floors)}
                     {hotel.floors.map((floor) => (
                       <React.Fragment key={floor.id}>
                         <Tr>
@@ -135,13 +136,14 @@ const HotelRoomsTable = forwardRef((props, ref) => {
                             <Text fontWeight="semibold">Floor {floor.floorNumber}</Text>
                           </Td>
                         </Tr>
+                        {console.log(floor.rooms)}
                         {floor.rooms && floor.rooms.length > 0 ? (
                           floor.rooms.map((room) => {
                             const status = getRoomStatus(room.state);
                             return (
-                              <Tr key={room.id}>
+                              <Tr key={room.roomNumber}>
                                 <Td></Td>
-                                <Td>{room.roomNumber}</Td>
+                                <Td>Hola</Td>
                                 <Td>
                                   <Badge colorScheme={status.color}>{status.label}</Badge>
                                 </Td>
@@ -155,6 +157,7 @@ const HotelRoomsTable = forwardRef((props, ref) => {
                           })
                         ) : (
                           <Tr>
+                            
                             <Td colSpan={4}>No rooms found for this floor.</Td>
                           </Tr>
                         )}
