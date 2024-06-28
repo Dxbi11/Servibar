@@ -4,7 +4,7 @@ import { auth } from '../config/firebaseConfig';
 import { Button } from '@chakra-ui/react';
 import HotelRoomsTable from './Rack/HotelRoomsTable';
 import RackMenu from './Rack/RackMenu';
-import AddProductToHotelModal from './Inventory/AddItems';
+
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 
 
@@ -54,7 +54,7 @@ const Home = ({ user }) => {
             <h1>invoice component goes here</h1>
           </TabPanel>
           <TabPanel>
-            <AddProductToHotelModal/>
+            
           </TabPanel>
           <TabPanel>
             <RackMenu/>
