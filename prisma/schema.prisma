@@ -18,10 +18,12 @@ model Hotel {
 
 model Floor {
   id          Int    @id @default(autoincrement())
-  floorNumber Int    @unique
+  floorNumber Int
   hotelId     Int
   hotel       Hotel  @relation(name: "FloorToHotel", fields: [hotelId], references: [id])
   rooms       Room[] @relation(name: "FloorToRoom")
+
+  @@unique([floorNumber, hotelId])
 }
 
 model Room {
