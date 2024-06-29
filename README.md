@@ -6,7 +6,7 @@
 ## features
 
 
-- Rack: have some sort of live rack of rooms, so it includes state, stocked items and it is crucial  for it to be very easy to change.
+- Rack: have some sort of live rack of rooms, so it includes state, stocked items and it is crucial  for it to be very easy to change, so add a component to change state easily.
 
 - invoices: let the user make invoices, each invoice must be printable and contain room number, invoice ID, date, and a list of items sold.
 
@@ -23,7 +23,7 @@
 
 - invoices:
 
-1. invoices can be "reported" or "in house" chosen by the 
+1. invoices can be "reported" or "in house" chosen by the user at creation
 
 2. "close register" functionality
 
