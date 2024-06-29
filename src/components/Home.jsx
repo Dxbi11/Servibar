@@ -16,7 +16,6 @@ import {
 import MainInventory from "./Inventory/MainInventory";
 
 const Home = ({ user }) => {
-  const hotelRoomsTableRef = useRef(null);
   const [hotels, setHotels] = useState([]);
   const [selectedHotelId, setSelectedHotelId] = useState("1");
 
@@ -30,11 +29,6 @@ const Home = ({ user }) => {
       });
   };
 
-  const handleRefresh = () => {
-    if (hotelRoomsTableRef.current) {
-      hotelRoomsTableRef.current.refresh();
-    }
-  };
   useEffect(() => {
     const fetchHotels = async () => {
       try {
@@ -57,7 +51,7 @@ const Home = ({ user }) => {
     <div>
       <h4>Logged in as {user.displayName}</h4>
       <Select
-        placeholder="value"
+        placeholder="Select Hotel"
         value={selectedHotelId}
         onChange={handleHotelChange}
         mb={4}
@@ -68,9 +62,6 @@ const Home = ({ user }) => {
           </option>
         ))}
       </Select>
-      <Button colorScheme="blue" onClick={handleRefresh}>
-        Refresh
-      </Button>
       <Tabs>
         <TabList>
           <Tab>Rack</Tab>
