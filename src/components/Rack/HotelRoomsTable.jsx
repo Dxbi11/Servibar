@@ -35,7 +35,7 @@ const getRoomStatus = (state) => {
   }
 };
 
-const HotelRoomsTable = ({ hotelId }) => {
+const HotelRoomsTable = ({ hotelId, roomId }) => {
   const [rooms, setRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);

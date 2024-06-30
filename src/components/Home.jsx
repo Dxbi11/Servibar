@@ -5,7 +5,7 @@ import { Button } from "@chakra-ui/react";
 import HotelRoomsTable from "./Rack/HotelRoomsTable";
 import RackMenu from "./Rack/RackMenu";
 import { getAllHotels } from "./api";
-import RoomStockTable from "./Inventory/RoomStockTable";
+import MainInvoiceMenu from "./invoice/MainInvoiceMenu";
 
 import {
   Select,
@@ -88,7 +88,7 @@ const Home = ({ user }) => {
             <HotelRoomsTable hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
-            <h1>Invoice component goes here</h1>
+            <MainInvoiceMenu hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
             <MainInventory hotelId={selectedHotelId} />

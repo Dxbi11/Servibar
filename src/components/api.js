@@ -141,6 +141,12 @@ export const getAllInvoices = async () => {
   const response = await api.get('/invoices');
   return response.data;
 };
+export const getInvoicesByHotelId = async (hotelId, startDate) => {
+  const response = await api.get(`/invoices/hotel/${hotelId}`, {
+    params: { startDate }
+  });
+  return response.data;
+};
 
 export const getInvoiceById = async (invoiceId) => {
   const response = await api.get(`/invoices/${invoiceId}`);

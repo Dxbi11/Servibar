@@ -408,13 +408,34 @@ app.get('/invoices/:id', async (req, res) => {
   }
 });
 
+app.get('/invoices/hotel/:hotelId', async (req, res) => {
+  try {
+    const invoices = await prisma.invoice.findMany({
+      where: { hotelId: parseInt(req.params.hotelId) },
+      include: { items: true },
+    });
+    if (invoices.length > 0) {
+      res.json(invoices);
+    } else {
+      res.status(404).json({ error: 'No invoices found for this hotel' });
+    }
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 app.post('/invoices', async (req, res) => {
-  const { roomId, total, items } = req.body;
+  const { total, items, date, hotelId, comment, room } = req.body;
   try {
     const newInvoice = await prisma.invoice.create({
       data: {
-        roomId,
         total,
+        date: date ? new Date(date) : undefined,
+        hotelId,
+        comment,
+        room,
         items: {
           create: items,
         },
@@ -427,6 +448,7 @@ app.post('/invoices', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 app.put('/invoices/:id', async (req, res) => {
   const { total } = req.body;
