@@ -7,6 +7,8 @@ import {
   Tab,
   TabPanel,
   useColorModeValue,
+  Box,
+  Heading,
 } from "@chakra-ui/react";
 import AddProduct from "./AddProduct";
 import ProductList from "./ProductList";
@@ -22,33 +24,52 @@ const MainInventory = ({ hotelId }) => {
   const bg = colors[tabIndex];
 
   return (
-    <>
-      <Tabs
-        variant="soft-rounded"
-        onChange={(index) => setTabIndex(index)}
-        bg={bg}
-      >
+    <Box p={4} bg={bg} borderRadius="md" boxShadow="sm">
+      <Tabs variant="soft-rounded" onChange={(index) => setTabIndex(index)}>
         <TabList>
           <Tab>Red</Tab>
-          <Tab>manage room products</Tab>
-          <Tab>manage hotel products</Tab>
+          <Tab>Manage Room Products</Tab>
+          <Tab>Manage Hotel Products</Tab>
         </TabList>
-        <TabPanels p="2rem">
-          <TabPanel>a</TabPanel>
-          <TabPanel>Are 1, 2, 3</TabPanel>
+        <TabPanels p="1rem">
           <TabPanel>
-            <div>
-              <Text fontSize="3xl">Add product</Text>
-              <AddProduct hotelId={hotelId} />
-              <Text fontSize="3xl">Delete product</Text>
-              <DeleteProduct hotelId={hotelId} />
-              <Text fontSize="3xl">Product list</Text>
-              <ProductList hotelId={hotelId} />
-            </div>
+            <Box>
+              <Heading as="h2" size="md" mb={4}>
+                Red Tab Content
+              </Heading>
+              <Text>Content for the Red tab goes here.</Text>
+            </Box>
+          </TabPanel>
+          <TabPanel>
+            <Box>
+              <Heading as="h2" size="md" mb={4}>
+                Manage Room Products
+              </Heading>
+              <Text>Content for managing room products.</Text>
+            </Box>
+          </TabPanel>
+          <TabPanel>
+            <Box>
+              <Heading as="h2" size="md" mb={4}>
+                Manage Hotel Products
+              </Heading>
+              <Box mb={4}>
+                <Text fontSize="xl">Add Product</Text>
+                <AddProduct hotelId={hotelId} />
+              </Box>
+              <Box mb={4}>
+                <Text fontSize="xl">Delete Product</Text>
+                <DeleteProduct hotelId={hotelId} />
+              </Box>
+              <Box>
+                <Text fontSize="xl">Product List</Text>
+                <ProductList hotelId={hotelId} />
+              </Box>
+            </Box>
           </TabPanel>
         </TabPanels>
       </Tabs>
-    </>
+    </Box>
   );
 };
 
