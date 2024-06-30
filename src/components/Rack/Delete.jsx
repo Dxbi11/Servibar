@@ -53,7 +53,7 @@ import {
       };
   
       fetchData();
-    }, []);
+    }, [isOpen]);
   
     const handleDelete = async () => {
       setError('');

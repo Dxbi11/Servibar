@@ -17,6 +17,7 @@ const DeleteProduct = ({ hotelId }) => {
   const [selectedProduct, setSelectedProduct] = useState("");
   const toast = useToast();
 
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -36,7 +37,7 @@ const DeleteProduct = ({ hotelId }) => {
     if (hotelId) {
       fetchProducts();
     }
-  }, [hotelId, toast]);
+  }, [hotelId, toast, products]);
 
   const handleDeleteProduct = async () => {
     if (!selectedProduct) {

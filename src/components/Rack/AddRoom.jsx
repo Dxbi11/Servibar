@@ -41,7 +41,7 @@ const AddRoom = ({ onRoomAdded }) => {
     }
 
     fetchHotels();
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     async function fetchFloors() {
