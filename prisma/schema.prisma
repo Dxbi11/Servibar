@@ -14,29 +14,29 @@ model Hotel {
   floors   Floor[]   @relation(name: "FloorToHotel")
   rooms    Room[]    @relation(name: "HotelToRoom")
   products Product[] @relation(name: "ProductToHotel")
+  invoices Invoice[] @relation(name: "InvoiceToHotel")
 }
 
 model Floor {
   id          Int    @id @default(autoincrement())
-  floorNumber Int
+  floorNumber Int    @unique
   hotelId     Int
   hotel       Hotel  @relation(name: "FloorToHotel", fields: [hotelId], references: [id])
   rooms       Room[] @relation(name: "FloorToRoom")
-
-  @@unique([floorNumber, hotelId])
 }
 
 model Room {
-  id           Int         @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   roomNumber   Int
   hotelId      Int
   floorId      Int
-  hotel        Hotel       @relation(name: "HotelToRoom", fields: [hotelId], references: [id])
-  floor        Floor       @relation(name: "FloorToRoom", fields: [floorId], references: [id])
-  minibarItems RoomStock[] @relation(name: "RoomToRoomStock")
-  invoices     Invoice[]   @relation(name: "InvoiceToRoom")
-  locked       Boolean     @default(false)
+  hotel        Hotel      @relation(name: "HotelToRoom", fields: [hotelId], references: [id])
+  floor        Floor      @relation(name: "FloorToRoom", fields: [floorId], references: [id])
+  minibarItems RoomStock? @relation(name: "RoomToRoomStock")
+  locked       Boolean    @default(false)
   state        Int
+  comment      String?
+  checked      Boolean?
 
   @@unique([roomNumber, hotelId])
 }
@@ -53,21 +53,24 @@ model Product {
 
 model RoomStock {
   id        Int     @id @default(autoincrement())
-  roomId    Int
   productId Int
   quantity  Int
   room      Room    @relation(name: "RoomToRoomStock", fields: [roomId], references: [id])
   product   Product @relation(name: "ProductToRoomStock", fields: [productId], references: [id])
+  roomId    Int     @unique
 
   @@unique([roomId, productId])
 }
 
 model Invoice {
-  id     Int           @id @default(autoincrement())
-  roomId Int
-  total  Float?
-  room   Room          @relation(name: "InvoiceToRoom", fields: [roomId], references: [id])
-  items  InvoiceItem[] @relation(name: "InvoiceToInvoiceItem")
+  id      Int           @id @default(autoincrement())
+  total   Float?
+  items   InvoiceItem[] @relation(name: "InvoiceToInvoiceItem")
+  date    DateTime?     @default(now())
+  hotelId Int?
+  hotel   Hotel?        @relation(name: "InvoiceToHotel", fields: [hotelId], references: [id])
+  comment String?
+  room    Int?
 }
 
 model InvoiceItem {
@@ -75,7 +78,6 @@ model InvoiceItem {
   invoiceId Int
   productId Int
   quantity  Int
-  price     Float
   invoice   Invoice @relation(name: "InvoiceToInvoiceItem", fields: [invoiceId], references: [id])
   product   Product @relation(name: "InvoiceItemToProduct", fields: [productId], references: [id])
 }
