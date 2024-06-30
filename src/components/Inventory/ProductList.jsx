@@ -17,12 +17,10 @@ import { useToast } from "@chakra-ui/react";
 
 const ProductList = ({ hotelId }) => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const toast = useToast();
 
   useEffect(() => {
     const fetchProducts = async () => {
-      setLoading(true);
       try {
         const data = await getProductsByHotelId(hotelId);
         setProducts(data);
@@ -34,22 +32,14 @@ const ProductList = ({ hotelId }) => {
           duration: 5000,
           isClosable: true,
         });
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [hotelId, toast]);
+  }, [hotelId, toast, products]);
 
   return (
     <Box p={4} borderWidth={1} borderRadius={8} boxShadow="lg">
-      {loading ? (
-        <VStack mt={8}>
-          <Spinner size="xl" />
-          <Text>Loading products...</Text>
-        </VStack>
-      ) : (
         <Table variant="simple">
           <TableCaption>Products by Hotel</TableCaption>
           <Thead>
@@ -69,7 +59,6 @@ const ProductList = ({ hotelId }) => {
             ))}
           </Tbody>
         </Table>
-      )}
     </Box>
   );
 };

@@ -44,7 +44,7 @@ const AddFloors = ({ onFloorAdded }) => {
     };
 
     fetchData();
-  }, []);
+  }, [isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

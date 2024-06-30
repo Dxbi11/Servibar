@@ -53,7 +53,7 @@ const InventoryTable = ({ selectedRoom, hotelId }) => {
     };
 
     fetchRooms();
-  }, [hotelId, toast]);
+  }, [hotelId, toast, isOpen]);
 
   useEffect(() => {
     const fetchInventory = async () => {

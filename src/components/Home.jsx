@@ -12,6 +12,9 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Box,
+  Flex,
+  Heading,
 } from "@chakra-ui/react";
 import MainInventory from "./Inventory/MainInventory";
 
@@ -28,33 +31,39 @@ const Home = ({ user }) => {
         console.error("Error signing out: ", error);
       });
   };
-
-  useEffect(() => {
-    const fetchHotels = async () => {
-      try {
-        const data = await getAllHotels();
-        setHotels(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchHotels();
-  }, []);
-
+  
   const handleHotelChange = (e) => {
     const selectedHotelId = e.target.value;
     setSelectedHotelId(selectedHotelId);
   };
+  
+    useEffect(() => {
+      const fetchHotels = async () => {
+        try {
+          const data = await getAllHotels();
+          setHotels(data);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+  
+      fetchHotels();
+    }, [handleHotelChange]);
 
   return (
-    <div>
-      <h4>Logged in as {user.displayName}</h4>
+    <Box p={4} className="min-h-screen bg-gray-100">
+      <Flex justifyContent="space-between" alignItems="center" mb={4}>
+        <Heading as="h4" size="md">Logged in as {user.displayName}</Heading>
+        <Button colorScheme="red" onClick={handleSignOut}>
+          Sign out
+        </Button>
+      </Flex>
       <Select
         placeholder="Select Hotel"
         value={selectedHotelId}
         onChange={handleHotelChange}
         mb={4}
+        className="bg-white shadow"
       >
         {hotels.map((hotel) => (
           <option key={hotel.id} value={hotel.id}>
@@ -62,12 +71,11 @@ const Home = ({ user }) => {
           </option>
         ))}
       </Select>
-      <Tabs>
+      <Tabs variant="enclosed" colorScheme="teal">
         <TabList>
           <Tab>Rack</Tab>
-          <Tab>invoice</Tab>
-          <Tab>inventory</Tab>
-
+          <Tab>Invoice</Tab>
+          <Tab>Inventory</Tab>
           <Tab>Settings</Tab>
         </TabList>
 
@@ -76,20 +84,17 @@ const Home = ({ user }) => {
             <HotelRoomsTable hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
-            <h1>invoice component goes here</h1>
+            <h1>Invoice component goes here</h1>
           </TabPanel>
           <TabPanel>
             <MainInventory hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
             <RackMenu />
-            <Button colorScheme="red" onClick={handleSignOut}>
-              Sign out
-            </Button>
           </TabPanel>
         </TabPanels>
       </Tabs>
-    </div>
+    </Box>
   );
 };
 
