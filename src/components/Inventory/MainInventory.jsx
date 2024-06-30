@@ -13,6 +13,7 @@ import {
 import AddProduct from "./AddProduct";
 import ProductList from "./ProductList";
 import DeleteProduct from "./DeleteProduct";
+import RoomStockTable from "./RoomStockTable";
 
 const MainInventory = ({ hotelId }) => {
   const colors = useColorModeValue(
@@ -27,7 +28,7 @@ const MainInventory = ({ hotelId }) => {
     <Box p={4} bg={bg} borderRadius="md" boxShadow="sm">
       <Tabs variant="soft-rounded" onChange={(index) => setTabIndex(index)}>
         <TabList>
-          <Tab>Red</Tab>
+          <Tab>Manage Stock By Room</Tab>
           <Tab>Manage Room Products</Tab>
           <Tab>Manage Hotel Products</Tab>
         </TabList>
@@ -35,9 +36,9 @@ const MainInventory = ({ hotelId }) => {
           <TabPanel>
             <Box>
               <Heading as="h2" size="md" mb={4}>
-                Red Tab Content
+                Search room
               </Heading>
-              <Text>Content for the Red tab goes here.</Text>
+              <RoomStockTable hotelId={hotelId} />
             </Box>
           </TabPanel>
           <TabPanel>

@@ -5,6 +5,8 @@ import { Button } from "@chakra-ui/react";
 import HotelRoomsTable from "./Rack/HotelRoomsTable";
 import RackMenu from "./Rack/RackMenu";
 import { getAllHotels } from "./api";
+import RoomStockTable from "./Inventory/RoomStockTable";
+
 import {
   Select,
   Tabs,
@@ -31,29 +33,31 @@ const Home = ({ user }) => {
         console.error("Error signing out: ", error);
       });
   };
-  
+
   const handleHotelChange = (e) => {
     const selectedHotelId = e.target.value;
     setSelectedHotelId(selectedHotelId);
   };
-  
-    useEffect(() => {
-      const fetchHotels = async () => {
-        try {
-          const data = await getAllHotels();
-          setHotels(data);
-        } catch (error) {
-          console.error(error);
-        }
-      };
-  
-      fetchHotels();
-    }, [handleHotelChange]);
+
+  useEffect(() => {
+    const fetchHotels = async () => {
+      try {
+        const data = await getAllHotels();
+        setHotels(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchHotels();
+  }, [handleHotelChange]);
 
   return (
     <Box p={4} className="min-h-screen bg-gray-100">
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
-        <Heading as="h4" size="md">Logged in as {user.displayName}</Heading>
+        <Heading as="h4" size="md">
+          Logged in as {user.displayName}
+        </Heading>
         <Button colorScheme="red" onClick={handleSignOut}>
           Sign out
         </Button>
