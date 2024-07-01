@@ -15,6 +15,7 @@ model Hotel {
   rooms    Room[]    @relation(name: "HotelToRoom")
   products Product[] @relation(name: "ProductToHotel")
   invoices Invoice[] @relation(name: "InvoiceToHotel")
+  pin      Int
 }
 
 model Floor {
