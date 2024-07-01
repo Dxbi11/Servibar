@@ -53,12 +53,11 @@ app.get('/hotels/:id/floors', async (req, res) => {
   }
 });
 
-
 app.post('/hotels', async (req, res) => {
-  const { name } = req.body;
+  const { name, pin } = req.body;
   try {
     const newHotel = await prisma.hotel.create({
-      data: { name },
+      data: { name, pin: parseInt(pin, 10) },
     });
     res.status(201).json(newHotel);
   } catch (error) {
@@ -66,6 +65,9 @@ app.post('/hotels', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+
+
 
 app.put('/hotels/:id', async (req, res) => {
   const { name } = req.body;
