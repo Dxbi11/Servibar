@@ -9,11 +9,14 @@ import {
   useColorModeValue,
   Box,
   Heading,
+  VStack 
 } from "@chakra-ui/react";
 import AddProduct from "./AddProduct";
 import ProductList from "./ProductList";
 import DeleteProduct from "./DeleteProduct";
-import RoomStockTable from "./RoomStockTable";
+// Components for Room Stock
+import TableStock from "./StockByRoom/TableStock";
+import HeaderStock from "./StockByRoom/HeaderStock";
 
 const MainInventory = ({ hotelId }) => {
   const colors = useColorModeValue(
@@ -38,7 +41,9 @@ const MainInventory = ({ hotelId }) => {
               <Heading as="h2" size="md" mb={4}>
                 Search room
               </Heading>
-              <RoomStockTable hotelId={hotelId} />
+              <VStack spacing={8} align="stretch">
+                <HeaderStock />
+              </VStack>
             </Box>
           </TabPanel>
           <TabPanel>
