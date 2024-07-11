@@ -172,3 +172,13 @@ export const updateInvoiceItem = async (invoiceId, itemId, itemData) => {
 export const deleteInvoiceItem = async (invoiceId, itemId) => {
   await api.delete(`/invoices/${invoiceId}/items/${itemId}`);
 };
+
+export const getStoreHouse = async () => {
+  const response = await api.get('/storehouse');
+  return response.data;
+}
+
+export const postStoreHouse = async (storeHouseData) => {
+  const response = await api.post('/storehouse', storeHouseData);
+  return response.data;
+}

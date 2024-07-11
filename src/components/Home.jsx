@@ -6,7 +6,7 @@ import HotelRoomsTable from "./Rack/HotelRoomsTable";
 import RackMenu from "./Rack/RackMenu";
 import { getAllHotels } from "./api";
 import MainInvoiceMenu from "./invoice/MainInvoiceMenu";
-
+import StoreHouse from "./StoreHouse/StoreHouse";
 import {
   Select,
   Tabs,
@@ -52,6 +52,13 @@ const Home = ({ user }) => {
     fetchHotels();
   }, [handleHotelChange]);
 
+
+  /*          
+                    <TabPanel>
+            <MainInvoiceMenu hotelId={selectedHotelId} />
+          </TabPanel>
+          
+          */
   return (
     <Box p={4} className="min-h-screen bg-gray-100">
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
@@ -81,20 +88,22 @@ const Home = ({ user }) => {
           <Tab>Invoice</Tab>
           <Tab>Inventory</Tab>
           <Tab>Settings</Tab>
+          <Tab>Store House</Tab>
         </TabList>
 
         <TabPanels>
           <TabPanel>
             <HotelRoomsTable hotelId={selectedHotelId} />
           </TabPanel>
-          <TabPanel>
-            <MainInvoiceMenu hotelId={selectedHotelId} />
-          </TabPanel>
+
           <TabPanel>
             <MainInventory hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
             <RackMenu />
+          </TabPanel>
+          <TabPanel>
+            <StoreHouse />
           </TabPanel>
         </TabPanels>
       </Tabs>
