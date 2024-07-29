@@ -95,7 +95,9 @@ const Home = ({ user }) => {
           <TabPanel>
             <HotelRoomsTable hotelId={selectedHotelId} />
           </TabPanel>
-
+          <TabPanel>
+            <MainInvoiceMenu hotelId={selectedHotelId} />
+          </TabPanel>
           <TabPanel>
             <MainInventory hotelId={selectedHotelId} />
           </TabPanel>

@@ -20,6 +20,7 @@ import {
 } from "@chakra-ui/react";
 
 import { getRoomsByHotelId, updateRoom } from "../api"; // Import the API function
+import TableStoreHouse from "../StoreHouse/TableStoreHouse";
 
 const getRoomStatus = (state) => {
   switch (state) {
@@ -125,7 +126,8 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
               </Thead>
               <Tbody>
                 {rooms.map((room) => (
-                  <Tr key={room.id}>
+                  <React.Fragment key={room.id}>
+                    <Tr key={room.id}>
                     <Td>{room.roomNumber}</Td>
                     <Td>
                     <Select
@@ -160,6 +162,26 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
                     </Select>
                     </Td>
                   </Tr>
+                    <Tr>
+                      <Td colSpan={3}>
+                        <Accordion>
+                          <AccordionItem>
+                            <h2>
+                              <AccordionButton>
+                                <Box as='span' flex='1' textAlign='left'>
+                                  Open room details
+                                </Box>
+                                <AccordionIcon />
+                              </AccordionButton>
+                            </h2>
+                            <AccordionPanel pb={4}>
+                              <TableStoreHouse />
+                            </AccordionPanel>
+                          </AccordionItem>
+                        </Accordion>
+                      </Td>
+                    </Tr>
+                  </React.Fragment>
                 ))}
               </Tbody>
             </Table>

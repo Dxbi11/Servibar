@@ -140,17 +140,27 @@ const HotelRoomsTable = forwardRef((props, ref) => {
                             const status = getRoomStatus(room.state);
                             return (
                               <Tr key={room.id}>
-                                <Td></Td>
-                                <Td>{room.roomNumber}</Td>
-                                <Td>
-                                  <Badge colorScheme={status.color}>{status.label}</Badge>
-                                </Td>
-                                <Td>
-                                  <Badge colorScheme={room.locked ? 'red' : 'green'}>
-                                    {room.locked ? 'Locked' : 'Unlocked'}
-                                  </Badge>
-                                </Td>
-                              </Tr>
+                                    <Td></Td>
+                                    <Td>{room.roomNumber}</Td>
+                                    <Td>
+                                      <Badge colorScheme={status.color}>{status.label}</Badge>
+                                    </Td>
+                                    <Td>
+                                      <Badge colorScheme={room.locked ? 'red' : 'green'}>
+                                        {room.locked ? 'Locked' : 'Unlocked'}
+                                      </Badge>
+                                    </Td>
+                                    <Td>
+                                      <Menu>
+                                        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                                          Options
+                                        </MenuButton>
+                                        <MenuList>
+                                          <MenuItem>HOLA MUNDO</MenuItem>
+                                        </MenuList>
+                                      </Menu>
+                                    </Td>
+                                  </Tr>
                             );
                           })
                         ) : (
