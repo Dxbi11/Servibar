@@ -524,6 +524,34 @@ app.delete('/invoices/:invoiceId/items/:itemId', async (req, res) => {
   }
 });
 
+
+// Storehouse routes
+app.get('/storehouse', async (req, res) => {
+  try {
+    const storehouse = await prisma.storehouse.findMany();
+    console.log(storehouse);
+    res.json(storehouse);
+  } catch (error) {
+    console.error('Error fetching storehouse:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+});
+
+
+app.post('/storehouse', async (req, res) => {
+  const { product, quantity } = req.body;
+  try {
+    const newStorehouse = await prisma.storehouse.create({
+      data: { products: { create: product }, 
+      quantity},
+    });
+    res.status(201).json(newStorehouse);
+  } catch (error) {
+    console.error('Error adding storehouse:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

@@ -5,8 +5,15 @@ import { Button, useToast, Text } from "@chakra-ui/react";
 import HotelRoomsTable from "./Rack/HotelRoomsTable";
 import { getAllHotels } from "./api";
 import MainInvoiceMenu from "./invoice/MainInvoiceMenu";
+
 import MainInventory from "./Inventory/MainInventory";
 import MainSettings from "./settings/MainSettings";
+
+  
+  
+  
+import StoreHouse from "./StoreHouse/StoreHouse";
+
 import {
   Select,
   Tabs,
@@ -100,6 +107,13 @@ const Home = ({ user }) => {
     fetchHotels();
   }, []);
 
+
+  /*          
+                    <TabPanel>
+            <MainInvoiceMenu hotelId={selectedHotelId} />
+          </TabPanel>
+          
+          */
   return (
     <Box p={4} className="min-h-screen bg-gray-100">
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
@@ -129,6 +143,7 @@ const Home = ({ user }) => {
           <Tab>Invoice</Tab>
           <Tab>Inventory</Tab>
           <Tab>Settings</Tab>
+          <Tab>Store House</Tab>
         </TabList>
 
         <TabPanels>
@@ -143,6 +158,9 @@ const Home = ({ user }) => {
           </TabPanel>
           <TabPanel>
             <MainSettings />
+          </TabPanel>
+          <TabPanel>
+            <StoreHouse />
           </TabPanel>
         </TabPanels>
       </Tabs>
