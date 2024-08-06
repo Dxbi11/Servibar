@@ -62,7 +62,7 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
   useEffect(() => {
     fetchData();
   }, [selectedStatus, selectedLocked]);
-
+  //commit
   if (isLoading) {
     return (
       <Center h="100vh">
