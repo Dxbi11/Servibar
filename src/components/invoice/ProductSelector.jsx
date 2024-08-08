@@ -9,7 +9,7 @@ import {
   Spinner,
   useToast,
 } from "@chakra-ui/react";
-import { getProductsByHotelId } from "../api";
+import { getProductById } from "../../api";
 
 const ProductButton = React.memo(({ product, onSelect }) => (
   <Button

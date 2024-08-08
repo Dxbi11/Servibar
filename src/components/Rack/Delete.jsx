@@ -16,15 +16,15 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import {
-    getAllHotels,
-    getAllFloors,
-    getAllRooms,
-    deleteHotel,
-    deleteFloor,
-    deleteRoom
-  } from '../api';
-  
+
+import { 
+  getAllHotels, 
+  getAllFloors, 
+  getAllRooms, 
+  deleteHotel, 
+  deleteFloor, 
+  deleteRoom 
+} from '../../api';
   const DeleteModal = ({ onDelete }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [deleteType, setDeleteType] = useState('');

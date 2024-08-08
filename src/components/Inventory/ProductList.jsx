@@ -12,7 +12,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { getProductsByHotelId } from "../api"; // Adjust the import path as necessary
+import { getProductsByHotelId } from "../../api"; // Adjust the import path as necessary
 import { useToast } from "@chakra-ui/react";
 
 const ProductList = ({ hotelId }) => {

@@ -45,6 +45,11 @@ export const getFloorById = async (floorId) => {
   return response.data;
 };
 
+export const getFloorsbyHotelId = async (hotelId) => {
+  const response = await api.get(`/hotels/${hotelId}/floors`);
+  return response.data;
+};
+
 export const createFloor = async (floorData) => {
     console.log('Attempting to create floor with data:', floorData);
     try {
@@ -69,6 +74,11 @@ export const deleteFloor = async (floorId) => {
 // Room operations
 export const getAllRooms = async () => {
   const response = await api.get('/rooms');
+  return response.data;
+};
+
+export const getRoomsByHotelId = async (hotelId) => {
+  const response = await api.get(`/rooms/${hotelId}`);
   return response.data;
 };
 
@@ -97,6 +107,11 @@ export const getAllProducts = async () => {
   return response.data;
 };
 
+export const getProductsByHotelId = async (hotelId) => {
+  const response = await api.get(`/hotels/${hotelId}/products`);
+  return response.data;
+};
+
 export const getProductById = async (productId) => {
   const response = await api.get(`/products/${productId}`);
   return response.data;
@@ -122,20 +137,46 @@ export const getRoomStock = async (roomId) => {
   return response.data;
 };
 
+export const createRoomStock = async (roomId, productId, quantity) => {
+  try {
+    const response = await api.post(`/roomstocks/${roomId}`, { productId, quantity });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to create room stock:', error);
+    throw error;
+  }
+};
+
+export const deleteRoomStock = async (roomId, productId) => {
+  try {
+    await api.delete(`/roomstocks/${roomId}/${productId}`);
+  } catch (error) {
+    console.error('Failed to delete room stock:', error);
+    throw error;
+  }
+};
+
+
 export const updateRoomStock = async (roomId, productId, quantity) => {
-    try {
-      const response = await api.put(`/roomstocks/${roomId}/${productId}`, { quantity });
-      return response.data;
-    } catch (error) {
-      // Handle error, e.g., log it or throw a custom error
-      console.error('Failed to update room stock:', error);
-      throw error; // Optionally re-throw or handle differently
-    }
-  };
+  try {
+    const response = await api.put(`/roomstocks/${roomId}/${productId}`, { quantity });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update room stock:', error);
+    throw error;
+  }
+};
 
 // Invoice operations
 export const getAllInvoices = async () => {
   const response = await api.get('/invoices');
+  return response.data;
+};
+
+export const getInvoicesByHotelId = async (hotelId, startDate) => {
+  const response = await api.get(`/invoices/hotel/${hotelId}`, {
+    params: { startDate }
+  });
   return response.data;
 };
 
@@ -182,3 +223,5 @@ export const postStoreHouse = async (storeHouseData) => {
   const response = await api.post('/storehouse', storeHouseData);
   return response.data;
 }
+
+

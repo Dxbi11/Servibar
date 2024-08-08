@@ -42,7 +42,7 @@ const MainInventory = ({ hotelId }) => {
                 Search room
               </Heading>
               <VStack spacing={8} align="stretch">
-                <HeaderStock />
+                
               </VStack>
             </Box>
           </TabPanel>

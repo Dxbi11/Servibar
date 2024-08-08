@@ -11,7 +11,7 @@ import {
   VStack,
   useToast, // Import useToast hook
 } from "@chakra-ui/react";
-import { createInvoice } from "../api";
+import { createInvoice } from "../../api";
 
 const AddInvoice = ({ hotelId }) => {
   const [total, setTotal] = useState("");

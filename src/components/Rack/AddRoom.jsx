@@ -17,8 +17,7 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { createRoom, getAllHotels, getHotelById, getAllFloors, getFloorById } from '../api'; // Import API functions
-
+import { createRoom, getAllHotels, getHotelById, getAllFloors, getFloorById } from '../../api';
 const AddRoom = ({ onRoomAdded }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [startRoomNumber, setStartRoomNumber] = useState('');

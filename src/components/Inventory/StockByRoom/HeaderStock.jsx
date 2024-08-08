@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createRoom, getAllHotels, getHotelById, getAllFloors, getFloorById } from '../../api'; // Import API functions
+import { createRoom, getAllHotels, getHotelById, getAllFloors, getFloorById } from '../../../api'; // Import API functions
 import { Select, Input, HStack, Button, Box, Center } from '@chakra-ui/react'
 import TableStock from './TableStock';
 

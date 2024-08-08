@@ -10,53 +10,67 @@ import {
   Th,
   Tr,
   Box,
-  Text
+  Text,
+  Spinner,
 } from "@chakra-ui/react";
 import RowContent from './RowContent';
 import UseStoreHouse from './UseStoreHouse';
 
 const TableStoreHouse = () => {
-  const products = UseStoreHouse();
+  const products = UseStoreHouse() || []; 
   const [inputQuantity, setInputQuantity] = useState([]);
   const [quantity, setQuantity] = useState([]);
-
+  const [loading, setLoading] = useState(true); 
   useEffect(() => {
-    if (products.length > 0 && quantity.length === 0) {
+    if (products.length > 0) {
       setQuantity(products.map(() => 0));
+      setLoading(false);
+    } else {
+      setLoading(true); 
     }
   }, [products]);
 
+  if (loading) {
+    return (
+      <Box p={4} bg="gray.50" borderRadius="md" boxShadow="md" textAlign="center">
+        <Spinner size="xl" />
+        <Text mt={4}>Loading products...</Text>
+      </Box>
+    );
+  }
+
   return (
-    <Box p={4} bg="gray.50" borderRadius="md" boxShadow="md">
-      <Editable defaultValue="Store House" mb={4}>
-        <EditablePreview fontSize="2xl" fontWeight="bold" />
-        <EditableInput />
-      </Editable>
-      <TableContainer>
-        <Table variant="striped" colorScheme="teal">
-          <Thead>
-            <Tr>
-              <Th fontWeight="black" color="black">Product</Th>
-              <Th fontWeight="black" color="black">Quantity</Th>
-              <Th fontWeight="black" color="black">Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {products.map((product, index) => (
-              <RowContent
-                key={product.id}
-                product={product}
-                index={index}
-                quantity={quantity}
-                setQuantity={setQuantity}
-                inputQuantity={inputQuantity}
-                setInputQuantity={setInputQuantity}
-              />
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer>
-    </Box>
+  <Box p={6} bg="gray.50" borderRadius="md" boxShadow="lg" borderWidth="1px">
+    <Editable defaultValue="Store House" mb={6}>
+      <EditablePreview fontSize="3xl" fontWeight="bold" color="teal.600" />
+      <EditableInput fontSize="lg" />
+    </Editable>
+    <TableContainer>
+      <Table variant="striped" colorScheme="teal">
+        <Thead>
+          <Tr>
+            <Th fontWeight="bold" color="teal.800" borderBottomWidth="2px">Product</Th>
+            <Th fontWeight="bold" color="teal.800" borderBottomWidth="2px">Quantity</Th>
+            <Th fontWeight="bold" color="teal.800" borderBottomWidth="2px">Actions</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {products.map((product, index) => (
+            <RowContent
+              key={product.id}
+              product={product}
+              index={index}
+              quantity={quantity}
+              setQuantity={setQuantity}
+              inputQuantity={inputQuantity}
+              setInputQuantity={setInputQuantity}
+            />
+          ))}
+        </Tbody>
+      </Table>
+    </TableContainer>
+  </Box>
+
   );
 };
 

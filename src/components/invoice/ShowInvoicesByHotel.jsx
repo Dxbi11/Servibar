@@ -25,7 +25,7 @@ import {
   PopoverHeader,
   PopoverBody,
 } from "@chakra-ui/react";
-import { getInvoicesByHotelId } from "../api"; // Adjust the import path as necessary
+import { getInvoicesByHotelId } from "../../api"; // Adjust the import path as necessary
 
 const ShowInvoicesByHotel = ({ hotelId }) => {
   const [invoices, setInvoices] = useState([]);

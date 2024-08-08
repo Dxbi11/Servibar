@@ -1,10 +1,11 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
+import { store } from "../../store";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { Button } from "@chakra-ui/react";
 import HotelRoomsTable from "./Rack/HotelRoomsTable";
 import RackMenu from "./Rack/RackMenu";
-import { getAllHotels } from "./api";
+import { getAllHotels } from "../api";
 import MainInvoiceMenu from "./invoice/MainInvoiceMenu";
 import StoreHouse from "./StoreHouse/StoreHouse";
 import {
@@ -21,8 +22,22 @@ import {
 import MainInventory from "./Inventory/MainInventory";
 
 const Home = ({ user }) => {
+  const { state, dispatch } = useContext(store);
+  const HotelId = state.ui.hotelId;
+
   const [hotels, setHotels] = useState([]);
   const [selectedHotelId, setSelectedHotelId] = useState("1");
+
+  const handleHotelId = (selectedHotelId) => {
+    dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });
+  };
+
+
+  if (!HotelId) {
+    handleHotelId(selectedHotelId)
+  }
+
+
 
   const handleSignOut = () => {
     signOut(auth)
@@ -37,6 +52,7 @@ const Home = ({ user }) => {
   const handleHotelChange = (e) => {
     const selectedHotelId = e.target.value;
     setSelectedHotelId(selectedHotelId);
+    handleHotelId(selectedHotelId);
   };
 
   useEffect(() => {
@@ -96,7 +112,7 @@ const Home = ({ user }) => {
             <HotelRoomsTable hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
-            <MainInvoiceMenu hotelId={selectedHotelId} />
+            
           </TabPanel>
           <TabPanel>
             <MainInventory hotelId={selectedHotelId} />
@@ -105,7 +121,7 @@ const Home = ({ user }) => {
             <RackMenu />
           </TabPanel>
           <TabPanel>
-            <StoreHouse />
+            <StoreHouse/>
           </TabPanel>
         </TabPanels>
       </Tabs>

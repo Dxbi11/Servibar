@@ -1,54 +1,36 @@
-import React, {useEffect, useState} from "react";
-import { getAllProducts } from "../../api";
+import React, {useEffect, useState, useContext} from "react";
+import { store } from "../../../store";
+import { getProductsByHotelId } from "../../api";
 // getStoreHouse, postStoreHouse,
-const UseStoreHouse = () => {
+const UseStoreHouse = ( ) => {
+    const { state, dispatch } = useContext(store);
+    const HotelId = state.ui.hotelId;
     const [products, setProducts] = useState([]);
 
-
-
     useEffect(() => {
-        async function fetchProducts() {
-            try {
-                const productsData = await getAllProducts();
-                setProducts(productsData);
-            } catch (error) {
-                console.error("Error fetching products:", error);
+        if (HotelId) {
+            async function fetchProducts() {
+                try {
+                    const productsData = await getProductsByHotelId(HotelId);
+                    setProducts(productsData);
+                } catch (error) {
+                    console.error("Error fetching products:", error);
+                }
             }
+            fetchProducts();
         }
 
-        fetchProducts();
-    }, []);
-
-
-    /* 
-    useEffect(() => {
-        async function fetchStoreHouse() {
-            try {
-                const storeHouseData = await getStoreHouse();
-                
-            } catch (error) {
-                console.error("Error fetching store house:", error);
-            }
-        }
-
-        fetchStoreHouse();
-    }, []);
-
-    useEffect(() => {
-        async function addStoreHouse() {
-            try {
-                const storeHouseData = await postStoreHouse(products);
-                
-            } catch (error) {
-                console.error("Error adding store house:", error);
-            }
-        }
-
-        addStoreHouse();
-    }
-    , []);
-    */
+    }, [HotelId]);
   return products;
 };
 
 export default UseStoreHouse;
+
+
+// ! Implementar insertar los productos a la tabla StoreHouse, cambio requerido en Prisma.
+// const SetStoreHouse = () => {
+//     const products = UseStoreHouse();
+
+//     useEffect(() => {
+        
+// }

@@ -19,7 +19,7 @@ import {
   Select
 } from "@chakra-ui/react";
 
-import { getRoomsByHotelId, updateRoom } from "../api"; // Import the API function
+import { getRoomsByHotelId, updateRoom } from "../../api";
 import TableStoreHouse from "../StoreHouse/TableStoreHouse";
 
 const getRoomStatus = (state) => {

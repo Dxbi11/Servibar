@@ -1,6 +1,7 @@
 // src/components/AddProduct.js
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { store } from "../../../store";
 import {
   Box,
   Button,
@@ -10,13 +11,20 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import { createProduct } from "../api"; // Adjust the import path as necessary
+import { createProduct } from "../../api"; // Adjust the import path as necessary
 const AddProduct = ({ hotelId }) => {
   // Add hotelId as a prop
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const { state, dispatch } = useContext(store);
+  const products  = state.ui.products;
 
   const toast = useToast();
+
+  const handleProducts = (productData) => {
+    const updatedProducts = [...products, productData];
+    dispatch({ type: "SET_PRODUCTS", payload: updatedProducts });
+  };
 
   const handleAddProduct = async () => {
     if (!name || !price || !hotelId) {
@@ -38,8 +46,9 @@ const AddProduct = ({ hotelId }) => {
 
         hotelId, // Add hotelId to the product data
       };
-      console.log(productData);
+
       await createProduct(productData);
+      handleProducts(productData);
       toast({
         title: "Product added.",
         description: "The product has been added successfully.",

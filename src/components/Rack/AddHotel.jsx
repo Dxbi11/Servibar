@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createHotel } from "../api";
+import { createHotel } from "../../api";
 import { Input, Text, Button, Toast } from "@chakra-ui/react";
 import {
   Modal,

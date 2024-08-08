@@ -10,7 +10,7 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import { getProductsByHotelId, deleteProduct } from "../api"; // Adjust the import path as necessary
+import { getProductsByHotelId, deleteProduct } from "../../api"; // Adjust the import path as necessary
 
 const DeleteProduct = ({ hotelId }) => {
   const [products, setProducts] = useState([]);

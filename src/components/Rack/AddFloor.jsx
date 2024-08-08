@@ -17,8 +17,7 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { createFloor, getAllHotels, getAllFloors } from '../api';
-
+import { createFloor, getAllHotels, getAllFloors } from '../../api';
 const AddFloors = ({ onFloorAdded }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [floorNumber, setFloorNumber] = useState('');
