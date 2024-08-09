@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { store } from '../../../store';
 import {
   Editable,
   EditableInput,
@@ -21,10 +22,18 @@ const TableStoreHouse = () => {
   const [inputQuantity, setInputQuantity] = useState([]);
   const [quantity, setQuantity] = useState([]);
   const [loading, setLoading] = useState(true); 
+  const { dispatch } = useContext(store);
+
+  const handleProducts = () => {
+    dispatch({ type: 'SET_PRODUCTS', payload: products });
+  }
+
+
   useEffect(() => {
     if (products.length > 0) {
       setQuantity(products.map(() => 0));
       setLoading(false);
+      handleProducts();
     } else {
       setLoading(true); 
     }

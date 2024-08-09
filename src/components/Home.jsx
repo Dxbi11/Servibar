@@ -24,6 +24,7 @@ import MainInventory from "./Inventory/MainInventory";
 const Home = ({ user }) => {
   const { state, dispatch } = useContext(store);
   const HotelId = state.ui.hotelId;
+  
 
   const [hotels, setHotels] = useState([]);
   const [selectedHotelId, setSelectedHotelId] = useState("1");
