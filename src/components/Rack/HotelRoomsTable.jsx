@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { store } from "../../../store";
 import {
   Box,
   Table,
@@ -38,6 +39,9 @@ const getRoomStatus = (state) => {
 };
 
 const HotelRoomsTable = ({ hotelId, roomId }) => {
+  const { state } = useContext(store);
+  const products = state.ui.products;
+  console.log(products);
   const locks = ["Locked", "Unlocked"];
   const labels = ["Available", "In House", "Leaving", "Already Left"];
   const [rooms, setRooms] = useState([]);
@@ -122,6 +126,7 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
                   <Th fontWeight="bold" color="gray.600">Room Number</Th>
                   <Th fontWeight="bold" color="gray.600">Status</Th>
                   <Th fontWeight="bold" color="gray.600">Locked</Th>
+                  <Th fontWeight="bold" color="gray.600">Missing items</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -160,6 +165,23 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
                         </option>
                       ))}
                     </Select>
+                    </Td>
+                    <Td>
+                    {products.map((product) => (
+                    <div
+                      key={product.id}
+                      style={{
+                        border: '2px solid red',
+                        width: 'fit-content',
+                        borderRadius: '12px',
+                        padding: '4px 8px',
+                        marginBottom: '4px',
+                        backgroundColor: 'white'
+                      }}
+                    >
+                      {product.name}
+                    </div>
+                    ))}
                     </Td>
                   </Tr>
                     <Tr>
