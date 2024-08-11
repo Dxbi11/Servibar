@@ -32,12 +32,9 @@ const Home = ({ user }) => {
     dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });
   };
 
-
   if (!HotelId) {
-    handleHotelId(selectedHotelId)
+    handleHotelId(selectedHotelId);
   }
-
-
 
   const handleSignOut = () => {
     signOut(auth)
@@ -67,7 +64,6 @@ const Home = ({ user }) => {
 
     fetchHotels();
   }, [handleHotelChange]);
-
 
   /*          
                     <TabPanel>
@@ -112,7 +108,7 @@ const Home = ({ user }) => {
             <HotelRoomsTable hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
-            
+            <MainInvoiceMenu hotelId={selectedHotelId} />
           </TabPanel>
           <TabPanel>
             <MainInventory hotelId={selectedHotelId} />
@@ -121,7 +117,7 @@ const Home = ({ user }) => {
             <RackMenu />
           </TabPanel>
           <TabPanel>
-            <StoreHouse/>
+            <StoreHouse />
           </TabPanel>
         </TabPanels>
       </Tabs>

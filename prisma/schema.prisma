@@ -15,7 +15,7 @@ model Hotel {
   rooms    Room[]    @relation(name: "HotelToRoom")
   products Product[] @relation(name: "ProductToHotel")
   invoices Invoice[] @relation(name: "InvoiceToHotel")
-  pin      Int
+
 }
 
 model Floor {
@@ -89,5 +89,5 @@ model InvoiceItem {
 model StoreHouse {
   id       Int       @id @default(autoincrement())
   product  Product[] @relation(name: "ProductToStorehouse")
-  quantity Int?
+  quantity Int?
 }
