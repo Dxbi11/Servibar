@@ -20,8 +20,8 @@ import {
   Select
 } from "@chakra-ui/react";
 
-import { getRoomsByHotelId, updateRoom } from "../../api";
-import TableStoreHouse from "../StoreHouse/TableStoreHouse";
+import useFetchRooms from "../../hooks/RoomHooks/useFetchRooms";
+import useUpdateRoomData from "../../hooks/RoomHooks/useUpdateRoomData";
 
 const getRoomStatus = (state) => {
   switch (state) {
@@ -38,35 +38,20 @@ const getRoomStatus = (state) => {
   }
 };
 
-const HotelRoomsTable = ({ hotelId, roomId }) => {
+const HotelRoomsTable = () => {
+  const { isLoading, error } = useFetchRooms();
+  const updateRoomData = useUpdateRoomData();
   const { state } = useContext(store);
+  const rooms = state.ui.rooms;
   const products = state.ui.products;
-  console.log(products);
   const locks = ["Locked", "Unlocked"];
   const labels = ["Available", "In House", "Leaving", "Already Left"];
-  const [rooms, setRooms] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState([]);
-  const [selectedLocked, setSelectedLocked] = useState([]);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const roomsData = await getRoomsByHotelId(hotelId);
-      setRooms(roomsData);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setError("Failed to load room data. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, [selectedStatus, selectedLocked]);
-  //commit
+  const [selectedStatus, setSelectedStatus] = useState({});
+  const [selectedLocked, setSelectedLocked] = useState({});
+  const [accordionIndex, setAccordionIndex] = useState([0]); // Track open accordion panels
+  const [openMissingItemsIndex, setOpenMissingItemsIndex] = useState({});
+
   if (isLoading) {
     return (
       <Center h="100vh">
@@ -74,13 +59,7 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
       </Center>
     );
   }
-  const updateRoomData = async (roomId, roomData) => {
-    try {
-      await updateRoom(roomId, roomData);
-    } catch (error) {
-      console.error("Failed to update room:", error);
-    }
-  };
+
   if (error) {
     return (
       <Center h="100vh">
@@ -96,6 +75,7 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
       </Center>
     );
   }
+
   const handleSelectChange = (room, e) => {
     const newState = parseInt(e.target.value, 10);
     setSelectedStatus((prevStatus) => ({ ...prevStatus, [room.id]: newState }));
@@ -106,6 +86,21 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
     const newLockState = e.target.value === "Locked";
     setSelectedLocked((prevLocked) => ({ ...prevLocked, [room.id]: e.target.value }));
     updateRoomData(room.id, { locked: newLockState });
+  };
+
+  const toggleAccordionItem = (index) => {
+    setAccordionIndex((prevIndex) =>
+      prevIndex.includes(index)
+        ? prevIndex.filter((i) => i !== index)
+        : [...prevIndex, index]
+    );
+  };
+
+  const toggleMissingItemsAccordion = (roomId) => {
+    setOpenMissingItemsIndex((prevIndex) => ({
+      ...prevIndex,
+      [roomId]: !prevIndex[roomId],
+    }));
   };
   return (
     <Box p={4} bg="gray.50" borderRadius="md" boxShadow="md">
@@ -136,35 +131,35 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
                     <Td>{room.roomNumber}</Td>
                     <Td>
                     <Select
-                      placeholder={getRoomStatus(room.state).label}
-                      value={selectedStatus[room.id] || ''}
-                      onChange={(e) => handleSelectChange(room, e)}
-                      bg={getRoomStatus(room.state).color}
-                      borderColor={getRoomStatus(room.state).color}
-                      color="white"
-                    >
-                      {labels.map((label, index) => (
-                        <option style={{ color: 'black' }} key={index} value={index}>
-                          {label}
-                        </option>
-                      ))}
-                      </Select>
+                          placeholder={getRoomStatus(room.state).label}
+                          value={selectedStatus[room.id] || room.state}
+                          onChange={(e) => handleSelectChange(room, e)}
+                          bg={getRoomStatus(selectedStatus[room.id] || room.state).color}
+                          borderColor={getRoomStatus(selectedStatus[room.id] || room.state).color}
+                          color="white"
+                        >
+                          {labels.map((label, index) => (
+                            <option style={{ color: 'black' }} key={index} value={index}>
+                              {label}
+                            </option>
+                          ))}
+                        </Select>
                     </Td>
                     <Td>
                     <Select
-                      placeholder={room.locked ? "Locked" : "Unlocked"}
-                      value={selectedLocked[room.id] || ''}
-                      onChange={(e) => handleLockChange(room, e)}
-                      bg={room.locked ? "red" : "green"}
-                      borderColor={room.locked ? "red" : "green"}
-                      color="white"
-                    >
-                      {locks.map((lock, index) => (
-                        <option style={{ color: 'black' }} key={index} value={lock}>
-                          {lock}
-                        </option>
-                      ))}
-                    </Select>
+                          placeholder={room.locked ? "Locked" : "Unlocked"}
+                          value={selectedLocked[room.id] || (room.locked ? "Locked" : "Unlocked")}
+                          onChange={(e) => handleLockChange(room, e)}
+                          bg={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
+                          borderColor={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
+                          color="white"
+                        >
+                          {locks.map((lock, index) => (
+                            <option style={{ color: 'black' }} key={index} value={lock}>
+                              {lock}
+                            </option>
+                          ))}
+                        </Select>
                     </Td>
                     <Td>
                     {products.map((product) => (
@@ -186,18 +181,32 @@ const HotelRoomsTable = ({ hotelId, roomId }) => {
                   </Tr>
                     <Tr>
                       <Td colSpan={3}>
-                        <Accordion>
-                          <AccordionItem>
+                      <Accordion allowMultiple index={openMissingItemsIndex[room.id] ? [0] : []} onChange={() => toggleMissingItemsAccordion(room.id)}>
+                        <AccordionItem>
                             <h2>
                               <AccordionButton>
                                 <Box as='span' flex='1' textAlign='left'>
-                                  Open room details
+                                  Items missing
                                 </Box>
                                 <AccordionIcon />
                               </AccordionButton>
                             </h2>
                             <AccordionPanel pb={4}>
-                              <TableStoreHouse />
+                              {products.map((product) => (
+                                <div
+                                  key={product.id}
+                                  style={{
+                                    border: '2px solid red',
+                                    width: 'fit-content',
+                                    borderRadius: '12px',
+                                    padding: '4px 8px',
+                                    marginBottom: '4px',
+                                    backgroundColor: 'white'
+                                  }}
+                                >
+                                  {product.name}
+                                </div>
+                              ))}
                             </AccordionPanel>
                           </AccordionItem>
                         </Accordion>

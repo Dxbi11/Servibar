@@ -18,7 +18,7 @@ import DeleteProduct from "./DeleteProduct";
 import TableStock from "./StockByRoom/TableStock";
 import HeaderStock from "./StockByRoom/HeaderStock";
 
-const MainInventory = ({ hotelId }) => {
+const MainInventory = () => {
   const colors = useColorModeValue(
     ["red.50", "teal.50", "blue.50"],
     ["red.900", "teal.900", "blue.900"]
@@ -61,15 +61,15 @@ const MainInventory = ({ hotelId }) => {
               </Heading>
               <Box mb={4}>
                 <Text fontSize="xl">Add Product</Text>
-                <AddProduct hotelId={hotelId} />
+                <AddProduct  />
               </Box>
               <Box mb={4}>
                 <Text fontSize="xl">Delete Product</Text>
-                <DeleteProduct hotelId={hotelId} />
+                <DeleteProduct />
               </Box>
               <Box>
                 <Text fontSize="xl">Product List</Text>
-                <ProductList hotelId={hotelId} />
+                <ProductList />
               </Box>
             </Box>
           </TabPanel>

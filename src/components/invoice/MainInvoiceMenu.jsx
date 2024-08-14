@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { store } from "../../../store";
 import AddInvoice from "./AddInvoice";
 import ProductSelector from "./ProductSelector";
 import ShowInvoicesByHotel from "./ShowInvoicesByHotel";
@@ -14,7 +15,8 @@ import {
   Heading,
 } from "@chakra-ui/react";
 
-const MainInvoiceMenu = ({ hotelId }) => {
+const MainInvoiceMenu = () => {
+
   const colors = useColorModeValue(
     ["teal.50", "teal.50", "blue.50"],
     ["teal.900", "teal.900", "blue.900"]
@@ -36,8 +38,8 @@ const MainInvoiceMenu = ({ hotelId }) => {
             <Box>
               <Heading as="h2" size="md" mb={4}>
                 Generate invoice
-                <ProductSelector hotelId={hotelId} />
-                <AddInvoice hotelId={hotelId} />
+                <ProductSelector />
+                <AddInvoice />
               </Heading>
             </Box>
           </TabPanel>
@@ -45,7 +47,7 @@ const MainInvoiceMenu = ({ hotelId }) => {
             <Box>
               <Heading as="h2" size="md" mb={4}>
                 Invoices
-                <ShowInvoicesByHotel hotelId={hotelId} />
+                <ShowInvoicesByHotel />
               </Heading>
             </Box>
           </TabPanel>

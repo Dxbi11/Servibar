@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { store } from '../../../store';
 import {
   Button,
   Modal,
@@ -19,23 +20,28 @@ import {
 } from '@chakra-ui/react';
 import { createFloor, getAllHotels, getAllFloors } from '../../api';
 const AddFloors = ({ onFloorAdded }) => {
+  const {state, dispatch} = useContext(store);
+  const hotels = state.ui.hotels;
+  const floors = state.ui.floors;
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [floorNumber, setFloorNumber] = useState('');
   const [selectedHotel, setSelectedHotel] = useState('');
-  const [hotels, setHotels] = useState([]);
-  const [floors, setFloors] = useState([]);
+
   const [error, setError] = useState('');
   const toast = useToast();
+
+  const handleFloors = (floors) => {  
+    dispatch({ type: 'SET_FLOORS', payload: floors });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [fetchedHotels, fetchedFloors] = await Promise.all([
-          getAllHotels(),
+        const [fetchedFloors] = await Promise.all([
           getAllFloors()
         ]);
-        setHotels(fetchedHotels);
-        setFloors(fetchedFloors);
+        handleFloors(fetchedFloors);
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to load data. Please try again later.');

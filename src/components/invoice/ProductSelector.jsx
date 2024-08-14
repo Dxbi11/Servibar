@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { store } from "../../../store";
 import {
   Button,
   Grid,
@@ -46,33 +47,16 @@ const Receipt = React.memo(({ selectedProducts, total, onReset }) => (
   </VStack>
 ));
 
-const ProductSelector = ({ hotelId }) => {
-  const [products, setProducts] = useState([]);
+const ProductSelector = () => {
+  const {state, dispatch} = useContext(store);
+  const HotelId = state.ui.hotelId;
+  const products = state.ui.products;
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const toast = useToast();
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productsData = await getProductsByHotelId(hotelId);
-        setProducts(productsData);
-      } catch (error) {
-        toast({
-          title: "Error fetching products",
-          description: error.message,
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchProducts();
-  }, [hotelId, toast]);
 
   const handleProductSelect = React.useCallback((product) => {
     setSelectedProducts((prevSelected) => [...prevSelected, product]);

@@ -12,13 +12,13 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { createProduct } from "../../api"; // Adjust the import path as necessary
-const AddProduct = ({ hotelId }) => {
+const AddProduct = () => {
   // Add hotelId as a prop
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const { state, dispatch } = useContext(store);
   const products  = state.ui.products;
-
+  const hotelId = state.ui.hotelId;
   const toast = useToast();
 
   const handleProducts = (productData) => {

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { store } from "../../../store";
 import {
   Table,
   Thead,
@@ -25,37 +26,20 @@ import {
   PopoverHeader,
   PopoverBody,
 } from "@chakra-ui/react";
-import { getInvoicesByHotelId } from "../../api"; // Adjust the import path as necessary
+import useFetchInvoices from "../../hooks/InvoiceHooks/useFetchInvoices";
 
-const ShowInvoicesByHotel = ({ hotelId }) => {
-  const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
+const ShowInvoicesByHotel = () => {
+  useFetchInvoices();
+  const { state } = useContext(store);
+  const hotelId = state.ui.hotelId;
+  const invoices = state.ui.invoices;
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [subtractTax, setSubtractTax] = useState(false);
   const [showInUSD, setShowInUSD] = useState(false); // Adjust initial state as needed
   const [exchangeRate, setExchangeRate] = useState(1);
   const [customTaxRate, setCustomTaxRate] = useState(0); // State for custom tax rate
 
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 10);
-        const formattedStartDate = startDate.toISOString();
-
-        const data = await getInvoicesByHotelId(hotelId, formattedStartDate);
-        setInvoices(data);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInvoices();
-  }, [hotelId]);
 
   const today = new Date();
   const tenDaysAgo = new Date();

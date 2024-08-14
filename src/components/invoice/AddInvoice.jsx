@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { store } from "../../../store";
 import {
   Box,
   Button,
@@ -9,22 +10,25 @@ import {
   NumberInputField,
   Textarea,
   VStack,
-  useToast, // Import useToast hook
+  useToast,
 } from "@chakra-ui/react";
-import { createInvoice } from "../../api";
+import useCreateInvoice from "../../hooks/InvoiceHooks/useCreateInvoice";
 
-const AddInvoice = ({ hotelId }) => {
+const AddInvoice = () => {
+  const { state } = useContext(store);
+  const hotelId = state.ui.hotelId;
   const [total, setTotal] = useState("");
   const [date, setDate] = useState("");
   const [comment, setComment] = useState("");
   const [room, setRoom] = useState("");
-  const toast = useToast(); // Initialize useToast hook
+  const { handleSubmit, loading, error } = useCreateInvoice();
+  const toast = useToast();
 
   const handleCommentChange = (newComment) => {
     setComment(newComment);
   };
 
-  const handleSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
     const invoiceData = {
       total: parseFloat(total),
@@ -33,36 +37,17 @@ const AddInvoice = ({ hotelId }) => {
       comment,
       room: parseInt(room),
     };
-
-    try {
-      await createInvoice(invoiceData);
-      // Reset form fields
-      setTotal("");
-      setDate("");
-      setComment("");
-      setRoom("");
-      // Show success toast
-      toast({
-        title: "Invoice created successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-    } catch (error) {
-      console.error("Failed to create invoice", error);
-      // Show error toast
-      toast({
-        title: "Failed to create invoice",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
+    handleSubmit(invoiceData);
+    // Reset form fields
+    setTotal("");
+    setDate("");
+    setComment("");
+    setRoom("");
   };
 
   return (
     <Box p={4} maxWidth="500px" mx="auto">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={onSubmit}>
         <VStack spacing={4}>
           <FormControl id="total" isRequired>
             <FormLabel>Total</FormLabel>
@@ -116,7 +101,7 @@ const AddInvoice = ({ hotelId }) => {
             </NumberInput>
           </FormControl>
 
-          <Button type="submit" colorScheme="blue" width="full">
+          <Button type="submit" colorScheme="blue" width="full" isLoading={loading}>
             Add Invoice
           </Button>
         </VStack>
