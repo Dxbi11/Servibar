@@ -5,7 +5,6 @@ import { auth } from "../config/firebaseConfig";
 import { Button } from "@chakra-ui/react";
 import HotelRoomsTable from "./Rack/HotelRoomsTable";
 import RackMenu from "./Rack/RackMenu";
-import { getAllHotels } from "../api";
 import MainInvoiceMenu from "./invoice/MainInvoiceMenu";
 import StoreHouse from "./StoreHouse/StoreHouse";
 import {
@@ -21,21 +20,26 @@ import {
 } from "@chakra-ui/react";
 import MainInventory from "./Inventory/MainInventory";
 
+import useFetchRooms from "../hooks/RoomHooks/useFetchRooms";
+import useFetchHotels from "../hooks/HotelHooks/useFetchHotels";
+
 const Home = ({ user }) => {
   const { state, dispatch } = useContext(store);
   const HotelId = state.ui.hotelId;
-  
+  const hotels = state.ui.hotels;
+  useFetchHotels();
 
-  const [hotels, setHotels] = useState([]);
   const [selectedHotelId, setSelectedHotelId] = useState("1");
 
   const handleHotelId = (selectedHotelId) => {
     dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });
   };
 
-  if (!HotelId) {
-    handleHotelId(selectedHotelId);
-  }
+  useEffect(() => {
+    if (!HotelId) {
+      dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });
+    }
+  }, [selectedHotelId]);
 
   const handleSignOut = () => {
     signOut(auth)
@@ -53,25 +57,7 @@ const Home = ({ user }) => {
     handleHotelId(selectedHotelId);
   };
 
-  useEffect(() => {
-    const fetchHotels = async () => {
-      try {
-        const data = await getAllHotels();
-        setHotels(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
 
-    fetchHotels();
-  }, [handleHotelChange]);
-
-  /*          
-                    <TabPanel>
-            <MainInvoiceMenu hotelId={selectedHotelId} />
-          </TabPanel>
-          
-          */
   return (
     <Box p={4} className="min-h-screen bg-gray-100">
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
@@ -106,13 +92,13 @@ const Home = ({ user }) => {
 
         <TabPanels>
           <TabPanel>
-            <HotelRoomsTable hotelId={selectedHotelId} />
+            <HotelRoomsTable />
           </TabPanel>
           <TabPanel>
-            <MainInvoiceMenu hotelId={selectedHotelId} />
+            <MainInvoiceMenu />
           </TabPanel>
           <TabPanel>
-            <MainInventory hotelId={selectedHotelId} />
+            <MainInventory />
           </TabPanel>
           <TabPanel>
             <RackMenu />

@@ -15,27 +15,20 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import RowContent from './RowContent';
-import UseStoreHouse from './UseStoreHouse';
 
 const TableStoreHouse = () => {
-  const products = UseStoreHouse() || []; 
+  const { state, dispatch } = useContext(store);
+  const products = state.ui.products;
+  const hotelId = state.ui.hotelId;
   const [inputQuantity, setInputQuantity] = useState([]);
   const [quantity, setQuantity] = useState([]);
-  const [loading, setLoading] = useState(true); 
-  const { dispatch } = useContext(store);
-
-  const handleProducts = () => {
-    dispatch({ type: 'SET_PRODUCTS', payload: products });
-  }
+  const [loading, setLoading] = useState(false); 
 
 
   useEffect(() => {
     if (products.length > 0) {
       setQuantity(products.map(() => 0));
       setLoading(false);
-      handleProducts();
-    } else {
-      setLoading(true); 
     }
   }, [products]);
 

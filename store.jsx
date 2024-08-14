@@ -8,6 +8,10 @@ import PropTypes from 'prop-types';
  */
 const ui = {
   products: [],
+  hotels: [],
+  floors: [],
+  rooms: [],
+  invoices: [],
   hotelId: null,
 };
 
@@ -46,6 +50,49 @@ const stateReducer = (state, action) => {
             hotelId: action.payload,
           },
         };
+      case 'SET_HOTELS':
+        return {
+          ...state,
+          ui: {
+            ...state.ui,
+            hotels: action.payload,
+          },
+        };
+      case 'SET_ROOMS':
+        return {
+          ...state,
+          ui: {
+            ...state.ui,
+            rooms: action.payload,
+          },
+        };
+      case 'SET_FLOORS':
+        return {
+          ...state,
+          ui: {
+            ...state.ui,
+            floors: action.payload,
+          },
+        };
+        case 'UPDATE_ROOM':
+          return {
+              ...state,
+              ui: {
+                  ...state.ui,
+                  rooms: state.ui.rooms.map(room =>
+                      room.id === action.payload.id ? action.payload : room
+                  ),
+              },
+          };
+        case 'SET_INVOICES':
+          return {
+              ...state,
+              ui: {
+                  ...state.ui,
+                  invoices: action.payload,
+              },
+          };
+        
     default:
       // Throw an error for any unsupported action types
       throw new Error();

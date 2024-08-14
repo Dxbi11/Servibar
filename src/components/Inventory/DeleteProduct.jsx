@@ -1,6 +1,7 @@
 // src/components/DeleteProduct.js
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { store } from "../../../store";
 import {
   Box,
   Button,
@@ -12,32 +13,12 @@ import {
 } from "@chakra-ui/react";
 import { getProductsByHotelId, deleteProduct } from "../../api"; // Adjust the import path as necessary
 
-const DeleteProduct = ({ hotelId }) => {
-  const [products, setProducts] = useState([]);
+const DeleteProduct = () => {
+  const { state, dispatch } = useContext(store);
+  const hotelId = state.ui.hotelId;
+  const products = state.ui.products;
   const [selectedProduct, setSelectedProduct] = useState("");
   const toast = useToast();
-
-  
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProductsByHotelId(hotelId);
-        setProducts(data);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "There was an error fetching the products.",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-        });
-      }
-    };
-
-    if (hotelId) {
-      fetchProducts();
-    }
-  }, [hotelId, toast, products]);
 
   const handleDeleteProduct = async () => {
     if (!selectedProduct) {

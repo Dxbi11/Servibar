@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { createHotel } from "../../api";
-import { Input, Text, Button, Toast } from "@chakra-ui/react";
+import { Input, Text, Button } from "@chakra-ui/react";
 import {
   Modal,
   ModalOverlay,
@@ -10,28 +9,18 @@ import {
   ModalBody,
   ModalCloseButton,
 } from "@chakra-ui/react";
+import useCreateHotel from "../../hooks/HotelHooks/useCreateHotel";
 
 const AddHotelForm = () => {
   const [name, setName] = useState("");
-
   const [isOpen, setIsOpen] = useState(false); // State to control modal visibility
+  const { handleSubmit, loading } = useCreateHotel(); // Destructure handleSubmit and loading from the custom hook
 
-  const handleSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    try {
-      await createHotel({ name });
-      Toast({
-        title: "Rooms added.",
-        description: `Hotel ${name} added successfully!`,
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-
-      setName("");
-    } catch (error) {
-      console.error("Error adding hotel:", error);
-    }
+    handleSubmit({ name });
+    setName("");
+    handleModalClose(); // Close the modal after successful addition
   };
 
   const handleModalOpen = () => {
@@ -56,7 +45,7 @@ const AddHotelForm = () => {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={onSubmit}>
               <Input
                 type="text"
                 placeholder="Name"
@@ -65,7 +54,7 @@ const AddHotelForm = () => {
                 required
               />
 
-              <Button colorScheme="teal" type="submit">
+              <Button colorScheme="teal" type="submit" isLoading={loading}>
                 Add Hotel
               </Button>
             </form>

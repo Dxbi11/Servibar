@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { store } from '../../../store';
 import {
   Button,
   Modal,
@@ -18,45 +19,19 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { createRoom, getAllHotels, getHotelById, getAllFloors, getFloorById } from '../../api';
+
 const AddRoom = ({ onRoomAdded }) => {
+  const { state, dispatch } = useContext(store);
+  const hotels = state.ui.hotels;
+  const floors = state.ui.floors;
+  const rooms = state.ui.rooms;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [startRoomNumber, setStartRoomNumber] = useState('');
   const [endRoomNumber, setEndRoomNumber] = useState('');
-  const [hotels, setHotels] = useState([]);
   const [selectedHotel, setSelectedHotel] = useState('');
-  const [floors, setFloors] = useState([]);
   const [selectedFloor, setSelectedFloor] = useState('');
   const [error, setError] = useState('');
   const toast = useToast();
-
-  useEffect(() => {
-    async function fetchHotels() {
-      try {
-        const hotelsData = await getAllHotels();
-        setHotels(hotelsData);
-      } catch (error) {
-        console.error('Error fetching hotels:', error);
-      }
-    }
-
-    fetchHotels();
-  }, [isOpen]);
-
-  useEffect(() => {
-    async function fetchFloors() {
-      try {
-        if (selectedHotel) {
-          const hotel = await getHotelById(selectedHotel);
-          setFloors(hotel.floors);
-          console.log(hotel.floors)}}
-
-      catch (error) {
-        console.error('Error fetching floors:', error);
-      }
-    }
-
-    fetchFloors();
-  }, [selectedHotel]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,21 +51,23 @@ const AddRoom = ({ onRoomAdded }) => {
     }
 
     try {
-      // Create rooms in the specified range
-      const promises = [];
+      const newRooms = [];
       for (let roomNumber = start; roomNumber <= end; roomNumber++) {
-        promises.push(
-          createRoom({
-            roomNumber,
-            hotelId: parseInt(selectedHotel),
-            floorId: parseInt(selectedFloor),
-            locked: false, // Example value, adjust as needed
-            state: 0,
-          })
-        );
+        const newRoom = await createRoom({
+          roomNumber,
+          hotelId: parseInt(selectedHotel),
+          floorId: parseInt(selectedFloor),
+          locked: false, // Example value, adjust as needed
+          state: 0,
+        });
+        newRooms.push(newRoom);
       }
 
-      await Promise.all(promises);
+      // Dispatch an action to add the new rooms to the context
+      dispatch({
+        type: 'SET_ROOMS',
+        payload: [...state.ui.rooms, ...newRooms],
+      });
 
       toast({
         title: 'Rooms added.',
