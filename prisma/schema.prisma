@@ -15,7 +15,8 @@ model Hotel {
   rooms    Room[]    @relation(name: "HotelToRoom")
   products Product[] @relation(name: "ProductToHotel")
   invoices Invoice[] @relation(name: "InvoiceToHotel")
-
+  stocks   RoomStock[] @relation(name: "HotelToRoomStock")
+  storehouses StoreHouse[] @relation(name: "HotelToStorehouse")
 }
 
 model Floor {
@@ -56,14 +57,14 @@ model Product {
 }
 
 model RoomStock {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   quantity  Int
-  roomId    Int      @unique
+  roomId    Int
   productId Int
-  room      Room     @relation(name: "RoomToRoomStock", fields: [roomId], references: [id])
-  product   Product  @relation(name: "ProductToRoomStock", fields: [productId], references: [id])
-
-  @@unique([roomId, productId])
+  hotelId   Int
+  room      Room    @relation(name: "RoomToRoomStock", fields: [roomId], references: [id])
+  product   Product @relation(name: "ProductToRoomStock", fields: [productId], references: [id])
+  hotel     Hotel   @relation(name: "HotelToRoomStock", fields: [hotelId], references: [id])
 }
 
 model Invoice {
@@ -89,5 +90,7 @@ model InvoiceItem {
 model StoreHouse {
   id       Int       @id @default(autoincrement())
   product  Product[] @relation(name: "ProductToStorehouse")
-  quantity Int?
+  quantity Int?
+  hotelId  Int
+  hotel    Hotel     @relation(name: "HotelToStorehouse", fields: [hotelId], references: [id])
 }
