@@ -21,9 +21,12 @@
     "express": "^4.19.2",
     "firebase": "^10.12.2",
     "framer-motion": "^11.2.11",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
     "pg": "^8.12.0",
     "react-router-dom": "^6.23.1",
-    "react-select": "^5.8.0"
+    "react-select": "^5.8.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

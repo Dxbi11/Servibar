@@ -27,6 +27,8 @@ import {
   PopoverBody,
 } from "@chakra-ui/react";
 import useFetchInvoices from "../../hooks/InvoiceHooks/useFetchInvoices";
+import ExportToExcel from "../../hooks/FileExports/ExportToExcel";
+import ExportToPDF from "../../hooks/FileExports/ExportToPDF";
 
 const ShowInvoicesByHotel = () => {
   useFetchInvoices();
@@ -199,6 +201,16 @@ const ShowInvoicesByHotel = () => {
           ))}
         </Tbody>
       </Table>
+      <ExportToExcel
+        invoices={invoices}
+        showInUSD={showInUSD}
+        exchangeRate={exchangeRate}
+      />
+      <ExportToPDF
+        invoices={invoices}
+        showInUSD={showInUSD}
+        exchangeRate={exchangeRate}
+      />
     </>
   );
 };
