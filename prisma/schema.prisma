@@ -15,8 +15,6 @@ model Hotel {
   rooms    Room[]    @relation(name: "HotelToRoom")
   products Product[] @relation(name: "ProductToHotel")
   invoices Invoice[] @relation(name: "InvoiceToHotel")
-  stocks   RoomStock[] @relation(name: "HotelToRoomStock")
-  storehouses StoreHouse[] @relation(name: "HotelToStorehouse")
 }
 
 model Floor {
@@ -28,18 +26,18 @@ model Floor {
 }
 
 model Room {
-  id             Int        @id @default(autoincrement())
+  id             Int         @id @default(autoincrement())
   roomNumber     Int
   hotelId        Int
   floorId        Int
-  hotel          Hotel      @relation(name: "HotelToRoom", fields: [hotelId], references: [id])
-  floor          Floor      @relation(name: "FloorToRoom", fields: [floorId], references: [id])
-  minibarItems   RoomStock? @relation(name: "RoomToRoomStock")
-  locked         Boolean    @default(false)
+  hotel          Hotel       @relation(name: "HotelToRoom", fields: [hotelId], references: [id])
+  floor          Floor       @relation(name: "FloorToRoom", fields: [floorId], references: [id])
+  minibarItems   RoomStock[] @relation(name: "RoomToRoomStock")
+  locked         Boolean     @default(false)
   state          Int
   comment        String?
   checked        Boolean?
-  minibarItemsId Int?       @unique
+  minibarItemsId Int?        @unique
 
   @@unique([roomNumber, hotelId])
 }
@@ -57,14 +55,12 @@ model Product {
 }
 
 model RoomStock {
-  id        Int     @id @default(autoincrement())
-  quantity  Int
-  roomId    Int
-  productId Int
-  hotelId   Int
-  room      Room    @relation(name: "RoomToRoomStock", fields: [roomId], references: [id])
-  product   Product @relation(name: "ProductToRoomStock", fields: [productId], references: [id])
-  hotel     Hotel   @relation(name: "HotelToRoomStock", fields: [hotelId], references: [id])
+  id             Int     @id @default(autoincrement())
+  quantity       Int
+  room           Room?   @relation(name: "RoomToRoomStock", fields: [minibarItemsId], references: [id])
+  product        Product @relation(name: "ProductToRoomStock", fields: [roomStocksId], references: [id])
+  roomStocksId   Int
+  minibarItemsId Int?
 }
 
 model Invoice {
@@ -91,6 +87,4 @@ model StoreHouse {
   id       Int       @id @default(autoincrement())
   product  Product[] @relation(name: "ProductToStorehouse")
   quantity Int?
-  hotelId  Int
-  hotel    Hotel     @relation(name: "HotelToStorehouse", fields: [hotelId], references: [id])
 }
