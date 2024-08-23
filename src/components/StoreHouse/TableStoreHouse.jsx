@@ -15,15 +15,18 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import RowContent from './RowContent';
+import useFetchStoreHouse from '../../hooks/StoreHooks/useFetchStoreHouse';
 
 const TableStoreHouse = () => {
+  useFetchStoreHouse();
   const { state, dispatch } = useContext(store);
   const products = state.ui.products;
   const hotelId = state.ui.hotelId;
   const [inputQuantity, setInputQuantity] = useState([]);
   const [quantity, setQuantity] = useState([]);
   const [loading, setLoading] = useState(false); 
-
+  const storeHouse = state.ui.storeHouse;
+  console.log(storeHouse);
 
   useEffect(() => {
     if (products.length > 0) {

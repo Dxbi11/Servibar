@@ -561,11 +561,10 @@ app.delete('/invoices/:invoiceId/items/:itemId', async (req, res) => {
 });
 
 
-// Storehouse routes
+// StoreHouse routes
 app.get('/storehouse', async (req, res) => {
   try {
     const storehouse = await prisma.storehouse.findMany();
-    console.log(storehouse);
     res.json(storehouse);
   } catch (error) {
     console.error('Error fetching storehouse:', error);
@@ -573,17 +572,49 @@ app.get('/storehouse', async (req, res) => {
   }
 });
 
-
 app.post('/storehouse', async (req, res) => {
-  const { product, quantity } = req.body;
+  const { quantity, productId, hotelId } = req.body;
   try {
     const newStorehouse = await prisma.storehouse.create({
-      data: { products: { create: product }, 
-      quantity},
+      data: {
+        quantity,
+        productId,
+        hotelId,
+      },
     });
     res.status(201).json(newStorehouse);
   } catch (error) {
     console.error('Error adding storehouse:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.put('/storehouse/:id', async (req, res) => {
+  const { quantity, productId, hotelId } = req.body;
+  try {
+    const updatedStorehouse = await prisma.storehouse.update({
+      where: { id: parseInt(req.params.id) },
+      data: {
+        quantity,
+        productId,
+        hotelId,
+      },
+    });
+    res.json(updatedStorehouse);
+  } catch (error) {
+    console.error('Error updating storehouse:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.delete('/storehouse/:id', async (req, res) => {
+  try {
+    await prisma.storehouse.delete({
+      where: { id: parseInt(req.params.id) },
+    });
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting storehouse:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

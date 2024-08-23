@@ -213,15 +213,49 @@ export const updateInvoiceItem = async (invoiceId, itemId, itemData) => {
 export const deleteInvoiceItem = async (invoiceId, itemId) => {
   await api.delete(`/invoices/${invoiceId}/items/${itemId}`);
 };
+// StoreHouse operations
 
-export const getStoreHouse = async () => {
+// Get all storehouse entries
+export const getAllStoreHouses = async () => {
   const response = await api.get('/storehouse');
   return response.data;
-}
+};
 
-export const postStoreHouse = async (storeHouseData) => {
-  const response = await api.post('/storehouse', storeHouseData);
+// Get storehouse entry by ID
+export const getStoreHouseById = async (storeHouseId) => {
+  const response = await api.get(`/storehouse/${storeHouseId}`);
   return response.data;
-}
+};
 
+// Create a new storehouse entry
+export const createStoreHouse = async (storeHouseData) => {
+  try {
+    const response = await api.post('/storehouse', storeHouseData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to create storehouse entry:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+// Update an existing storehouse entry
+export const updateStoreHouse = async (storeHouseId, storeHouseData) => {
+  try {
+    const response = await api.put(`/storehouse/${storeHouseId}`, storeHouseData);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update storehouse entry:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+// Delete a storehouse entry
+export const deleteStoreHouse = async (storeHouseId) => {
+  try {
+    await api.delete(`/storehouse/${storeHouseId}`);
+  } catch (error) {
+    console.error('Failed to delete storehouse entry:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
 

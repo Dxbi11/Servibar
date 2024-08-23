@@ -17,7 +17,8 @@ import {
   Badge,
   Spinner,
   Center,
-  Select
+  Select,
+  Button,
 } from "@chakra-ui/react";
 
 import useFetchRooms from "../../hooks/RoomHooks/useFetchRooms";
@@ -41,9 +42,11 @@ const getRoomStatus = (state) => {
 const HotelRoomsTable = () => {
   const { isLoading, error } = useFetchRooms();
   const updateRoomData = useUpdateRoomData();
-  const { state } = useContext(store);
+  const { state, dispatch } = useContext(store);
   const rooms = state.ui.rooms;
   const products = state.ui.products;
+  console.log(products);
+
   const locks = ["Locked", "Unlocked"];
   const labels = ["Available", "In House", "Leaving", "Already Left"];
 
@@ -51,6 +54,7 @@ const HotelRoomsTable = () => {
   const [selectedLocked, setSelectedLocked] = useState({});
   const [accordionIndex, setAccordionIndex] = useState([0]); // Track open accordion panels
   const [openMissingItemsIndex, setOpenMissingItemsIndex] = useState({});
+  const [productClickState, setProductClickState] = useState({});
 
   if (isLoading) {
     return (
@@ -102,6 +106,31 @@ const HotelRoomsTable = () => {
       [roomId]: !prevIndex[roomId],
     }));
   };
+
+  const handleProductClick = (roomId, productId) => {
+    setProductClickState((prevState) => {
+      const key = `${roomId}-${productId}`;
+      const currentClickCount = prevState[key] || 0;
+  
+      if (currentClickCount === 1) {
+        // Dispatch action to remove product after second click
+        dispatch({
+          type: 'REMOVE_PRODUCT',
+          payload: { productId },
+        });
+  
+        // Reset the click state for the product
+        const newState = { ...prevState };
+        delete newState[key];
+        return newState;
+      }
+  
+      // Increase click count on first click
+      return { ...prevState, [key]: currentClickCount + 1 };
+    });
+  };
+  
+
   return (
     <Box p={4} bg="gray.50" borderRadius="md" boxShadow="md">
       <Accordion allowMultiple>
@@ -128,9 +157,9 @@ const HotelRoomsTable = () => {
                 {rooms.map((room) => (
                   <React.Fragment key={room.id}>
                     <Tr key={room.id}>
-                    <Td>{room.roomNumber}</Td>
-                    <Td>
-                    <Select
+                      <Td>{room.roomNumber}</Td>
+                      <Td>
+                        <Select
                           placeholder={getRoomStatus(room.state).label}
                           value={selectedStatus[room.id] || room.state}
                           onChange={(e) => handleSelectChange(room, e)}
@@ -139,14 +168,14 @@ const HotelRoomsTable = () => {
                           color="white"
                         >
                           {labels.map((label, index) => (
-                            <option style={{ color: 'black' }} key={index} value={index}>
+                            <option style={{ color: "black" }} key={index} value={index}>
                               {label}
                             </option>
                           ))}
                         </Select>
-                    </Td>
-                    <Td>
-                    <Select
+                      </Td>
+                      <Td>
+                        <Select
                           placeholder={room.locked ? "Locked" : "Unlocked"}
                           value={selectedLocked[room.id] || (room.locked ? "Locked" : "Unlocked")}
                           onChange={(e) => handleLockChange(room, e)}
@@ -155,58 +184,68 @@ const HotelRoomsTable = () => {
                           color="white"
                         >
                           {locks.map((lock, index) => (
-                            <option style={{ color: 'black' }} key={index} value={lock}>
+                            <option style={{ color: "black" }} key={index} value={lock}>
                               {lock}
                             </option>
                           ))}
                         </Select>
-                    </Td>
-                    <Td>
-                    {products.map((product) => (
-                    <div
-                      key={product.id}
-                      style={{
-                        border: '2px solid red',
-                        width: 'fit-content',
-                        borderRadius: '12px',
-                        padding: '4px 8px',
-                        marginBottom: '4px',
-                        backgroundColor: 'white'
-                      }}
-                    >
-                      {product.name}
-                    </div>
-                    ))}
-                    </Td>
-                  </Tr>
+                      </Td>
+                      <Td>
+                        {products.map((product) => {
+                          const productKey = `${room.id}-${product.id}`;
+                          const clickCount = productClickState[productKey] || 0;
+
+                          return (
+                            <Button
+                              key={product.id}
+                              onClick={() => handleProductClick(room.id, product.id)}
+                              bg={clickCount === 1 ? "red" : "white"}
+                              color={clickCount === 1 ? "white" : "black"}
+                              border="2px solid red"
+                              borderRadius="12px"
+                              p="4px 8px"
+                              m="4px 0"
+                              display={clickCount === 2 ? "none" : "block"}
+                            >
+                              {product.name}
+                            </Button>
+                          );
+                        })}
+                      </Td>
+                    </Tr>
                     <Tr>
-                      <Td colSpan={3}>
-                      <Accordion allowMultiple index={openMissingItemsIndex[room.id] ? [0] : []} onChange={() => toggleMissingItemsAccordion(room.id)}>
-                        <AccordionItem>
+                      <Td colSpan={4}>
+                        <Accordion allowMultiple index={openMissingItemsIndex[room.id] ? [0] : []} onChange={() => toggleMissingItemsAccordion(room.id)}>
+                          <AccordionItem>
                             <h2>
                               <AccordionButton>
-                                <Box as='span' flex='1' textAlign='left'>
+                                <Box as="span" flex="1" textAlign="left">
                                   Items missing
                                 </Box>
                                 <AccordionIcon />
                               </AccordionButton>
                             </h2>
                             <AccordionPanel pb={4}>
-                              {products.map((product) => (
-                                <div
-                                  key={product.id}
-                                  style={{
-                                    border: '2px solid red',
-                                    width: 'fit-content',
-                                    borderRadius: '12px',
-                                    padding: '4px 8px',
-                                    marginBottom: '4px',
-                                    backgroundColor: 'white'
-                                  }}
-                                >
-                                  {product.name}
-                                </div>
-                              ))}
+                              {products.map((product) => {
+                                const productKey = `${room.id}-${product.id}`;
+                                const clickCount = productClickState[productKey] || 0;
+
+                                return (
+                                  <Button
+                                    key={product.id}
+                                    onClick={() => handleProductClick(room.id, product.id)}
+                                    bg={clickCount === 1 ? "red" : "white"}
+                                    color={clickCount === 1 ? "white" : "black"}
+                                    border="2px solid red"
+                                    borderRadius="12px"
+                                    p="4px 8px"
+                                    m="4px 0"
+                                    display={clickCount === 2 ? "none" : "block"}
+                                  >
+                                    {product.name}
+                                  </Button>
+                                );
+                              })}
                             </AccordionPanel>
                           </AccordionItem>
                         </Accordion>

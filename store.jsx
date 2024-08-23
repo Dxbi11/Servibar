@@ -12,6 +12,7 @@ const ui = {
   floors: [],
   rooms: [],
   invoices: [],
+  storeHouse: [],
   hotelId: null,
 };
 
@@ -42,6 +43,17 @@ const stateReducer = (state, action) => {
           products: action.payload,
         },
       };
+      case 'REMOVE_PRODUCT':
+        const updatedProducts = state.ui.products.filter(
+          (product) => product.id !== action.payload.productId
+        );
+        return {
+          ...state,
+          ui: {
+            ...state.ui,
+            products: updatedProducts,
+          },
+        };
       case 'SET_HOTEL_ID':
         return {
           ...state,
@@ -92,7 +104,15 @@ const stateReducer = (state, action) => {
                   invoices: action.payload,
               },
           };
-        
+        case 'SET_STORE_HOUSE':
+          return {
+              ...state,
+              ui: {
+                  ...state.ui,
+                  storeHouse: action.payload,
+              },
+          };
+          
     default:
       // Throw an error for any unsupported action types
       throw new Error();
