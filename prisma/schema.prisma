@@ -9,12 +9,13 @@ generator client {
 }
 
 model Hotel {
-  id       Int       @id @default(autoincrement())
-  name     String
-  floors   Floor[]   @relation(name: "FloorToHotel")
-  rooms    Room[]    @relation(name: "HotelToRoom")
-  products Product[] @relation(name: "ProductToHotel")
-  invoices Invoice[] @relation(name: "InvoiceToHotel")
+  id         Int         @id @default(autoincrement())
+  name       String
+  floors     Floor[]     @relation(name: "FloorToHotel")
+  rooms      Room[]      @relation(name: "HotelToRoom")
+  products   Product[]   @relation(name: "ProductToHotel")
+  invoices   Invoice[]   @relation(name: "InvoiceToHotel")
+  storehouse StoreHouse? @relation(name: "HotelToStoreHouse")
 }
 
 model Floor {
@@ -87,4 +88,6 @@ model StoreHouse {
   product   Product @relation(name: "ProductToStorehouse", fields: [productId], references: [id])
   quantity  Int?
   productId Int     @unique
+  hotel     Hotel   @relation(name: "HotelToStoreHouse", fields: [hotelId], references: [id])
+  hotelId   Int     @unique
 }
