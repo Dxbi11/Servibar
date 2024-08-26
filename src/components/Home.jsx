@@ -22,13 +22,14 @@ import MainInventory from "./Inventory/MainInventory";
 
 import useFetchRooms from "../hooks/RoomHooks/useFetchRooms";
 import useFetchHotels from "../hooks/HotelHooks/useFetchHotels";
+import useFetchStoreHouse from "../hooks/StoreHooks/useFetchStoreHouse";
 
 const Home = ({ user }) => {
   const { state, dispatch } = useContext(store);
   const HotelId = state.ui.hotelId;
   const hotels = state.ui.hotels;
   useFetchHotels();
-
+  useFetchStoreHouse()
   const [selectedHotelId, setSelectedHotelId] = useState("1");
 
   const handleHotelId = (selectedHotelId) => {

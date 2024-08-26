@@ -3,7 +3,7 @@
 
 import axios from 'axios';
 
-const API_URL = 'http://localhost:4000'; // Replace with your backend URL
+const API_URL = 'https://servibarex.onrender.com'; // Replace with your backend URL
 
 const api = axios.create({
   baseURL: API_URL,
@@ -220,6 +220,21 @@ export const getAllStoreHouses = async () => {
   const response = await api.get('/storehouse');
   return response.data;
 };
+
+export const postStoreHouse = async (storeHouseData) => {
+  const response = await api.post('/storehouse', storeHouseData);
+}
+// Get storehouse entries by hotelId
+export const getStoreHouseByHotelId = async (hotelId) => {
+  try {
+    const response = await api.get(`/storehouse/${hotelId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching storehouse for hotelId ${hotelId}:`, error);
+    throw error;
+  }
+};
+
 
 // Get storehouse entry by ID
 export const getStoreHouseById = async (storeHouseId) => {

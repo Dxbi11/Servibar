@@ -1,10 +1,11 @@
 import { useEffect, useState, useContext } from "react";
 import { store } from "../../../store";
-import { getAllStoreHouses } from "../../api";
+import { getStoreHouseByHotelId } from "../../api";
 
 const useFetchStoreHouse = () => {
     const { state, dispatch } = useContext(store);
     const HotelId = state.ui.hotelId;
+    const products = state.ui.products;
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -16,8 +17,7 @@ const useFetchStoreHouse = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const storeHouseData = await getAllStoreHouses();
-            console.log(storeHouseData);
+            const storeHouseData = await getStoreHouseByHotelId(HotelId);
             handleRooms(storeHouseData);
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -31,7 +31,7 @@ const useFetchStoreHouse = () => {
         if (HotelId) {
             fetchData();
         }
-    }, [HotelId]);
+    }, [products]);
 
     return { isLoading, error };
 }

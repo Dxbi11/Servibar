@@ -572,6 +572,23 @@ app.get('/storehouse', async (req, res) => {
   }
 });
 
+// StoreHouse routes with hotelId
+app.get('/storehouse/:hotelId', async (req, res) => {
+  const { hotelId } = req.params;
+  
+  try {
+    const storehouses = await prisma.storehouse.findMany({
+      where: {
+        hotelId: parseInt(hotelId), // Ensure hotelId is an integer
+      },
+    });
+    res.json(storehouses);
+  } catch (error) {
+    console.error(`Error fetching storehouse for hotelId ${hotelId}:`, error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+});
+
 app.post('/storehouse', async (req, res) => {
   const { quantity, productId, hotelId } = req.body;
   try {
@@ -595,9 +612,9 @@ app.put('/storehouse/:id', async (req, res) => {
     const updatedStorehouse = await prisma.storehouse.update({
       where: { id: parseInt(req.params.id) },
       data: {
+        hotelId,
         quantity,
         productId,
-        hotelId,
       },
     });
     res.json(updatedStorehouse);
