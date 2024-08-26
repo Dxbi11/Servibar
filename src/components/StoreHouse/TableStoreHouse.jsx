@@ -20,17 +20,11 @@ const TableStoreHouse = () => {
   const { state, dispatch } = useContext(store);
   const products = state.ui.products;
   const hotelId = state.ui.hotelId;
-  const [inputQuantity, setInputQuantity] = useState([]);
-  const [quantity, setQuantity] = useState([]);
-  const [loading, setLoading] = useState(false); 
+  const storeHouse = state.ui.storeHouse || []; // Default to empty array if undefined
+  const [loading, setLoading] = useState(false);
 
-
-  useEffect(() => {
-    if (products.length > 0) {
-      setQuantity(products.map(() => 0));
-      setLoading(false);
-    }
-  }, [products]);
+  const sortedStoreHouse = [...storeHouse].sort((a, b) => a.productId - b.productId);
+  const sortedProducts = [...products].sort((a, b) => a.id - b.id);
 
   if (loading) {
     return (
@@ -40,39 +34,38 @@ const TableStoreHouse = () => {
       </Box>
     );
   }
-
   return (
-  <Box p={6} bg="gray.50" borderRadius="md" boxShadow="lg" borderWidth="1px">
-    <Editable defaultValue="Store House" mb={6}>
-      <EditablePreview fontSize="3xl" fontWeight="bold" color="teal.600" />
-      <EditableInput fontSize="lg" />
-    </Editable>
-    <TableContainer>
-      <Table variant="striped" colorScheme="teal">
-        <Thead>
-          <Tr>
-            <Th fontWeight="bold" color="teal.800" borderBottomWidth="2px">Product</Th>
-            <Th fontWeight="bold" color="teal.800" borderBottomWidth="2px">Quantity</Th>
-            <Th fontWeight="bold" color="teal.800" borderBottomWidth="2px">Actions</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {products.map((product, index) => (
-            <RowContent
-              key={product.id}
-              product={product}
-              index={index}
-              quantity={quantity}
-              setQuantity={setQuantity}
-              inputQuantity={inputQuantity}
-              setInputQuantity={setInputQuantity}
-            />
-          ))}
-        </Tbody>
-      </Table>
-    </TableContainer>
-  </Box>
-
+    <Box p={6} bg="gray.50" borderRadius="md" boxShadow="lg" borderWidth="1px">
+      <Editable defaultValue="Store House" mb={6}>
+        <EditablePreview fontSize="3xl" fontWeight="bold" color="teal.600" />
+        <EditableInput fontSize="lg" />
+      </Editable>
+      <TableContainer>
+        <Table variant="striped" colorScheme="teal">
+          <Thead>
+            <Tr>
+              <Th fontWeight="bold" color="teal.800" borderBottomWidth="2px">Product</Th>
+              <Th fontWeight="bold" color="teal.800" borderBottomWidth="2px">Quantity</Th>
+              <Th fontWeight="bold" color="teal.800" borderBottomWidth="2px">Actions</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+          {sortedStoreHouse.length > 0 && sortedStoreHouse.map((row, index) => {
+            //console.log(row); // Log each row
+            return (
+              <RowContent
+                key={row.id}
+                product={sortedProducts[index]}
+                index={index}
+                quantity={row.quantity}
+                storeHouseId={row.id} // Correct prop name
+              />
+            );
+          })}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 };
 

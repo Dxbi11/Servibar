@@ -11,24 +11,30 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import { createProduct } from "../../api"; // Adjust the import path as necessary
+import { createProduct } from "../../api"; 
+import { createStoreHouse } from "../../api";
+import useFetchStoreHouse from "../../hooks/StoreHooks/useFetchStoreHouse";
+
+
 const AddProduct = () => {
-  // Add hotelId as a prop
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const { state, dispatch } = useContext(store);
-  const products  = state.ui.products;
-  const hotelId = state.ui.hotelId;
+  const products = state.ui.products;
+  const hotelId = parseInt(state.ui.hotelId, 10);
   const toast = useToast();
-
   const handleProducts = (productData) => {
     const updatedProducts = [...products, productData];
     dispatch({ type: "SET_PRODUCTS", payload: updatedProducts });
   };
 
+  const handleStoreHouse = (StoreHouseData) => {
+    const updatedStoreHouse = [...state.ui.storeHouse, StoreHouseData];
+    dispatch({ type: "SET_STORE_HOUSE", payload: updatedStoreHouse });
+  };
+
   const handleAddProduct = async () => {
     if (!name || !price || !hotelId) {
-      // Check if all fields and hotelId are provided
       toast({
         title: "Error",
         description: "Please fill in all the fields and provide a hotelId.",
@@ -43,12 +49,25 @@ const AddProduct = () => {
       const productData = {
         name,
         price: parseFloat(price),
-
-        hotelId, // Add hotelId to the product data
+        hotelId,
       };
+      console.log(productData);
+      // Primero creamos el producto y obtenemos su ID
+      const createdProduct = await createProduct(productData);
+      const productId = createdProduct.id; // Asumiendo que el ID es retornado aquí
 
-      await createProduct(productData);
-      handleProducts(productData);
+      const StoreHouseData = {
+        hotelId,
+        quantity: 0,
+        productId, // Ahora podemos usar el productId que obtuvimos
+      };
+      // Luego creamos la entrada en StoreHouse
+      await createStoreHouse(StoreHouseData);
+
+      // Actualizamos el estado con los nuevos datos
+      handleProducts(createdProduct); // Aquí usamos createdProduct que ya tiene el ID asignado
+      handleStoreHouse(StoreHouseData);
+
       toast({
         title: "Product added.",
         description: "The product has been added successfully.",
@@ -56,7 +75,8 @@ const AddProduct = () => {
         duration: 5000,
         isClosable: true,
       });
-      // Clear form
+
+      // Limpiamos el formulario
       setName("");
       setPrice("");
     } catch (error) {

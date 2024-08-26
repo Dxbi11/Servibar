@@ -221,6 +221,22 @@ export const getStoreHouse = async () => {
 
 export const postStoreHouse = async (storeHouseData) => {
   const response = await api.post('/storehouse', storeHouseData);
+}
+// Get storehouse entries by hotelId
+export const getStoreHouseByHotelId = async (hotelId) => {
+  try {
+    const response = await api.get(`/storehouse/${hotelId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching storehouse for hotelId ${hotelId}:`, error);
+    throw error;
+  }
+};
+
+
+// Get storehouse entry by ID
+export const getStoreHouseById = async (storeHouseId) => {
+  const response = await api.get(`/storehouse/${storeHouseId}`);
   return response.data;
 }
 

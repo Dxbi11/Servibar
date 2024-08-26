@@ -92,7 +92,24 @@ const stateReducer = (state, action) => {
                   invoices: action.payload,
               },
           };
-        
+        case 'SET_STORE_HOUSE':
+          return {
+              ...state,
+              ui: {
+                  ...state.ui,
+                  storeHouse: action.payload,
+              },
+          };
+        case 'UPDATE_STORE_HOUSE':
+          return {
+              ...state,
+              ui: {
+                  ...state.ui,
+                  storeHouse: state.ui.storeHouse.map(storeHouse =>
+                      storeHouse.id === action.payload.id ? action.payload : storeHouse
+                  ),
+              },
+          };
     default:
       // Throw an error for any unsupported action types
       throw new Error();
