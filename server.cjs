@@ -207,7 +207,7 @@ app.post('/rooms', async (req, res) => {
   const { roomNumber, hotelId, floorId, locked, state } = req.body;
   try {
     const newRoom = await prisma.room.create({
-      data: { roomNumber, hotelId, floorId, locked, state },
+      data: { roomNumber, hotelId, floorId, locked, state, comment, checked },
     });
     res.status(201).json(newRoom);
   } catch (error) {

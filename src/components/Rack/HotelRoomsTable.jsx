@@ -19,6 +19,9 @@ import {
   Center,
   Select,
   Button,
+  Checkbox,
+  Input,
+  Flex,
 } from "@chakra-ui/react";
 
 import useFetchRooms from "../../hooks/RoomHooks/useFetchRooms";
@@ -45,7 +48,6 @@ const HotelRoomsTable = () => {
   const { state, dispatch } = useContext(store);
   const rooms = state.ui.rooms;
   const products = state.ui.products;
-  console.log(products);
 
   const locks = ["Locked", "Unlocked"];
   const labels = ["Available", "In House", "Leaving", "Already Left"];
@@ -55,7 +57,12 @@ const HotelRoomsTable = () => {
   const [accordionIndex, setAccordionIndex] = useState([0]); // Track open accordion panels
   const [openMissingItemsIndex, setOpenMissingItemsIndex] = useState({});
   const [productClickState, setProductClickState] = useState({});
+  const [dailyCheck, setDailyCheck] = useState({});
+  const [comments, setComments] = useState({});
 
+  // ! Verify if the rooms are loaded correctly with checked and comment properties, if so, remove the console.log
+  console.log(rooms);
+  
   if (isLoading) {
     return (
       <Center h="100vh">
@@ -92,13 +99,17 @@ const HotelRoomsTable = () => {
     updateRoomData(room.id, { locked: newLockState });
   };
 
-  const toggleAccordionItem = (index) => {
-    setAccordionIndex((prevIndex) =>
-      prevIndex.includes(index)
-        ? prevIndex.filter((i) => i !== index)
-        : [...prevIndex, index]
-    );
+  const handleDailyCheckChange = (room, isChecked) => {
+    setDailyCheck((prevCheck) => ({ ...prevCheck, [room.id]: isChecked }));
+    updateRoomData(room.id, { checked: isChecked }); // Ensure this API call is properly handling the update
   };
+  
+  const handleCommentChange = (room, e) => {
+    const newComment = e.target.value;
+    setComments((prevComments) => ({ ...prevComments, [room.id]: newComment }));
+    updateRoomData(room.id, { comment: newComment }); // Ensure this API call is properly handling the update
+  };
+  
 
   const toggleMissingItemsAccordion = (roomId) => {
     setOpenMissingItemsIndex((prevIndex) => ({
@@ -111,32 +122,34 @@ const HotelRoomsTable = () => {
     setProductClickState((prevState) => {
       const key = `${roomId}-${productId}`;
       const currentClickCount = prevState[key] || 0;
-  
+
       if (currentClickCount === 1) {
         // Dispatch action to remove product after second click
         dispatch({
-          type: 'REMOVE_PRODUCT',
+          type: "REMOVE_PRODUCT",
           payload: { productId },
         });
-  
+
         // Reset the click state for the product
         const newState = { ...prevState };
         delete newState[key];
         return newState;
       }
-  
+
       // Increase click count on first click
       return { ...prevState, [key]: currentClickCount + 1 };
     });
   };
-  
 
   return (
     <Box p={4} bg="gray.50" borderRadius="md" boxShadow="md">
       <Accordion allowMultiple>
         <AccordionItem>
           <h2>
-            <AccordionButton _expanded={{ bg: "teal.500", color: "white" }} _hover={{ bg: "teal.400" }}>
+            <AccordionButton
+              _expanded={{ bg: "teal.500", color: "white" }}
+              _hover={{ bg: "teal.400" }}
+            >
               <Box flex="1" textAlign="left">
                 <Text fontWeight="bold">Selected Hotel</Text>
               </Box>
@@ -147,12 +160,27 @@ const HotelRoomsTable = () => {
             <Table variant="simple">
               <Thead>
                 <Tr>
-                  <Th fontWeight="bold" color="gray.600">Room Number</Th>
-                  <Th fontWeight="bold" color="gray.600">Status</Th>
-                  <Th fontWeight="bold" color="gray.600">Locked</Th>
-                  <Th fontWeight="bold" color="gray.600">Missing items</Th>
-                </Tr>
-              </Thead>
+                  <Th fontWeight="bold" color="gray.600" textAlign="center">
+                    Room Number
+                </Th>
+                <Th fontWeight="bold" color="gray.600" textAlign="center">
+                  Status
+                </Th>
+                <Th fontWeight="bold" color="gray.600" textAlign="center">
+                  Locked
+                </Th>
+                <Th fontWeight="bold" color="gray.600" textAlign="center">
+                  Missing items
+                </Th>
+                <Th fontWeight="bold" color="gray.600" textAlign="center">
+                  Daily Check
+                </Th>
+                <Th fontWeight="bold" color="gray.600" textAlign="center">
+                  Comments
+                </Th>
+              </Tr>
+            </Thead>
+
               <Tbody>
                 {rooms.map((room) => (
                   <React.Fragment key={room.id}>
@@ -191,61 +219,66 @@ const HotelRoomsTable = () => {
                         </Select>
                       </Td>
                       <Td>
-                        {products.map((product) => {
-                          const productKey = `${room.id}-${product.id}`;
-                          const clickCount = productClickState[productKey] || 0;
+                        <Flex wrap="wrap" justifyContent="center">
+                          {products.length > 0 ? products.map((product) => {
+                            const productKey = `${room.id}-${product.id}`;
+                            const clickCount = productClickState[productKey] || 0;
 
-                          return (
-                            <Button
-                              key={product.id}
-                              onClick={() => handleProductClick(room.id, product.id)}
-                              bg={clickCount === 1 ? "red" : "white"}
-                              color={clickCount === 1 ? "white" : "black"}
-                              border="2px solid red"
-                              borderRadius="12px"
-                              p="4px 8px"
-                              m="4px 0"
-                              display={clickCount === 2 ? "none" : "block"}
-                            >
-                              {product.name}
-                            </Button>
-                          );
-                        })}
+                            return (
+                              <Button
+                                key={product.id}
+                                onClick={() => handleProductClick(room.id, product.id)}
+                                bg={clickCount === 1 ? "red" : "white"}
+                                color={clickCount === 1 ? "white" : "black"}
+                                border="2px solid red"
+                                borderRadius="12px"
+                                p="4px 8px"
+                                m="4px 2px"
+                                display={clickCount === 2 ? "none" : "block"}
+                              >
+                                {product.name}
+                              </Button>
+                            );
+                          }) : <Text>No products found</Text>}
+                        </Flex>
+                      </Td>
+                      <Td>
+                        <Flex justifyContent="center" alignItems="center">
+                        <Checkbox
+                          isChecked={dailyCheck[room.id] ?? room.checked} // Ensure it does not fallback to room.checked incorrectly
+                          onChange={(e) => handleDailyCheckChange(room, e.target.checked)}
+                        />
+                        </Flex>
+                      </Td>
+                      <Td>
+                        <Flex justifyContent="center" alignItems="center">
+                        <Input
+                          placeholder="Enter comments"
+                          value={comments[room.id] ?? room.comment} // Use nullish coalescing to avoid fallback to undefined
+                          onChange={(e) => handleCommentChange(room, e)}
+                        />
+                        </Flex>
                       </Td>
                     </Tr>
                     <Tr>
-                      <Td colSpan={4}>
-                        <Accordion allowMultiple index={openMissingItemsIndex[room.id] ? [0] : []} onChange={() => toggleMissingItemsAccordion(room.id)}>
+                      <Td colSpan={6}>
+                        <Accordion
+                          allowMultiple
+                          index={openMissingItemsIndex[room.id] ? [0] : []}
+                          onChange={() => toggleMissingItemsAccordion(room.id)}
+                        >
                           <AccordionItem>
                             <h2>
                               <AccordionButton>
-                                <Box as="span" flex="1" textAlign="left">
-                                  Items missing
+                                <Box flex="1" textAlign="left">
+                                  <Text fontWeight="bold" color="gray.600">Missing Items Details</Text>
                                 </Box>
                                 <AccordionIcon />
                               </AccordionButton>
                             </h2>
                             <AccordionPanel pb={4}>
-                              {products.map((product) => {
-                                const productKey = `${room.id}-${product.id}`;
-                                const clickCount = productClickState[productKey] || 0;
-
-                                return (
-                                  <Button
-                                    key={product.id}
-                                    onClick={() => handleProductClick(room.id, product.id)}
-                                    bg={clickCount === 1 ? "red" : "white"}
-                                    color={clickCount === 1 ? "white" : "black"}
-                                    border="2px solid red"
-                                    borderRadius="12px"
-                                    p="4px 8px"
-                                    m="4px 0"
-                                    display={clickCount === 2 ? "none" : "block"}
-                                  >
-                                    {product.name}
-                                  </Button>
-                                );
-                              })}
+                              {/* Your missing items details content */}
+                              <Text>No missing items for this room.</Text>
                             </AccordionPanel>
                           </AccordionItem>
                         </Accordion>

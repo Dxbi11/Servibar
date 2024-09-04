@@ -40,65 +40,69 @@ const RowContent = ({ product, index, quantity, storeHouseId }) => {
     // Show success toast
     toast({
       title: "Quantity updated.",
-      description: `The quantity of ${product.name} has been ${actionType}ed.`,
+      description: `The quantity of ${product?.name || "the product"} has been ${actionType}ed.`,
       status: "success",
       duration: 3000,
       isClosable: true,
     });
-  }, [inputValue, quantity, updateStoreHouseData, storeHouseId, toast, product.name, actionType]);
+  }, [inputValue, quantity, updateStoreHouseData, storeHouseId, toast, actionType, product?.name]);
 
   return (
     <>
-      <Tr>
-        <Td>{product.name}</Td>
-        <Td>{quantity}</Td>
-        <Td>
-          <HStack spacing={2}>
-            <Input
-              type="number"
-              value={inputValue}
-              onChange={handleInputChange}
-              min="0"
-              bg="white"
-            />
-            <ButtonGroup size="sm" isAttached>
-              <Button colorScheme="teal" onClick={() => openModal("increment")}>
-                +
-              </Button>
-              <Button colorScheme="red" onClick={() => openModal("decrement")}>
-                -
-              </Button>
-            </ButtonGroup>
-          </HStack>
-        </Td>
-      </Tr>
+      {storeHouseId && (
+        <>
+          <Tr>
+            <Td>{product?.name || "Unknown Product"}</Td>
+            <Td>{quantity}</Td>
+            <Td>
+              <HStack spacing={2}>
+                <Input
+                  type="number"
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  min="0"
+                  bg="white"
+                />
+                <ButtonGroup size="sm" isAttached>
+                  <Button colorScheme="teal" onClick={() => openModal("increment")}>
+                    +
+                  </Button>
+                  <Button colorScheme="red" onClick={() => openModal("decrement")}>
+                    -
+                  </Button>
+                </ButtonGroup>
+              </HStack>
+            </Td>
+          </Tr>
 
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={() => setIsOpen(false)}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Confirm Action
-            </AlertDialogHeader>
+          <AlertDialog
+            isOpen={isOpen}
+            leastDestructiveRef={cancelRef}
+            onClose={() => setIsOpen(false)}
+          >
+            <AlertDialogOverlay>
+              <AlertDialogContent>
+                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                  Confirm Action
+                </AlertDialogHeader>
 
-            <AlertDialogBody>
-              Are you sure you want to {actionType} the quantity for {product.name}?
-            </AlertDialogBody>
+                <AlertDialogBody>
+                  Are you sure you want to {actionType} the quantity for {product?.name || "the product"}?
+                </AlertDialogBody>
 
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={() => setIsOpen(false)}>
-                Cancel
-              </Button>
-              <Button colorScheme="teal" onClick={handleConfirm} ml={3}>
-                Confirm
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+                <AlertDialogFooter>
+                  <Button ref={cancelRef} onClick={() => setIsOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button colorScheme="teal" onClick={handleConfirm} ml={3}>
+                    Confirm
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialogOverlay>
+          </AlertDialog>
+        </>
+      )}
     </>
   );
 };

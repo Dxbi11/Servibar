@@ -53,8 +53,7 @@ const TableStoreHouse = () => {
           </Thead>
           <Tbody>
           {sortedStoreHouse.length > 0 && sortedStoreHouse.map((row, index) => {
-            //console.log(row); // Log each row
-            return (
+              return (
               <RowContent
                 key={row.id}
                 product={sortedProducts[index]}

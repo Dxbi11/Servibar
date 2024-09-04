@@ -32,7 +32,8 @@ const AddRoom = ({ onRoomAdded }) => {
   const [selectedFloor, setSelectedFloor] = useState('');
   const [error, setError] = useState('');
   const toast = useToast();
-
+  const comment = "";
+  const checked = false;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -53,13 +54,18 @@ const AddRoom = ({ onRoomAdded }) => {
     try {
       const newRooms = [];
       for (let roomNumber = start; roomNumber <= end; roomNumber++) {
-        const newRoom = await createRoom({
+        const RoomData = {
           roomNumber,
           hotelId: parseInt(selectedHotel),
           floorId: parseInt(selectedFloor),
-          locked: false, // Example value, adjust as needed
+          locked: false,
           state: 0,
-        });
+          comment: comment,
+          checked: checked,
+        }
+        const newRoom = await createRoom(RoomData);
+        console.log(RoomData);
+        console.log(newRoom);
         newRooms.push(newRoom);
       }
 
