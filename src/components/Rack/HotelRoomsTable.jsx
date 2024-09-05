@@ -94,12 +94,15 @@ const HotelRoomsTable = () => {
   };
 
   const handleLockChange = (room, e) => {
+    console.log(e.target.value);
     const newLockState = e.target.value === "Locked";
+    console.log(newLockState);
     setSelectedLocked((prevLocked) => ({ ...prevLocked, [room.id]: e.target.value }));
     updateRoomData(room.id, { locked: newLockState });
   };
 
   const handleDailyCheckChange = (room, isChecked) => {
+    console.log(isChecked);
     setDailyCheck((prevCheck) => ({ ...prevCheck, [room.id]: isChecked }));
     updateRoomData(room.id, { checked: isChecked }); // Ensure this API call is properly handling the update
   };

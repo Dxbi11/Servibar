@@ -204,7 +204,7 @@ app.get('/rooms/:hotelId', async (req, res) => {
 
 
 app.post('/rooms', async (req, res) => {
-  const { roomNumber, hotelId, floorId, locked, state } = req.body;
+  const { roomNumber, hotelId, floorId, locked, state, comment, checked } = req.body;
   try {
     const newRoom = await prisma.room.create({
       data: { roomNumber, hotelId, floorId, locked, state, comment, checked },
@@ -217,11 +217,11 @@ app.post('/rooms', async (req, res) => {
 });
 
 app.put('/rooms/:id', async (req, res) => {
-  const { roomNumber, locked, state } = req.body;
+  const { roomNumber, hotelId, floorId, locked, state, comment, checked } = req.body;
   try {
     const updatedRoom = await prisma.room.update({
       where: { id: parseInt(req.params.id) },
-      data: { roomNumber, locked, state },
+      data: { roomNumber, locked, state, comment, checked },
     });
     res.json(updatedRoom);
   } catch (error) {
