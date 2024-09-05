@@ -21,11 +21,16 @@ import {
   Button,
   Checkbox,
   Input,
+  Tag,
+  TagLabel,
   Flex,
 } from "@chakra-ui/react";
 
 import useFetchRooms from "../../hooks/RoomHooks/useFetchRooms";
 import useUpdateRoomData from "../../hooks/RoomHooks/useUpdateRoomData";
+import useFetchRoomStock from "../../hooks/RoomStockHooks/useFetchRoomStock";
+import useDeleteRoomStock from "../../hooks/RoomStockHooks/useDeleteRoomStock";
+import useCreateRoomStock from "../../hooks/RoomStockHooks/useCreateRoomStock";
 
 const getRoomStatus = (state) => {
   switch (state) {
@@ -59,10 +64,17 @@ const HotelRoomsTable = () => {
   const [productClickState, setProductClickState] = useState({});
   const [dailyCheck, setDailyCheck] = useState({});
   const [comments, setComments] = useState({});
-
+  let RowColor = "";
+  const [NotCheckedRooms, setNotCheckedRooms] = useState(0);
   // ! Verify if the rooms are loaded correctly with checked and comment properties, if so, remove the console.log
   console.log(rooms);
   
+  useEffect(() => {
+    const uncheckedCount = rooms.filter(room => !room.checked).length;
+    setNotCheckedRooms(uncheckedCount);
+  }, [rooms]);
+
+
   if (isLoading) {
     return (
       <Center h="100vh">
@@ -87,6 +99,17 @@ const HotelRoomsTable = () => {
     );
   }
 
+//! Fetch All room stock, filter by room id and display in missing items column
+    // useEffect(() => {
+    //   rooms.map((room) => {
+    //     useFetchRoomStock(room.id);
+    //   });
+    // }, [rooms]);
+  //! Create new api method to fetch all room stock and display in missing items column
+  //! Create HandleCreateRoomStock to create new room stock
+  //! Create HandleDeleteRoomStock to delete room stock
+  //! In Missing items accordion, display all products that are not in the room stock
+  
   const handleSelectChange = (room, e) => {
     const newState = parseInt(e.target.value, 10);
     setSelectedStatus((prevStatus) => ({ ...prevStatus, [room.id]: newState }));
@@ -153,9 +176,13 @@ const HotelRoomsTable = () => {
               _expanded={{ bg: "teal.500", color: "white" }}
               _hover={{ bg: "teal.400" }}
             >
-              <Box flex="1" textAlign="left">
-                <Text fontWeight="bold">Selected Hotel</Text>
-              </Box>
+              <Flex direction="row" justify="space-between" align="center" width="100%">
+                <Text fontWeight="bold" mr={4}>Selected Hotel</Text>
+                <Tag mr={2} ml={4} size='lg' colorScheme='red' borderRadius='full' display={NotCheckedRooms > 0 ? "flex" : "none"}>
+                  <Box mr={2} as="b">{NotCheckedRooms}</Box>
+                  <TagLabel>Rooms not checked</TagLabel>
+                </Tag>
+              </Flex>
               <AccordionIcon />
             </AccordionButton>
           </h2>
@@ -185,110 +212,113 @@ const HotelRoomsTable = () => {
             </Thead>
 
               <Tbody>
-                {rooms.map((room) => (
-                  <React.Fragment key={room.id}>
-                    <Tr key={room.id}>
-                      <Td>{room.roomNumber}</Td>
-                      <Td>
-                        <Select
-                          placeholder={getRoomStatus(room.state).label}
-                          value={selectedStatus[room.id] || room.state}
-                          onChange={(e) => handleSelectChange(room, e)}
-                          bg={getRoomStatus(selectedStatus[room.id] || room.state).color}
-                          borderColor={getRoomStatus(selectedStatus[room.id] || room.state).color}
-                          color="white"
-                        >
-                          {labels.map((label, index) => (
-                            <option style={{ color: "black" }} key={index} value={index}>
-                              {label}
-                            </option>
-                          ))}
-                        </Select>
-                      </Td>
-                      <Td>
-                        <Select
-                          placeholder={room.locked ? "Locked" : "Unlocked"}
-                          value={selectedLocked[room.id] || (room.locked ? "Locked" : "Unlocked")}
-                          onChange={(e) => handleLockChange(room, e)}
-                          bg={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
-                          borderColor={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
-                          color="white"
-                        >
-                          {locks.map((lock, index) => (
-                            <option style={{ color: "black" }} key={index} value={lock}>
-                              {lock}
-                            </option>
-                          ))}
-                        </Select>
-                      </Td>
-                      <Td>
-                        <Flex wrap="wrap" justifyContent="center">
-                          {products.length > 0 ? products.map((product) => {
-                            const productKey = `${room.id}-${product.id}`;
-                            const clickCount = productClickState[productKey] || 0;
+                {rooms.map((room) => {
+                  const RowColor = room.checked ? "white" : "red.400";
+                  return (
+                    <React.Fragment key={room.id}>
+                      <Tr key={room.id} backgroundColor={RowColor}>
+                        <Td textAlign="center">{room.roomNumber}</Td>
+                        <Td>
+                          <Select
+                            placeholder={getRoomStatus(room.state).label}
+                            value={selectedStatus[room.id] || room.state}
+                            onChange={(e) => handleSelectChange(room, e)}
+                            bg={getRoomStatus(selectedStatus[room.id] || room.state).color}
+                            borderColor={getRoomStatus(selectedStatus[room.id] || room.state).color}
+                            color="white"
+                          >
+                            {labels.map((label, index) => (
+                              <option style={{ color: "black" }} key={index} value={index}>
+                                {label}
+                              </option>
+                            ))}
+                          </Select>
+                        </Td>
+                        <Td>
+                          <Select
+                            placeholder={room.locked ? "Locked" : "Unlocked"}
+                            value={selectedLocked[room.id] || (room.locked ? "Locked" : "Unlocked")}
+                            onChange={(e) => handleLockChange(room, e)}
+                            bg={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
+                            borderColor={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
+                            color="white"
+                          >
+                            {locks.map((lock, index) => (
+                              <option style={{ color: "black" }} key={index} value={lock}>
+                                {lock}
+                              </option>
+                            ))}
+                          </Select>
+                        </Td>
+                        <Td>
+                          <Flex wrap="wrap" justifyContent="center">
+                            {products.length > 0 ? products.map((product) => {
+                              const productKey = `${room.id}-${product.id}`;
+                              const clickCount = productClickState[productKey] || 0;
 
-                            return (
-                              <Button
-                                key={product.id}
-                                onClick={() => handleProductClick(room.id, product.id)}
-                                bg={clickCount === 1 ? "red" : "white"}
-                                color={clickCount === 1 ? "white" : "black"}
-                                border="2px solid red"
-                                borderRadius="12px"
-                                p="4px 8px"
-                                m="4px 2px"
-                                display={clickCount === 2 ? "none" : "block"}
-                              >
-                                {product.name}
-                              </Button>
-                            );
-                          }) : <Text>No products found</Text>}
-                        </Flex>
-                      </Td>
-                      <Td>
-                        <Flex justifyContent="center" alignItems="center">
-                        <Checkbox
-                          isChecked={dailyCheck[room.id] ?? room.checked} // Ensure it does not fallback to room.checked incorrectly
-                          onChange={(e) => handleDailyCheckChange(room, e.target.checked)}
-                        />
-                        </Flex>
-                      </Td>
-                      <Td>
-                        <Flex justifyContent="center" alignItems="center">
-                        <Input
-                          placeholder="Enter comments"
-                          value={comments[room.id] ?? room.comment} // Use nullish coalescing to avoid fallback to undefined
-                          onChange={(e) => handleCommentChange(room, e)}
-                        />
-                        </Flex>
-                      </Td>
-                    </Tr>
-                    <Tr>
-                      <Td colSpan={6}>
-                        <Accordion
-                          allowMultiple
-                          index={openMissingItemsIndex[room.id] ? [0] : []}
-                          onChange={() => toggleMissingItemsAccordion(room.id)}
-                        >
-                          <AccordionItem>
-                            <h2>
-                              <AccordionButton>
-                                <Box flex="1" textAlign="left">
-                                  <Text fontWeight="bold" color="gray.600">Missing Items Details</Text>
-                                </Box>
-                                <AccordionIcon />
-                              </AccordionButton>
-                            </h2>
-                            <AccordionPanel pb={4}>
-                              {/* Your missing items details content */}
-                              <Text>No missing items for this room.</Text>
-                            </AccordionPanel>
-                          </AccordionItem>
-                        </Accordion>
-                      </Td>
-                    </Tr>
-                  </React.Fragment>
-                ))}
+                              return (
+                                <Button
+                                  key={product.id}
+                                  onClick={() => handleProductClick(room.id, product.id)}
+                                  bg={clickCount === 1 ? "red" : "white"}
+                                  color={clickCount === 1 ? "white" : "black"}
+                                  border="2px solid red"
+                                  borderRadius="12px"
+                                  p="4px 8px"
+                                  m="4px 2px"
+                                  display={clickCount === 2 ? "none" : "block"}
+                                >
+                                  {product.name}
+                                </Button>
+                              );
+                            }) : <Text>No products found</Text>}
+                          </Flex>
+                        </Td>
+                        <Td>
+                          <Flex justifyContent="center" alignItems="center">
+                          <Checkbox
+                            isChecked={dailyCheck[room.id] ?? room.checked} // Ensure it does not fallback to room.checked incorrectly
+                            onChange={(e) => handleDailyCheckChange(room, e.target.checked)}
+                          />
+                          </Flex>
+                        </Td>
+                        <Td>
+                          <Flex justifyContent="center" alignItems="center">
+                          <Input
+                            placeholder="Enter comments"
+                            value={comments[room.id] ?? room.comment} // Use nullish coalescing to avoid fallback to undefined
+                            onChange={(e) => handleCommentChange(room, e)}
+                          />
+                          </Flex>
+                        </Td>
+                      </Tr>
+                      <Tr>
+                        <Td colSpan={6}>
+                          <Accordion
+                            allowMultiple
+                            index={openMissingItemsIndex[room.id] ? [0] : []}
+                            onChange={() => toggleMissingItemsAccordion(room.id)}
+                          >
+                            <AccordionItem>
+                              <h2>
+                                <AccordionButton>
+                                  <Box flex="1" textAlign="left">
+                                    <Text fontWeight="bold" color="gray.600">Missing Items Details</Text>
+                                  </Box>
+                                  <AccordionIcon />
+                                </AccordionButton>
+                              </h2>
+                              <AccordionPanel pb={4}>
+                                {/* Your missing items details content */}
+                                <Text>No missing items for this room.</Text>
+                              </AccordionPanel>
+                            </AccordionItem>
+                          </Accordion>
+                        </Td>
+                      </Tr>
+                    </React.Fragment>
+                  );
+                })}
               </Tbody>
             </Table>
           </AccordionPanel>

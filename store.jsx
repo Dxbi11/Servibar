@@ -12,8 +12,9 @@ const ui = {
   floors: [],
   rooms: [],
   invoices: [],
-  storeHouse: [],
+  storeHouse: [],	
   hotelId: null,
+  roomStock: [],
 };
 
 /**
@@ -70,6 +71,14 @@ const stateReducer = (state, action) => {
             hotels: action.payload,
           },
         };
+      case 'SET_ROOM_STOCK':
+        return {
+          ...state,
+          ui: {
+            ...state.ui,
+            roomStock: action.payload,
+          },
+        };
       case 'SET_ROOMS':
         return {
           ...state,
@@ -102,6 +111,14 @@ const stateReducer = (state, action) => {
               ui: {
                   ...state.ui,
                   invoices: action.payload,
+              },
+          };
+        case 'DELETE_ROOM_STOCK':
+          return {
+              ...state,
+              ui: {
+                  ...state.ui,
+                  roomStock: state.ui.roomStock.filter(roomStock => roomStock.id !== action.payload.id),
               },
           };
         case 'SET_STORE_HOUSE':
