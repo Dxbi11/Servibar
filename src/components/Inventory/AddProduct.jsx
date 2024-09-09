@@ -14,12 +14,14 @@ import {
 import { createProduct } from "../../api"; 
 import { createStoreHouse } from "../../api";
 import useFetchStoreHouse from "../../hooks/StoreHooks/useFetchStoreHouse";
-
+import useCreateRoomStock from "../../hooks/RoomStockHooks/useCreateRoomStock";
 
 const AddProduct = () => {
+  const { createData } = useCreateRoomStock();
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const { state, dispatch } = useContext(store);
+  const rooms = state.ui.rooms;
   const products = state.ui.products;
   const hotelId = parseInt(state.ui.hotelId, 10);
   const toast = useToast();
@@ -51,7 +53,6 @@ const AddProduct = () => {
         price: parseFloat(price),
         hotelId,
       };
-      console.log(productData);
       // Primero creamos el producto y obtenemos su ID
       const createdProduct = await createProduct(productData);
       const productId = createdProduct.id; // Asumiendo que el ID es retornado aquí
@@ -61,6 +62,19 @@ const AddProduct = () => {
         quantity: 0,
         productId, // Ahora podemos usar el productId que obtuvimos
       };
+      if (rooms.length > 0) {
+      rooms.forEach(room => {
+        
+        const roomStock = {
+          roomId: room.id,
+          productId,
+          quantity: 0,
+        };
+        console.log(roomStock);
+        const roomStockCreated =  createData(roomStock.roomId, roomStock.productId, roomStock.quantity);
+        console.log(roomStockCreated);
+        });
+      }
       // Luego creamos la entrada en StoreHouse
       await createStoreHouse(StoreHouseData);
 

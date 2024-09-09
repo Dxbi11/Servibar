@@ -48,34 +48,102 @@ const getRoomStatus = (state) => {
 };
 
 const HotelRoomsTable = () => {
-  const { isLoading, error } = useFetchRooms();
-  const updateRoomData = useUpdateRoomData();
   const { state, dispatch } = useContext(store);
-  const rooms = state.ui.rooms;
-  const products = state.ui.products;
-
-  const locks = ["Locked", "Unlocked"];
-  const labels = ["Available", "In House", "Leaving", "Already Left"];
-
+  const { isLoading: roomsLoading, error: roomsError } = useFetchRooms();
+  const updateRoomData = useUpdateRoomData();
+  const { isLoading: stockLoading, error: stockError } = useFetchRoomStock();
+  const { deleteData, isLoading: deleteDataLoading, error: deleteDataError } = useDeleteRoomStock();
+  const { createData, isLoading: createDataLoading, error: createDataError } = useCreateRoomStock();
   const [selectedStatus, setSelectedStatus] = useState({});
   const [selectedLocked, setSelectedLocked] = useState({});
-  const [accordionIndex, setAccordionIndex] = useState([0]); // Track open accordion panels
+  const [accordionIndex, setAccordionIndex] = useState([0]);
   const [openMissingItemsIndex, setOpenMissingItemsIndex] = useState({});
   const [productClickState, setProductClickState] = useState({});
   const [dailyCheck, setDailyCheck] = useState({});
   const [comments, setComments] = useState({});
-  let RowColor = "";
   const [NotCheckedRooms, setNotCheckedRooms] = useState(0);
-  // ! Verify if the rooms are loaded correctly with checked and comment properties, if so, remove the console.log
-  console.log(rooms);
+  const [stocks, setStocks] = useState([]);
+  const [missingItems, setMissingItems] = useState([]);
+
+  const rooms = state.ui.rooms;
+  const products = state.ui.products;
+  const roomStocks = state.ui.roomStock;
+
+  console.log(roomStocks);
   
+  const locks = ["Locked", "Unlocked"];
+  const labels = ["Available", "In House", "Leaving", "Already Left"];
+
+  //Get the stocks for each room
+  useEffect(() => {
+    if (state.ui.roomStock.length > 0) {
+      const newStocks = rooms.map((room) => {
+        const filteredStock = state.ui.roomStock.filter((stock) => stock.roomId === room.id);
+        return { roomId: room.id, stocks: filteredStock };
+      });
+      setStocks(newStocks);
+    }
+  }, [state.ui.roomStock, rooms]);
+
+  //Get the missing items for each room
+  useEffect(() => {
+    if (stocks.length > 0) {
+      const newMissingItems = stocks.map((roomStock) => {
+        const roomMissingItems = products.filter((product) => 
+          !roomStock.stocks.some((stock) => stock.productId === product.id)
+        );
+        return { roomId: roomStock.roomId, missingItems: roomMissingItems };
+      });
+      setMissingItems(newMissingItems);
+    }
+  }, [stocks, products]);
+
+
   useEffect(() => {
     const uncheckedCount = rooms.filter(room => !room.checked).length;
     setNotCheckedRooms(uncheckedCount);
   }, [rooms]);
 
+  const handleSelectChange = (room, e) => {
+    const newState = parseInt(e.target.value, 10);
+    setSelectedStatus((prevStatus) => ({ ...prevStatus, [room.id]: newState }));
+    updateRoomData(room.id, { state: newState });
+  };
 
-  if (isLoading) {
+  const handleLockChange = (room, e) => {
+    const newLockState = e.target.value === "Locked";
+    setSelectedLocked((prevLocked) => ({ ...prevLocked, [room.id]: e.target.value }));
+    updateRoomData(room.id, { locked: newLockState });
+  };
+
+  const handleDailyCheckChange = (room, isChecked) => {
+    setDailyCheck((prevCheck) => ({ ...prevCheck, [room.id]: isChecked }));
+    updateRoomData(room.id, { checked: isChecked });
+  };
+  
+  const handleCommentChange = (room, e) => {
+    const newComment = e.target.value;
+    setComments((prevComments) => ({ ...prevComments, [room.id]: newComment }));
+    updateRoomData(room.id, { comment: newComment });
+  };
+  
+
+  const toggleMissingItemsAccordion = (roomId) => {
+    setOpenMissingItemsIndex((prevIndex) => ({
+      ...prevIndex,
+      [roomId]: !prevIndex[roomId],
+    }));
+  };
+
+  const handleProductClick = (roomId, productId, stockId) => {
+    deleteData(roomId, productId, stockId);
+  };
+
+  const handleItemClick = (roomId, itemId, quantity) => {
+    createData(roomId, itemId, quantity);
+  };
+
+  if (roomsLoading || stockLoading) {
     return (
       <Center h="100vh">
         <Spinner size="xl" />
@@ -83,10 +151,10 @@ const HotelRoomsTable = () => {
     );
   }
 
-  if (error) {
+  if (roomsError || stockError) {
     return (
       <Center h="100vh">
-        <Text color="red.500">{error}</Text>
+        <Text color="red.500">{roomsError || stockError}</Text>
       </Center>
     );
   }
@@ -98,74 +166,6 @@ const HotelRoomsTable = () => {
       </Center>
     );
   }
-
-//! Fetch All room stock, filter by room id and display in missing items column
-    // useEffect(() => {
-    //   rooms.map((room) => {
-    //     useFetchRoomStock(room.id);
-    //   });
-    // }, [rooms]);
-  //! Create new api method to fetch all room stock and display in missing items column
-  //! Create HandleCreateRoomStock to create new room stock
-  //! Create HandleDeleteRoomStock to delete room stock
-  //! In Missing items accordion, display all products that are not in the room stock
-  
-  const handleSelectChange = (room, e) => {
-    const newState = parseInt(e.target.value, 10);
-    setSelectedStatus((prevStatus) => ({ ...prevStatus, [room.id]: newState }));
-    updateRoomData(room.id, { state: newState });
-  };
-
-  const handleLockChange = (room, e) => {
-    console.log(e.target.value);
-    const newLockState = e.target.value === "Locked";
-    console.log(newLockState);
-    setSelectedLocked((prevLocked) => ({ ...prevLocked, [room.id]: e.target.value }));
-    updateRoomData(room.id, { locked: newLockState });
-  };
-
-  const handleDailyCheckChange = (room, isChecked) => {
-    console.log(isChecked);
-    setDailyCheck((prevCheck) => ({ ...prevCheck, [room.id]: isChecked }));
-    updateRoomData(room.id, { checked: isChecked }); // Ensure this API call is properly handling the update
-  };
-  
-  const handleCommentChange = (room, e) => {
-    const newComment = e.target.value;
-    setComments((prevComments) => ({ ...prevComments, [room.id]: newComment }));
-    updateRoomData(room.id, { comment: newComment }); // Ensure this API call is properly handling the update
-  };
-  
-
-  const toggleMissingItemsAccordion = (roomId) => {
-    setOpenMissingItemsIndex((prevIndex) => ({
-      ...prevIndex,
-      [roomId]: !prevIndex[roomId],
-    }));
-  };
-
-  const handleProductClick = (roomId, productId) => {
-    setProductClickState((prevState) => {
-      const key = `${roomId}-${productId}`;
-      const currentClickCount = prevState[key] || 0;
-
-      if (currentClickCount === 1) {
-        // Dispatch action to remove product after second click
-        dispatch({
-          type: "REMOVE_PRODUCT",
-          payload: { productId },
-        });
-
-        // Reset the click state for the product
-        const newState = { ...prevState };
-        delete newState[key];
-        return newState;
-      }
-
-      // Increase click count on first click
-      return { ...prevState, [key]: currentClickCount + 1 };
-    });
-  };
 
   return (
     <Box p={4} bg="gray.50" borderRadius="md" boxShadow="md">
@@ -212,7 +212,7 @@ const HotelRoomsTable = () => {
             </Thead>
 
               <Tbody>
-                {rooms.map((room) => {
+                {rooms.map((room, index) => {
                   const RowColor = room.checked ? "white" : "red.400";
                   return (
                     <React.Fragment key={room.id}>
@@ -252,32 +252,39 @@ const HotelRoomsTable = () => {
                         </Td>
                         <Td>
                           <Flex wrap="wrap" justifyContent="center">
-                            {products.length > 0 ? products.map((product) => {
-                              const productKey = `${room.id}-${product.id}`;
-                              const clickCount = productClickState[productKey] || 0;
-
-                              return (
-                                <Button
-                                  key={product.id}
-                                  onClick={() => handleProductClick(room.id, product.id)}
-                                  bg={clickCount === 1 ? "red" : "white"}
-                                  color={clickCount === 1 ? "white" : "black"}
-                                  border="2px solid red"
-                                  borderRadius="12px"
-                                  p="4px 8px"
-                                  m="4px 2px"
-                                  display={clickCount === 2 ? "none" : "block"}
-                                >
-                                  {product.name}
-                                </Button>
-                              );
-                            }) : <Text>No products found</Text>}
+                            {roomStocks ? (
+                              roomStocks.length > 0 ? (
+                                Array.isArray(roomStocks[0]) 
+                                  ? (roomStocks[index] || []).map((stock) => (
+                                      <StockButton 
+                                        key={stock.id} 
+                                        room={room} 
+                                        stock={stock} 
+                                        productClickState={productClickState} 
+                                        handleProductClick={handleProductClick} 
+                                      />
+                                    ))
+                                  : (roomStocks.filter(stock => stock.roomId === room.id) || []).map((stock) => (
+                                      <StockButton 
+                                        key={stock.id} 
+                                        room={room} 
+                                        stock={stock} 
+                                        productClickState={productClickState} 
+                                        handleProductClick={handleProductClick} 
+                                      />
+                                    ))
+                              ) : (
+                                <Text>No products left in this room</Text>
+                              )
+                            ) : (
+                              <Text>Loading products...</Text>
+                            )}
                           </Flex>
                         </Td>
                         <Td>
                           <Flex justifyContent="center" alignItems="center">
                           <Checkbox
-                            isChecked={dailyCheck[room.id] ?? room.checked} // Ensure it does not fallback to room.checked incorrectly
+                            isChecked={dailyCheck[room.id] ?? room.checked}
                             onChange={(e) => handleDailyCheckChange(room, e.target.checked)}
                           />
                           </Flex>
@@ -286,7 +293,7 @@ const HotelRoomsTable = () => {
                           <Flex justifyContent="center" alignItems="center">
                           <Input
                             placeholder="Enter comments"
-                            value={comments[room.id] ?? room.comment} // Use nullish coalescing to avoid fallback to undefined
+                            value={comments[room.id] ?? room.comment}
                             onChange={(e) => handleCommentChange(room, e)}
                           />
                           </Flex>
@@ -309,8 +316,7 @@ const HotelRoomsTable = () => {
                                 </AccordionButton>
                               </h2>
                               <AccordionPanel pb={4}>
-                                {/* Your missing items details content */}
-                                <Text>No missing items for this room.</Text>
+                                <MissingItemButton roomId={room.id} missingItems={missingItems} handleItemClick={handleItemClick} />
                               </AccordionPanel>
                             </AccordionItem>
                           </Accordion>
@@ -329,3 +335,47 @@ const HotelRoomsTable = () => {
 };
 
 export default HotelRoomsTable;
+
+const StockButton = ({ room, stock, productClickState, handleProductClick }) => {
+  const productKey = `${room.id}-${stock.productId}`;
+  const clickCount = productClickState[productKey] || 0;
+  return (
+    <Button
+      onClick={() => handleProductClick(room.id, stock.productId, stock.id)}
+      bg={clickCount === 1 ? "red" : "white"}
+      color={clickCount === 1 ? "white" : "black"}
+      border="2px solid red"
+      borderRadius="12px"
+      p="4px 8px"
+      m="4px 2px"
+      display={clickCount === 2 ? "none" : "block"}
+    >
+      {stock.product?.name || 'Unknown Product'}
+    </Button>
+  );
+};
+
+const MissingItemButton = ({ roomId, missingItems, handleItemClick }) => {
+  const filteredMissingItems = missingItems.find(item => item.roomId === roomId);
+
+  if (!filteredMissingItems) return null;
+
+  return (
+    <>
+      {filteredMissingItems.missingItems.map((missingItem) => (
+        <Button
+          key={missingItem.id}
+          onClick={() => handleItemClick(roomId, missingItem.id, 1)}
+          bg="white"
+          color="black"
+          border="2px solid green"
+          borderRadius="12px"
+          p="4px 8px"
+          m="4px 2px"
+        >
+          {missingItem.name || 'Missing Item'}
+        </Button>
+      ))}
+    </>
+  );
+};

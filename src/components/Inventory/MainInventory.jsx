@@ -9,7 +9,8 @@ import {
   useColorModeValue,
   Box,
   Heading,
-  VStack 
+  VStack,
+  Flex
 } from "@chakra-ui/react";
 import AddProduct from "./AddProduct";
 import ProductList from "./ProductList";
@@ -30,7 +31,7 @@ const MainInventory = () => {
   return (
     <Box p={4} bg={bg} borderRadius="md" boxShadow="sm">
       <Tabs variant="soft-rounded" onChange={(index) => setTabIndex(index)}>
-        <TabList>
+        <TabList justifyContent="center" gap={4}>
           <Tab>Manage Stock By Room</Tab>
           <Tab>Manage Room Products</Tab>
           <Tab>Manage Hotel Products</Tab>
@@ -59,14 +60,16 @@ const MainInventory = () => {
               <Heading as="h2" size="md" mb={4}>
                 Manage Hotel Products
               </Heading>
-              <Box mb={4}>
-                <Text fontSize="xl">Add Product</Text>
-                <AddProduct  />
-              </Box>
-              <Box mb={4}>
-                <Text fontSize="xl">Delete Product</Text>
-                <DeleteProduct />
-              </Box>
+              <Flex direction="row" justify="space-between" mb={4}>
+                <Box flex="1" mr={4}>
+                  <Text fontSize="xl">Add Product</Text>
+                  <AddProduct />
+                </Box>
+                <Box flex="1">
+                  <Text fontSize="xl">Delete Product</Text>
+                  <DeleteProduct />
+                </Box>
+              </Flex>
               <Box>
                 <Text fontSize="xl">Product List</Text>
                 <ProductList />

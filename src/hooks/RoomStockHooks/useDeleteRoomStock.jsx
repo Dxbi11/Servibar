@@ -1,40 +1,35 @@
-import { useEffect, useState, useContext } from "react";
+import { useState, useContext, useCallback } from "react";
 import { store } from "../../../store";
 import { deleteRoomStock } from "../../api";
-
-const useDeleteRoomStock = (roomId, productId) => {
-    const { state, dispatch } = useContext(store);
-    const [isLoading, setIsLoading] = useState(true);
+const useDeleteRoomStock = () => {
+    const { dispatch } = useContext(store);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const handleRoomStock = (deletedRoomStockId) => {
+    const handleRoomStock = useCallback((deletedRoomStockId) => {
+        console.log(deletedRoomStockId);
         dispatch({
             type: 'DELETE_ROOM_STOCK',
             payload: { id: deletedRoomStockId },
         });
-    };
+    }, [dispatch]);
 
-    const deleteData = async () => {
+    const deleteData = useCallback(async (roomId, productId, stockId) => {
         setIsLoading(true);
         setError(null);
+
         try {
             await deleteRoomStock(roomId, productId);
-            handleRoomStock(roomId); // Assuming productId is the unique identifier
+            handleRoomStock(stockId);
         } catch (error) {
             console.error("Error deleting data:", error);
             setError("Failed to delete room stock. Please try again later.");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [handleRoomStock]);
 
-    useEffect(() => {
-        if (roomId && productId) {
-            deleteData();
-        }
-    }, [roomId, productId]);
-
-    return { isLoading, error };
+    return { deleteData, isLoading, error };
 }
 
 export default useDeleteRoomStock;

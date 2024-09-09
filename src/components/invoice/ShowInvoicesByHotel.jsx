@@ -112,22 +112,26 @@ const ShowInvoicesByHotel = () => {
               : `$${totalForLast10Days.toFixed(2)}`}
           </StatNumber>
         </Stat>
-        <Switch
-          onChange={() => setSubtractTax(!subtractTax)}
-          colorScheme="teal"
-          size="md"
-          mt={2}
-        >
-          Subtract {subtractTax ? `${customTaxRate}%` : "Custom Tax Rate"}
-        </Switch>
-        <Switch
-          onChange={handleToggleCurrency}
-          colorScheme="blue"
-          size="md"
-          mt={2}
-        >
-          {showInUSD ? "Show in CRC" : "Show in USD"}
-        </Switch>
+        <Box display="flex" alignItems="center">
+          <Switch
+            onChange={() => setSubtractTax(!subtractTax)}
+            colorScheme="teal"
+            size="md"
+            mt={2}
+          >
+            Subtract {subtractTax ? `${customTaxRate}%` : "Custom Tax Rate"}
+          </Switch>
+          <Box ml={4}>
+            <Switch
+              onChange={handleToggleCurrency}
+              colorScheme="blue"
+              size="md"
+              mt={2}
+            >
+              {showInUSD ? "Show in CRC" : "Show in USD"}
+            </Switch>
+          </Box>
+        </Box>
       </StatGroup>
 
       <Box display={!showInUSD ? "none" : "block"}>
@@ -201,16 +205,20 @@ const ShowInvoicesByHotel = () => {
           ))}
         </Tbody>
       </Table>
-      <ExportToExcel
-        invoices={invoices}
-        showInUSD={showInUSD}
-        exchangeRate={exchangeRate}
-      />
-      <ExportToPDF
-        invoices={invoices}
-        showInUSD={showInUSD}
-        exchangeRate={exchangeRate}
-      />
+      <Box display="flex" alignItems="center" mt={4}>
+        <ExportToExcel
+          invoices={invoices}
+          showInUSD={showInUSD}
+          exchangeRate={exchangeRate}
+        />
+        <Box ml={4}>
+          <ExportToPDF
+            invoices={invoices}
+            showInUSD={showInUSD}
+            exchangeRate={exchangeRate}
+          />
+        </Box>
+      </Box>
     </>
   );
 };

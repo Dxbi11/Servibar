@@ -9,6 +9,7 @@ import {
   Box,
   Spinner,
   useToast,
+  Divider
 } from "@chakra-ui/react";
 import { getProductsByHotelId } from "../../api";
 
@@ -29,19 +30,22 @@ const ProductButton = React.memo(({ product, onSelect }) => (
 ));
 
 const Receipt = React.memo(({ selectedProducts, total, onReset }) => (
-  <VStack spacing={4} align="stretch">
-    <Text fontWeight="bold">Receipt preview</Text>
+  <VStack spacing={4} align="stretch" p={4} bg="gray.50" borderRadius="md" boxShadow="sm">
+    <Text fontWeight="bold" fontSize="xl" borderBottom="2px" borderColor="gray.200" pb={2}>
+      Receipt Preview
+    </Text>
     {selectedProducts.map((product, index) => (
-      <HStack key={`${product.id}-${index}`} justify="space-between">
-        <Text>{product.name}</Text>
-        <Text>${product.price?.toFixed(2) || "N/A"}</Text>
+      <HStack key={`${product.id}-${index}`} justify="space-between" py={1}>
+        <Text fontWeight="medium">{product.name}</Text>
+        <Text fontWeight="semibold">${product.price?.toFixed(2) || "N/A"}</Text>
       </HStack>
     ))}
-    <HStack justify="space-between">
-      <Text fontWeight="bold">Total:</Text>
-      <Text>${total.toFixed(2)}</Text>
+    <Divider />
+    <HStack justify="space-between" fontWeight="bold">
+      <Text fontSize="lg">Total:</Text>
+      <Text fontSize="lg" color="blue.600">${total.toFixed(2)}</Text>
     </HStack>
-    <Button onClick={onReset} colorScheme="red" size="sm">
+    <Button onClick={onReset} colorScheme="red" size="sm" mt={2}>
       Reset
     </Button>
   </VStack>
@@ -83,7 +87,7 @@ const ProductSelector = () => {
 
   return (
     <HStack spacing={8} align="stretch">
-      <Box flex={1}>
+      <Box flex={1} mt={4}>
         <Grid templateColumns="repeat(auto-fill, minmax(120px, 1fr))" gap={4}>
           {products.map((product) => (
             <ProductButton
