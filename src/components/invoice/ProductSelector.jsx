@@ -47,26 +47,34 @@ const Receipt = React.memo(({ selectedProducts, total, onReset }) => (
   </VStack>
 ));
 
-const ProductSelector = () => {
+const ProductSelector = ({ onProductsSelected }) => {
   const {state, dispatch} = useContext(store);
   const HotelId = state.ui.hotelId;
   const products = state.ui.products;
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState({});
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
-
-
   const handleProductSelect = React.useCallback((product) => {
-    setSelectedProducts((prevSelected) => [...prevSelected, product]);
+    setSelectedProducts((prevSelected) => {
+      const newSelected = { ...prevSelected };
+      if (newSelected[product.id]) {
+        newSelected[product.id].quantity += 1;
+      } else {
+        newSelected[product.id] = { ...product, quantity: 1 };
+      }
+      onProductsSelected(Object.values(newSelected));
+      return newSelected;
+    });
     setTotal((prevTotal) => prevTotal + (product.price || 0));
-  }, []);
+  }, [onProductsSelected]);
 
   const handleReset = React.useCallback(() => {
-    setSelectedProducts([]);
+    setSelectedProducts({});
     setTotal(0);
-  }, []);
+    onProductsSelected([]);
+  }, [onProductsSelected]);
 
   if (loading) {
     return (
@@ -96,7 +104,7 @@ const ProductSelector = () => {
       </Box>
       <Box flex={1}>
         <Receipt
-          selectedProducts={selectedProducts}
+          selectedProducts={Object.values(selectedProducts)}
           total={total}
           onReset={handleReset}
         />

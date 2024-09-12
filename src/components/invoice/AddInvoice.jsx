@@ -13,6 +13,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import useCreateInvoice from "../../hooks/InvoiceHooks/useCreateInvoice";
+import ProductSelector from "./ProductSelector";
 
 const AddInvoice = () => {
   const { state } = useContext(store);
@@ -21,11 +22,17 @@ const AddInvoice = () => {
   const [date, setDate] = useState("");
   const [comment, setComment] = useState("");
   const [room, setRoom] = useState("");
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const { handleSubmit, loading, error } = useCreateInvoice();
   const toast = useToast();
 
   const handleCommentChange = (newComment) => {
     setComment(newComment);
+  };
+
+  const handleProductsSelected = (products) => {
+    setSelectedProducts(products);
+    setTotal(products.reduce((sum, product) => sum + (product.price || 0), 0).toFixed(2));
   };
 
   const onSubmit = (e) => {
@@ -36,6 +43,10 @@ const AddInvoice = () => {
       hotelId: parseInt(hotelId),
       comment,
       room: parseInt(room),
+      items: selectedProducts.map(product => ({
+        productId: product.id,
+        quantity: 1, // Assuming quantity is always 1, adjust if needed
+      })),
     };
     handleSubmit(invoiceData);
     // Reset form fields
@@ -43,12 +54,15 @@ const AddInvoice = () => {
     setDate("");
     setComment("");
     setRoom("");
+    setSelectedProducts([]);
   };
 
   return (
     <Box p={4} maxWidth="500px" mx="auto">
       <form onSubmit={onSubmit}>
         <VStack spacing={4}>
+          <ProductSelector onProductsSelected={handleProductsSelected} />
+          
           <FormControl id="total" isRequired>
             <FormLabel>Total</FormLabel>
             <NumberInput
@@ -85,6 +99,7 @@ const AddInvoice = () => {
             <Button
               onClick={() => handleCommentChange("Reported")}
               variant="outline"
+              
               colorScheme={comment === "Reported" ? "blue" : "gray"}
             >
               Reported

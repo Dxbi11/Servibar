@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { store } from "../../../store";
 import AddInvoice from "./AddInvoice";
-import ProductSelector from "./ProductSelector";
+
 import ShowInvoicesByHotel from "./ShowInvoicesByHotel";
 import {
   Text,
@@ -38,9 +38,8 @@ const MainInvoiceMenu = () => {
             <Box>
               <Heading as="h2" size="md" mb={4}>
                 Generate invoice
-                <ProductSelector />
-                <AddInvoice />
               </Heading>
+              <AddInvoice />
             </Box>
           </TabPanel>
           <TabPanel>
