@@ -88,6 +88,8 @@ const AddRoom = ({ onRoomAdded }) => {
             floorId: parseInt(selectedFloor),
             locked: false, // Example value, adjust as needed
             state: 0,
+            comment: '',
+            checked: false,
           })
         );
       }

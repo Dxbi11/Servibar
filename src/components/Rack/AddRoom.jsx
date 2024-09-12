@@ -19,12 +19,14 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { createRoom, getAllHotels, getHotelById, getAllFloors, getFloorById } from '../../api';
+import useCreateRoomStock from '../../hooks/RoomStockHooks/useCreateRoomStock';
 
 const AddRoom = ({ onRoomAdded }) => {
+  const { createData } = useCreateRoomStock();
   const { state, dispatch } = useContext(store);
   const hotels = state.ui.hotels;
   const floors = state.ui.floors;
-  const rooms = state.ui.rooms;
+  const products = state.ui.products;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [startRoomNumber, setStartRoomNumber] = useState('');
   const [endRoomNumber, setEndRoomNumber] = useState('');
@@ -67,6 +69,17 @@ const AddRoom = ({ onRoomAdded }) => {
         console.log(RoomData);
         console.log(newRoom);
         newRooms.push(newRoom);
+        if (products.length > 0) {
+        products.forEach(product => {
+          const roomStock = {
+            roomId: newRoom.id,
+            productId: product.id,
+            quantity: 0,
+          };
+          const roomStockCreated =  createData(roomStock.roomId, roomStock.productId, roomStock.quantity);
+          console.log(roomStockCreated);
+          });
+        }
       }
 
       // Dispatch an action to add the new rooms to the context

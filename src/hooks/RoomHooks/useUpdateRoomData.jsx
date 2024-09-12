@@ -7,8 +7,10 @@ const useUpdateRoomData = () => {
 
     const updateRoomData = async (roomId, updatedData) => {
         try {
+            console.log(updatedData);
             const updatedRoom = await updateRoom(roomId, updatedData);
             dispatch({ type: "UPDATE_ROOM", payload: updatedRoom });
+            console.log(updatedRoom);   
         } catch (error) {
             console.error("Error updating room data:", error);
         }

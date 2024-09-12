@@ -204,7 +204,7 @@ app.get('/rooms/:hotelId', async (req, res) => {
 
 
 app.post('/rooms', async (req, res) => {
-  const { roomNumber, hotelId, floorId, locked, state } = req.body;
+  const { roomNumber, hotelId, floorId, locked, state, comment, checked } = req.body;
   try {
     const newRoom = await prisma.room.create({
       data: { roomNumber, hotelId, floorId, locked, state, comment, checked },
@@ -217,11 +217,11 @@ app.post('/rooms', async (req, res) => {
 });
 
 app.put('/rooms/:id', async (req, res) => {
-  const { roomNumber, locked, state } = req.body;
+  const { roomNumber, hotelId, floorId, locked, state, comment, checked } = req.body;
   try {
     const updatedRoom = await prisma.room.update({
       where: { id: parseInt(req.params.id) },
-      data: { roomNumber, locked, state },
+      data: { roomNumber, locked, state, comment, checked },
     });
     res.json(updatedRoom);
   } catch (error) {
@@ -355,8 +355,21 @@ app.get('/roomstocks/:roomId', async (req, res) => {
   }
 });
 
+app.get('/roomstocks', async (req, res) => {
+  try {
+    const roomStock = await prisma.roomStock.findMany({
+      include: { product: true },
+    });
+    res.json(roomStock);
+  } catch (error) {
+    console.error('Error fetching room stock:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // Create a new room stock entry
 app.post('/roomstocks/:roomId', async (req, res) => {
+  console.log(req.body);
   const { productId, quantity } = req.body;
   try {
     const newRoomStock = await prisma.roomStock.create({
@@ -401,20 +414,36 @@ app.put('/roomstocks/:roomId/:productId', async (req, res) => {
 // Delete a room stock entry
 app.delete('/roomstocks/:roomId/:productId', async (req, res) => {
   try {
-    await prisma.roomStock.delete({
+    const roomId = parseInt(req.params.roomId);
+    const productId = parseInt(req.params.productId);
+
+    // Check if the record exists before attempting to delete
+    const existingStock = await prisma.roomStock.findFirst({
       where: {
-        roomId_productId: {
-          roomId: parseInt(req.params.roomId),
-          productId: parseInt(req.params.productId),
-        },
+        roomId,
+        productId,
       },
     });
-    res.status(204).send(); // No content response
+
+    if (!existingStock) {
+      return res.status(404).json({ error: 'Room stock not found' });
+    }
+
+    // Delete the room stock entry
+    await prisma.roomStock.deleteMany({
+      where: {
+        roomId,
+        productId,
+      },
+    });
+
+    res.status(204).send();
   } catch (error) {
     console.error('Error deleting room stock:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 });
+
 
 // Invoice routes
 app.get('/invoices', async (req, res) => {

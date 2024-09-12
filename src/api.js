@@ -132,6 +132,11 @@ export const deleteProduct = async (productId) => {
 };
 
 // RoomStock operations
+export const getAllRoomStock = async () => {
+  const response = await api.get('/roomstocks');
+  return response.data;
+};
+
 export const getRoomStock = async (roomId) => {
   const response = await api.get(`/roomstocks/${roomId}`);
   return response.data;
@@ -139,6 +144,7 @@ export const getRoomStock = async (roomId) => {
 
 export const createRoomStock = async (roomId, productId, quantity) => {
   try {
+    console.log(roomId, productId, quantity);
     const response = await api.post(`/roomstocks/${roomId}`, { productId, quantity });
     return response.data;
   } catch (error) {
