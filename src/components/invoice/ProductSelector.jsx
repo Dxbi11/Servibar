@@ -13,18 +13,53 @@ import {
 } from "@chakra-ui/react";
 import { getProductsByHotelId } from "../../api";
 
+const getColorFromId = (id) => {
+  const hue = (id * 137.508) % 360; // Simple hash function
+  return `hsl(${hue}, 70%, 80%)`;
+};
+
 const ProductButton = React.memo(({ product, onSelect }) => (
   <Button
     onClick={() => onSelect(product)}
-    colorScheme="blue"
+    bg={getColorFromId(product.id)}
+    _hover={{ bg: getColorFromId(product.id), opacity: 0.8 }}
     size="sm"
     variant="solid"
-    width="100px"
-    height="100px"
+    width="100%"
+    height="0"
+    paddingBottom="100%" // This maintains the square aspect ratio
+    position="relative"
+    overflow="hidden"
+    p={1} // Reduce padding to allow more space for text
+    minHeight="80px" // Add minimum height
   >
-    <VStack>
-      <Text>{product.name}</Text>
-      <Text fontSize="sm">${product.price?.toFixed(2) || "N/A"}</Text>
+    <VStack
+      position="absolute"
+      top="0"
+      left="0"
+      right="0"
+      bottom="0"
+      justify="space-between"
+      align="center"
+      spacing={0}
+      p={1} // Add padding to VStack for better text positioning
+    >
+      <Text 
+        fontWeight="bold" 
+        fontSize={["2xs", "xs", "sm"]} 
+        lineHeight="1.2"
+        textAlign="center"
+        width="100%"
+        flex="1"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        {product.name}
+      </Text>
+      <Text fontSize={["3xs", "2xs", "xs"]} fontWeight="semibold">
+        ${product.price?.toFixed(2) || "N/A"}
+      </Text>
     </VStack>
   </Button>
 ));
@@ -96,7 +131,7 @@ const ProductSelector = ({ onProductsSelected }) => {
   return (
     <HStack spacing={8} align="stretch">
       <Box flex={1} mt={4}>
-        <Grid templateColumns="repeat(auto-fill, minmax(120px, 1fr))" gap={4}>
+        <Grid templateColumns="repeat(auto-fill, minmax(80px, 1fr))" gap={2}>
           {products.map((product) => (
             <ProductButton
               key={product.id}
