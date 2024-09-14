@@ -69,16 +69,16 @@ const Receipt = React.memo(({ selectedProducts, total, onReset }) => (
     <Text fontWeight="bold" fontSize="xl" borderBottom="2px" borderColor="gray.200" pb={2}>
       Receipt Preview
     </Text>
-    {selectedProducts.map((product, index) => (
-      <HStack key={`${product.id}-${index}`} justify="space-between" py={1}>
-        <Text fontWeight="medium">{product.name}</Text>
-        <Text fontWeight="semibold">${product.price?.toFixed(2) || "N/A"}</Text>
+    {selectedProducts.map((product) => (
+      <HStack key={product.id} justify="space-between" py={1}>
+        <Text fontWeight="medium">{product.name} (x{product.quantity})</Text>
+        <Text fontWeight="semibold">${(product.price * product.quantity).toFixed(2) || "N/A"}</Text>
       </HStack>
     ))}
     <Divider />
     <HStack justify="space-between" fontWeight="bold">
       <Text fontSize="lg">Total:</Text>
-      <Text fontSize="lg" color="blue.600">${total.toFixed(2)}</Text>
+      <Text fontSize="lg" color="blue.600">${total}</Text>
     </HStack>
     <Button onClick={onReset} colorScheme="red" size="sm" mt={2}>
       Reset
@@ -99,11 +99,15 @@ const ProductSelector = ({ onProductsSelected }) => {
     setSelectedProducts((prevSelected) => {
       const newSelected = { ...prevSelected };
       if (newSelected[product.id]) {
-        newSelected[product.id].quantity += 1;
+        newSelected[product.id] = {
+          ...newSelected[product.id],
+          quantity: (newSelected[product.id].quantity || 0) + 1
+        };
       } else {
         newSelected[product.id] = { ...product, quantity: 1 };
       }
-      onProductsSelected(Object.values(newSelected));
+      const updatedProducts = Object.values(newSelected);
+      onProductsSelected(updatedProducts);
       return newSelected;
     });
     setTotal((prevTotal) => prevTotal + (product.price || 0));

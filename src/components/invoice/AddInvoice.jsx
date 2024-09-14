@@ -34,7 +34,7 @@ const AddInvoice = () => {
 
   const handleProductsSelected = (products) => {
     setSelectedProducts(products);
-    setTotal(products.reduce((sum, product) => sum + (product.price || 0), 0).toFixed(2));
+    setTotal(products.reduce((sum, product) => sum + (product.price * product.quantity || 0), 0).toFixed(2));
   };
 
   const onSubmit = (e) => {
