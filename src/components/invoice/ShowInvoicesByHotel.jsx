@@ -27,32 +27,33 @@ import {
   PopoverBody,
 } from "@chakra-ui/react";
 import useFetchInvoices from "../../hooks/InvoiceHooks/useFetchInvoices";
-import ExportToExcel from "../../hooks/FileExports/ExportToExcel";
-import ExportToPDF from "../../hooks/FileExports/ExportToPDF";
+import ExportToExcel from "../../hooks/FileExports/invoces/ExportToExcel";
+import ExportToPDF from "../../hooks/FileExports/invoces/ExportToPDF";
 
 const ShowInvoicesByHotel = () => {
   useFetchInvoices();
   const { state } = useContext(store);
   const hotelId = state.ui.hotelId;
   const invoices = state.ui.invoices;
+  const sortedInvoices = invoices.sort((a, b) => new Date(b.date) - new Date(a.date));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [subtractTax, setSubtractTax] = useState(false);
-  const [showInUSD, setShowInUSD] = useState(false); // Adjust initial state as needed
+  const [showInUSD, setShowInUSD] = useState(false);
   const [exchangeRate, setExchangeRate] = useState(1);
-  const [customTaxRate, setCustomTaxRate] = useState(0); // State for custom tax rate
-
+  const [customTaxRate, setCustomTaxRate] = useState(0);
+  const [days, setDays] = useState(10); // State for the number of days
 
   const today = new Date();
-  const tenDaysAgo = new Date();
-  tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+  const pastDate = new Date();
+  pastDate.setDate(pastDate.getDate() - days); // Dynamic days based on user input
 
   const invoicesForToday = invoices.filter(
     (invoice) => new Date(invoice.date).toDateString() === today.toDateString()
   );
-  const invoicesForLast10Days = invoices.filter(
-    (invoice) =>
-      new Date(invoice.date) >= tenDaysAgo && new Date(invoice.date) <= today
+
+  const invoicesForLastNDays = invoices.filter(
+    (invoice) => new Date(invoice.date) >= pastDate && new Date(invoice.date) <= today
   );
 
   const calculateTotal = (invoicesList) =>
@@ -65,7 +66,14 @@ const ShowInvoicesByHotel = () => {
     }, 0);
 
   const totalForToday = calculateTotal(invoicesForToday);
-  const totalForLast10Days = calculateTotal(invoicesForLast10Days);
+  const totalForLastNDays = calculateTotal(invoicesForLastNDays);
+
+  const handleDaysChange = (event) => {
+    const value = parseInt(event.target.value);
+    if (!isNaN(value) && value >= 0) {
+      setDays(value);
+    }
+  };
 
   const handleToggleCurrency = () => {
     setShowInUSD(!showInUSD);
@@ -89,13 +97,12 @@ const ShowInvoicesByHotel = () => {
       setCustomTaxRate(value);
     }
   };
-
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading invoices: {error.message}</div>;
 
   return (
     <>
-      <StatGroup mb={4}>
+      <StatGroup mb={4} display="flex" alignItems="center" justifyContent="space-between">
         <Stat>
           <StatLabel>Total for Today</StatLabel>
           <StatNumber>
@@ -105,13 +112,26 @@ const ShowInvoicesByHotel = () => {
           </StatNumber>
         </Stat>
         <Stat>
-          <StatLabel>Total for Last 10 Days</StatLabel>
+          <StatLabel>Total for Last {days} Days</StatLabel>
           <StatNumber>
             {showInUSD
-              ? `₡${(totalForLast10Days * exchangeRate).toFixed(2)}`
-              : `$${totalForLast10Days.toFixed(2)}`}
+              ? `₡${(totalForLastNDays * exchangeRate).toFixed(2)}`
+              : `$${totalForLastNDays.toFixed(2)}`}
           </StatNumber>
         </Stat>
+
+        <Box ml={4}>
+          <FormControl>
+            <FormLabel>Days:</FormLabel>
+            <Input
+              type="number"
+              value={days}
+              onChange={handleDaysChange}
+              min={0}
+            />
+          </FormControl>
+        </Box>
+
         <Box display="flex" alignItems="center">
           <Switch
             onChange={() => setSubtractTax(!subtractTax)}
@@ -128,11 +148,27 @@ const ShowInvoicesByHotel = () => {
               size="md"
               mt={2}
             >
-              {showInUSD ? "Show in CRC" : "Show in USD"}
+              {showInUSD ? "Show in USD" : "Show in CRC"}
             </Switch>
           </Box>
         </Box>
+
+        <Box display="flex" alignItems="center" mt={4} ml={4}>
+          <ExportToExcel
+            invoices={invoices}
+            showInUSD={showInUSD}
+            exchangeRate={exchangeRate}
+          />
+          <Box ml={4}>
+            <ExportToPDF
+              invoices={invoices}
+              showInUSD={showInUSD}
+              exchangeRate={exchangeRate}
+            />
+          </Box>
+        </Box>
       </StatGroup>
+
 
       <Box display={!showInUSD ? "none" : "block"}>
         <FormControl as="form" onSubmit={handleRateSubmit} mb={4}>
@@ -190,7 +226,7 @@ const ShowInvoicesByHotel = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {invoices.map((invoice) => (
+          {sortedInvoices.map((invoice) => (
             <Tr key={invoice.id}>
               <Td>{invoice.id}</Td>
               <Td>
@@ -205,20 +241,7 @@ const ShowInvoicesByHotel = () => {
           ))}
         </Tbody>
       </Table>
-      <Box display="flex" alignItems="center" mt={4}>
-        <ExportToExcel
-          invoices={invoices}
-          showInUSD={showInUSD}
-          exchangeRate={exchangeRate}
-        />
-        <Box ml={4}>
-          <ExportToPDF
-            invoices={invoices}
-            showInUSD={showInUSD}
-            exchangeRate={exchangeRate}
-          />
-        </Box>
-      </Box>
+
     </>
   );
 };

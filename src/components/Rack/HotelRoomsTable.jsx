@@ -26,6 +26,8 @@ import {
   Flex,
 } from "@chakra-ui/react";
 
+import ExportToPDF from "../../hooks/FileExports/rack/ExportToPDFRack";
+
 import useFetchRooms from "../../hooks/RoomHooks/useFetchRooms";
 import useUpdateRoomData from "../../hooks/RoomHooks/useUpdateRoomData";
 import useFetchRoomStock from "../../hooks/RoomStockHooks/useFetchRoomStock";
@@ -69,7 +71,6 @@ const HotelRoomsTable = () => {
   const products = state.ui.products;
   const roomStocks = state.ui.roomStock;
 
-  console.log(roomStocks);
   
   const locks = ["Locked", "Unlocked"];
   const labels = ["Available", "In House", "Leaving", "Already Left"];
@@ -187,6 +188,7 @@ const HotelRoomsTable = () => {
             </AccordionButton>
           </h2>
           <AccordionPanel pb={4}>
+            <ExportToPDF rooms={rooms} roomStocks={roomStocks} />
             <Table variant="simple">
               <Thead>
                 <Tr>

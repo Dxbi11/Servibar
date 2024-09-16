@@ -31,7 +31,6 @@ const ProductList = ({ hotelId }) => {
             <Tr>
               <Th>Name</Th>
               <Th>Price</Th>
-              <Th>Quantity</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -39,7 +38,6 @@ const ProductList = ({ hotelId }) => {
               <Tr key={product.id}>
                 <Td>{product.name}</Td>
                 <Td>{product.price}</Td>
-                <Td>{product.quantity}</Td>
               </Tr>
             ))}
           </Tbody>
