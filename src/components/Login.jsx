@@ -1,12 +1,12 @@
 import React from 'react';
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth, provider } from '../config/firebaseConfig';
-import { Button, ButtonGroup } from '@chakra-ui/react'
-import { Box, Heading } from '@chakra-ui/react';
+import { auth, googleProvider } from '../config/firebaseConfig';
+import { Button, VStack, Box, Heading } from '@chakra-ui/react';
+import EmailPasswordAuth from './EmailPasswordAuth';
 
 const Login = () => {
-  const handleSignIn = () => {
-    signInWithPopup(auth, provider)
+  const handleGoogleSignIn = () => {
+    signInWithPopup(auth, googleProvider)
       .then((result) => {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const token = credential.accessToken;
@@ -40,9 +40,12 @@ const Login = () => {
       <Heading as="h1" mb={6} color="teal.600">
         Servibar
       </Heading>
-      <Button onClick={handleSignIn} colorScheme="blue">
-        Sign In with Google
-      </Button>
+      <VStack spacing={4} width="300px">
+        <EmailPasswordAuth />
+        <Button onClick={handleGoogleSignIn} colorScheme="red" width="full">
+          Sign In with Google
+        </Button>
+      </VStack>
     </Box>
   );
 };

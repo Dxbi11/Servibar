@@ -4,7 +4,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import Login from './components/Login';
 import Home from './components/Home';
 
-
 function App() {
   const [user, setUser] = useState(null);
 
@@ -16,7 +15,6 @@ function App() {
         setUser(null);
       }
     });
-
 
     return () => unsubscribe();
   }, []);
