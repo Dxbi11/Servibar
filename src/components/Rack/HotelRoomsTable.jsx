@@ -27,6 +27,7 @@ import {
 } from "@chakra-ui/react";
 
 import ExportToPDF from "../../hooks/FileExports/rack/ExportToPDFRack";
+import ExportToExcel from "../../hooks/FileExports/rack/ExportToExcelRack";
 
 import useFetchRooms from "../../hooks/RoomHooks/useFetchRooms";
 import useUpdateRoomData from "../../hooks/RoomHooks/useUpdateRoomData";
@@ -189,6 +190,7 @@ const HotelRoomsTable = () => {
           </h2>
           <AccordionPanel pb={4}>
             <ExportToPDF rooms={rooms} roomStocks={roomStocks} />
+            <ExportToExcel rooms={rooms} roomStocks={roomStocks} />
             <Table variant="simple">
               <Thead>
                 <Tr>
@@ -215,7 +217,7 @@ const HotelRoomsTable = () => {
 
               <Tbody>
                 {rooms.map((room, index) => {
-                  const RowColor = room.checked ? "white" : "red.400";
+                  const RowColor = room.checked ? "white" : "red.100";
                   return (
                     <React.Fragment key={room.id}>
                       <Tr key={room.id} backgroundColor={RowColor}>

@@ -15,6 +15,8 @@ import {
 } from "@chakra-ui/react";
 import useFetchInventory from "../../hooks/InventoryHooks/useFetchInventory";
 import { useToast } from "@chakra-ui/react";
+import ExportProductsToPDF from "../../hooks/FileExports/products/ExporPDFPrducts";
+import ExportProductsToExcel from "../../hooks/FileExports/products/ExportExcelProducts";
 
 const ProductList = ({ hotelId }) => {
   const { state, dispatch } = useContext(store);
@@ -24,7 +26,10 @@ const ProductList = ({ hotelId }) => {
 
 
   return (
-    <Box p={4} borderWidth={1} borderRadius={8} boxShadow="lg">
+    <div>
+      <ExportProductsToPDF products={products} />
+      <ExportProductsToExcel products={products} />
+      <Box p={4} borderWidth={1} borderRadius={8} boxShadow="lg">
         <Table variant="simple">
           <TableCaption>Products by Hotel</TableCaption>
           <Thead>
@@ -42,7 +47,8 @@ const ProductList = ({ hotelId }) => {
             ))}
           </Tbody>
         </Table>
-    </Box>
+      </Box>
+    </div>
   );
 };
 
