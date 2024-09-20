@@ -1,0 +1,20 @@
+            - name: Deploy to Firebase Hosting 
+  # You may pin to the exact commit or the version.
+  # uses: AurelienLoyer/action-hosting-deploy@fbc5bbeb83621c290d5cbb21650ffb25386979d4
+  uses: Dxbi11/Servibar
+  with:
+    # The GITHUB_TOKEN secret
+    repoToken: # optional
+    # Firebase service account JSON
+    firebaseServiceAccount: FIREBASE_SERVICE_ACCOUNT_SERVIBAR1
+    # How long should a preview live? See the preview channels docs for options
+    expires: # optional, default is 7d
+    # The project to deploy to. If you leave this blank, make sure you check in a .firebaserc file
+    projectId: # optional
+    # The ID of the channel to deploy to. If you leave this blank, a preview channel and its ID will be auto-generated per branch or PR.
+    channelId: # optional
+    # The target name of the Hosting site to deploy to. If you leave this blank, the default target or all targets defined in the .firebaserc will be deployed to. Refer to the Hosting docs about [multiple sites](https://firebase.google.com/docs/hosting/multisites) for more information about deploy targets.
+    target: # optional
+    # The location of your firebase.json file, relative to the root of your directory
+    entryPoint: # optional, default is .
+          
