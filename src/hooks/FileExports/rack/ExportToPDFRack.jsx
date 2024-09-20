@@ -74,7 +74,8 @@ const ExportToPDF = ({ rooms, roomStocks }) => {
   };
 
   return (
-    <Button colorScheme="blue" onClick={generatePDF}>
+    <Button colorScheme="blue" onClick={generatePDF} overflow="hidden" textOverflow='ellipsis' // Texto truncado si es demasiado largo
+    >
       Export Rooms to PDF
     </Button>
   );

@@ -82,14 +82,27 @@ app.put('/hotels/:id', async (req, res) => {
 });
 
 app.delete('/hotels/:id', async (req, res) => {
+  const hotelId = parseInt(req.params.id);
   try {
-    await prisma.hotel.delete({
-      where: { id: parseInt(req.params.id) },
+    // Delete all rooms in the hotel
+    await prisma.room.deleteMany({
+      where: { floor: { hotelId: hotelId } },
     });
+    
+    // Delete all floors in the hotel
+    await prisma.floor.deleteMany({
+      where: { hotelId: hotelId },
+    });
+    
+    // Now delete the hotel
+    await prisma.hotel.delete({
+      where: { id: hotelId },
+    });
+    
     res.status(204).send();
   } catch (error) {
     console.error('Error deleting hotel:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 });
 
