@@ -1,5 +1,7 @@
-import { createContext, useReducer } from 'react';
+import { createContext, useReducer, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { auth } from './src/config/firebaseConfig';
+import { onAuthStateChanged } from "firebase/auth";
 
 /**
  * Global application interface (ui) state
@@ -15,6 +17,7 @@ const ui = {
   storeHouse: [],	
   hotelId: null,
   roomStock: [],
+  userUUID: null, // Add this line
 };
 
 /**
@@ -139,6 +142,14 @@ const stateReducer = (state, action) => {
                   ),
               },
           };
+    case 'SET_USER_UUID':
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          userUUID: action.payload,
+        },
+      };
     default:
       // Throw an error for any unsupported action types
       throw new Error();
@@ -147,6 +158,18 @@ const stateReducer = (state, action) => {
 
 function StateProvider({ children }) {
   const [state, dispatch] = useReducer(stateReducer, ApplicationState);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        dispatch({ type: 'SET_USER_UUID', payload: user.uid });
+      } else {
+        dispatch({ type: 'SET_USER_UUID', payload: null });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <Provider value={{ state, dispatch }}>
