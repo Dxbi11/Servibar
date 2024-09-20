@@ -16,6 +16,8 @@ import {
 } from "@chakra-ui/react";
 import RowContent from './RowContent';
 import useFetchStoreHouse from '../../hooks/StoreHooks/useFetchStoreHouse';
+import ExportTableStoreHouseToExcel from '../../hooks/FileExports/storehouse/ExportExcelStore';
+import ExportTableStoreHouseToPDF from '../../hooks/FileExports/storehouse/ExportPDFStore';
 
 const TableStoreHouse = () => {
   useFetchStoreHouse();
@@ -42,6 +44,11 @@ const TableStoreHouse = () => {
         <EditablePreview fontSize="3xl" fontWeight="bold" color="teal.600" />
         <EditableInput fontSize="lg" />
       </Editable>
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+        <ExportTableStoreHouseToExcel products={sortedProducts} storeHouse={sortedStoreHouse} />
+        <ExportTableStoreHouseToPDF products={sortedProducts} storeHouse={sortedStoreHouse} />
+      </div>
+
       <TableContainer>
         <Table variant="striped" colorScheme="teal">
           <Thead>

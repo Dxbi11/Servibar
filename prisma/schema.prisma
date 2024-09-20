@@ -23,7 +23,7 @@ model Floor {
   id          Int    @id @default(autoincrement())
   floorNumber Int
   hotelId     Int
-  hotel       Hotel  @relation(name: "FloorToHotel", fields: [hotelId], references: [id])
+  hotel       Hotel  @relation(name: "FloorToHotel", fields: [hotelId], references: [id], onDelete: Cascade)
   rooms       Room[] @relation(name: "FloorToRoom")
 }
 
@@ -32,8 +32,8 @@ model Room {
   roomNumber   Int
   hotelId      Int
   floorId      Int
-  hotel        Hotel       @relation(name: "HotelToRoom", fields: [hotelId], references: [id])
-  floor        Floor       @relation(name: "FloorToRoom", fields: [floorId], references: [id])
+  hotel        Hotel       @relation(name: "HotelToRoom", fields: [hotelId], references: [id], onDelete: Cascade)
+  floor        Floor       @relation(name: "FloorToRoom", fields: [floorId], references: [id], onDelete: Cascade)
   minibarItems RoomStock[] @relation(name: "RoomToRoomStock")
   locked       Boolean     @default(false)
   state        Int
@@ -49,7 +49,7 @@ model Product {
   price        Float?
   roomStocks   RoomStock[]   @relation(name: "ProductToRoomStock")
   invoiceItems InvoiceItem[] @relation(name: "InvoiceItemToProduct")
-  hotel        Hotel?        @relation(name: "HotelToProduct", fields: [hotelId], references: [id])
+  hotel        Hotel?        @relation(name: "HotelToProduct", fields: [hotelId], references: [id], onDelete: SetNull)
   hotelId      Int?
   storehouseId Int?
   storehouse   Storehouse[]  @relation(name: "ProductToStorehouse")
@@ -58,9 +58,9 @@ model Product {
 model RoomStock {
   id        Int     @id @default(autoincrement())
   quantity  Int
-  room      Room    @relation(name: "RoomToRoomStock", fields: [roomId], references: [id])
+  room      Room    @relation(name: "RoomToRoomStock", fields: [roomId], references: [id], onDelete: Cascade)
   roomId    Int
-  product   Product @relation(name: "ProductToRoomStock", fields: [productId], references: [id])
+  product   Product @relation(name: "ProductToRoomStock", fields: [productId], references: [id], onDelete: Cascade)
   productId Int
 }
 
@@ -70,7 +70,7 @@ model Invoice {
   items   InvoiceItem[] @relation(name: "InvoiceToInvoiceItem")
   date    DateTime      @default(now())
   hotelId Int?
-  hotel   Hotel?        @relation(name: "HotelToInvoice", fields: [hotelId], references: [id])
+  hotel   Hotel?        @relation(name: "HotelToInvoice", fields: [hotelId], references: [id], onDelete: SetNull)
   comment String?
   room    Int?
 }
@@ -80,15 +80,15 @@ model InvoiceItem {
   invoiceId Int
   productId Int
   quantity  Int
-  invoice   Invoice @relation(name: "InvoiceToInvoiceItem", fields: [invoiceId], references: [id])
-  product   Product @relation(name: "InvoiceItemToProduct", fields: [productId], references: [id])
+  invoice   Invoice @relation(name: "InvoiceToInvoiceItem", fields: [invoiceId], references: [id], onDelete: Cascade)
+  product   Product @relation(name: "InvoiceItemToProduct", fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Storehouse {
   id        Int     @id @default(autoincrement())
-  hotel     Hotel   @relation(name: "HotelToStorehouse", fields: [hotelId], references: [id])
+  hotel     Hotel   @relation(name: "HotelToStorehouse", fields: [hotelId], references: [id], onDelete: Cascade)
   hotelId   Int
   quantity  Int?
-  product   Product @relation(name: "ProductToStorehouse", fields: [productId], references: [id])
+  product   Product @relation(name: "ProductToStorehouse", fields: [productId], references: [id], onDelete: Cascade)
   productId Int
 }

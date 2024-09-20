@@ -1,8 +1,10 @@
 import React from "react";
 import { Button } from "@chakra-ui/react";
 import * as XLSX from "xlsx";
+import { format } from 'date-fns';
 
 const ExportToExcel = ({ invoices, showInUSD, exchangeRate }) => {
+  const CurrentDay = new Date();
   const handleExport = () => {
     const data = invoices.map((invoice) => ({
       ID: invoice.id,
@@ -18,7 +20,7 @@ const ExportToExcel = ({ invoices, showInUSD, exchangeRate }) => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Invoices");
 
-    XLSX.writeFile(wb, "Invoices.xlsx");
+    XLSX.writeFile(wb, `Invoices ${format(CurrentDay, 'yyyy-MM-dd')}.xlsx`);
   };
 
   return (

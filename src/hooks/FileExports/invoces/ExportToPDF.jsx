@@ -2,8 +2,10 @@ import React from "react";
 import { Button } from "@chakra-ui/react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { format } from 'date-fns';
 
 const ExportToPDF = ({ invoices, showInUSD, exchangeRate }) => {
+  const CurrentDay = new Date();
   const handleExport = () => {
     const doc = new jsPDF();
 
@@ -28,7 +30,7 @@ const ExportToPDF = ({ invoices, showInUSD, exchangeRate }) => {
       body: tableRows,
     });
 
-    doc.save("Invoices.pdf");
+    doc.save(`Invoices ${format(CurrentDay, 'yyyy-MM-dd')}.pdf`);
   };
 
   return (

@@ -35,6 +35,7 @@ import {
     const [error, setError] = useState('');
     const toast = useToast();
   
+    console.log(selectedItem);
     useEffect(() => {
       const fetchData = async () => {
         try {

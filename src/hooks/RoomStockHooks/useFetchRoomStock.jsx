@@ -14,12 +14,10 @@ const useFetchRoomStock = () => {
     const handleRoomStock = (roomStock) => {   
         const filtered = roomStock.filter(stock => stock.product.hotelId == hotelId);
         setFilteredRoomStock(filtered);
-        console.log('Filtered Room Stock:', filtered);
         dispatch({
             type: "SET_ROOM_STOCK",
             payload: filtered
         });
-        console.log('Dispatched SET_ROOM_STOCK action');
     }
 
     const fetchData = async () => {
