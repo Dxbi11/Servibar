@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { store } from '../../../store';
 import {
   Button,
   Modal,
@@ -25,36 +26,17 @@ import {
   deleteFloor, 
   deleteRoom 
 } from '../../api';
-  const DeleteModal = ({ onDelete }) => {
+  const DeleteModal = ({ onDelete }) => { 
+    const {state, dispatch} = useContext(store);
+    const hotels = state.ui.hotels;
+    const floors = state.ui.floors;
+    const rooms = state.ui.rooms;
+
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [deleteType, setDeleteType] = useState('');
     const [selectedItem, setSelectedItem] = useState('');
-    const [hotels, setHotels] = useState([]);
-    const [floors, setFloors] = useState([]);
-    const [rooms, setRooms] = useState([]);
     const [error, setError] = useState('');
     const toast = useToast();
-  
-    console.log(selectedItem);
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const [fetchedHotels, fetchedFloors, fetchedRooms] = await Promise.all([
-            getAllHotels(),
-            getAllFloors(),
-            getAllRooms()
-          ]);
-          setHotels(fetchedHotels);
-          setFloors(fetchedFloors);
-          setRooms(fetchedRooms);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-          setError('Failed to load data. Please try again later.');
-        }
-      };
-  
-      fetchData();
-    }, [isOpen]);
   
     const handleDelete = async () => {
       setError('');

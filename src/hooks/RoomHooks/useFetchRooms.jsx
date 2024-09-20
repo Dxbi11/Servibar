@@ -18,6 +18,7 @@ const useFetchRooms = () => {
         try {
             const roomsData = await getRoomsByHotelId(HotelId);
             handleRooms(roomsData);
+            
         } catch (error) {
             console.error("Error fetching data:", error);
             setError("Failed to load room data. Please try again later.");

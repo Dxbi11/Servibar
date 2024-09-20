@@ -22,6 +22,8 @@ import MainInventory from "./Inventory/MainInventory";
 
 import useFetchHotels from "../hooks/HotelHooks/useFetchHotels";
 import useFetchStoreHouse from "../hooks/StoreHooks/useFetchStoreHouse";
+import useFetchRoomStock from "../hooks/RoomStockHooks/useFetchRoomStock";
+import useFetchRooms from "../hooks/RoomHooks/useFetchRooms";
 
 const Home = ({ user }) => {
   const { state, dispatch } = useContext(store);
@@ -29,6 +31,8 @@ const Home = ({ user }) => {
   const hotels = state.ui.hotels;
   useFetchHotels();
   useFetchStoreHouse()
+  useFetchRoomStock();
+  useFetchRooms();
   const [selectedHotelId, setSelectedHotelId] = useState("1");
 
   const handleHotelId = (selectedHotelId) => {
