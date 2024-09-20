@@ -7,7 +7,6 @@ const useDeleteRoomStock = () => {
     const [error, setError] = useState(null);
 
     const handleRoomStock = useCallback((deletedRoomStockId) => {
-        console.log(deletedRoomStockId);
         dispatch({
             type: 'DELETE_ROOM_STOCK',
             payload: { id: deletedRoomStockId },
