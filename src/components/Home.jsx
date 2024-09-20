@@ -20,7 +20,6 @@ import {
 } from "@chakra-ui/react";
 import MainInventory from "./Inventory/MainInventory";
 
-import useFetchRooms from "../hooks/RoomHooks/useFetchRooms";
 import useFetchHotels from "../hooks/HotelHooks/useFetchHotels";
 import useFetchStoreHouse from "../hooks/StoreHooks/useFetchStoreHouse";
 

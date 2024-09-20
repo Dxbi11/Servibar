@@ -18,8 +18,9 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { createRoom, getAllHotels, getHotelById, getAllFloors, getFloorById } from '../../api';
+import { createRoom } from '../../api';
 import useCreateRoomStock from '../../hooks/RoomStockHooks/useCreateRoomStock';
+import useFetchFloors from '../../hooks/RackHooks/useFetchFloors';
 
 const AddRoom = ({ onRoomAdded }) => {
   const { createData } = useCreateRoomStock();
@@ -36,6 +37,9 @@ const AddRoom = ({ onRoomAdded }) => {
   const toast = useToast();
   const comment = "";
   const checked = false;
+  useFetchFloors(selectedHotel);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
