@@ -33,28 +33,8 @@ const MainInventory = () => {
       <Tabs variant="soft-rounded" onChange={(index) => setTabIndex(index)}>
         <TabList justifyContent="center" gap={4}>
           <Tab>Manage Stock By Room</Tab>
-          <Tab>Manage Room Products</Tab>
-          <Tab>Manage Hotel Products</Tab>
         </TabList>
         <TabPanels p="1rem">
-          <TabPanel>
-            <Box>
-              <Heading as="h2" size="md" mb={4}>
-                Search room
-              </Heading>
-              <VStack spacing={8} align="stretch">
-                
-              </VStack>
-            </Box>
-          </TabPanel>
-          <TabPanel>
-            <Box>
-              <Heading as="h2" size="md" mb={4}>
-                Manage Room Products
-              </Heading>
-              <Text>Content for managing room products.</Text>
-            </Box>
-          </TabPanel>
           <TabPanel>
             <Box>
               <Heading as="h2" size="md" mb={4}>

@@ -20,11 +20,16 @@ import {
   Select,
   Button,
   Checkbox,
-  Input,
+  Textarea,
   Tag,
   TagLabel,
   Flex,
+  useMediaQuery,
 } from "@chakra-ui/react";
+
+
+import ExportToPDF from "../../hooks/FileExports/rack/ExportToPDFRack";
+import ExportToExcel from "../../hooks/FileExports/rack/ExportToExcelRack";
 
 import useFetchRooms from "../../hooks/RoomHooks/useFetchRooms";
 import useUpdateRoomData from "../../hooks/RoomHooks/useUpdateRoomData";
@@ -64,12 +69,12 @@ const HotelRoomsTable = () => {
   const [NotCheckedRooms, setNotCheckedRooms] = useState(0);
   const [stocks, setStocks] = useState([]);
   const [missingItems, setMissingItems] = useState([]);
+  const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
 
   const rooms = state.ui.rooms;
   const products = state.ui.products;
   const roomStocks = state.ui.roomStock;
 
-  console.log(roomStocks);
   
   const locks = ["Locked", "Unlocked"];
   const labels = ["Available", "In House", "Leaving", "Already Left"];
@@ -168,7 +173,7 @@ const HotelRoomsTable = () => {
   }
 
   return (
-    <Box p={4} bg="gray.50" borderRadius="md" boxShadow="md">
+    <Box p={4} bg="gray.50" borderRadius="md" boxShadow="md" overflowX="auto">
       <Accordion allowMultiple>
         <AccordionItem>
           <h2>
@@ -176,7 +181,7 @@ const HotelRoomsTable = () => {
               _expanded={{ bg: "teal.500", color: "white" }}
               _hover={{ bg: "teal.400" }}
             >
-              <Flex direction="row" justify="space-between" align="center" width="100%">
+              <Flex direction={isLargerThan768 ? "row" : "column"} justify="space-between" align="center" width="100%">
                 <Text fontWeight="bold" mr={4}>Selected Hotel</Text>
                 <Tag mr={2} ml={4} size='lg' colorScheme='red' borderRadius='full' display={NotCheckedRooms > 0 ? "flex" : "none"}>
                   <Box mr={2} as="b">{NotCheckedRooms}</Box>
@@ -187,46 +192,37 @@ const HotelRoomsTable = () => {
             </AccordionButton>
           </h2>
           <AccordionPanel pb={4}>
-            <Table variant="simple">
-              <Thead>
-                <Tr>
-                  <Th fontWeight="bold" color="gray.600" textAlign="center">
-                    Room Number
-                </Th>
-                <Th fontWeight="bold" color="gray.600" textAlign="center">
-                  Status
-                </Th>
-                <Th fontWeight="bold" color="gray.600" textAlign="center">
-                  Locked
-                </Th>
-                <Th fontWeight="bold" color="gray.600" textAlign="center">
-                  Missing items
-                </Th>
-                <Th fontWeight="bold" color="gray.600" textAlign="center">
-                  Daily Check
-                </Th>
-                <Th fontWeight="bold" color="gray.600" textAlign="center">
-                  Comments
-                </Th>
-              </Tr>
-            </Thead>
-
+            <Flex justifyContent="center" mb={4}>
+              <ExportToPDF rooms={rooms} roomStocks={roomStocks} />
+              <ExportToExcel rooms={rooms} roomStocks={roomStocks} />
+            </Flex>
+            <Box overflowX="auto"/>
+            <Table variant="simple" size={isLargerThan768 ? "md" : "sm"}>
+            <Thead>
+                  <Tr>
+                    <Th fontWeight="bold" color="gray.600" textAlign="center">Room Number</Th>
+                    <Th fontWeight="bold" color="gray.600" textAlign="center">Status</Th>
+                    <Th fontWeight="bold" color="gray.600" textAlign="center">Locked</Th>
+                    <Th fontWeight="bold" color="gray.600" textAlign="center">Missing items</Th>
+                    <Th fontWeight="bold" color="gray.600" textAlign="center">Daily Check</Th>
+                    <Th fontWeight="bold" color="gray.600" textAlign="center">Comments</Th>
+                  </Tr>
+                </Thead>
               <Tbody>
-                {rooms.map((room, index) => {
-                  const RowColor = room.checked ? "white" : "red.400";
-                  return (
+                {rooms.map((room, index) => (
                     <React.Fragment key={room.id}>
-                      <Tr key={room.id} backgroundColor={RowColor}>
-                        <Td textAlign="center">{room.roomNumber}</Td>
-                        <Td>
-                          <Select
-                            placeholder={getRoomStatus(room.state).label}
-                            value={selectedStatus[room.id] || room.state}
-                            onChange={(e) => handleSelectChange(room, e)}
-                            bg={getRoomStatus(selectedStatus[room.id] || room.state).color}
-                            borderColor={getRoomStatus(selectedStatus[room.id] || room.state).color}
-                            color="white"
-                          >
+                    <Tr backgroundColor={room.checked ? "white" : "red.100"}>
+                      <Td textAlign="center">{room.roomNumber}</Td>
+                      <Td>
+                        <Select
+                          placeholder={getRoomStatus(room.state).label}
+                          value={selectedStatus[room.id] || room.state}
+                          onChange={(e) => handleSelectChange(room, e)}
+                          bg={getRoomStatus(selectedStatus[room.id] || room.state).color}
+                          borderColor={getRoomStatus(selectedStatus[room.id] || room.state).color}
+                          color="white"
+                          size={isLargerThan768 ? "md" : "sm"}
+                        >
                             {labels.map((label, index) => (
                               <option style={{ color: "black" }} key={index} value={index}>
                                 {label}
@@ -242,6 +238,7 @@ const HotelRoomsTable = () => {
                             bg={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
                             borderColor={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
                             color="white"
+                            size={isLargerThan768 ? "md" : "sm"}
                           >
                             {locks.map((lock, index) => (
                               <option style={{ color: "black" }} key={index} value={lock}>
@@ -250,8 +247,8 @@ const HotelRoomsTable = () => {
                             ))}
                           </Select>
                         </Td>
-                        <Td>
-                          <Flex wrap="wrap" justifyContent="center">
+                        <Td textAlign="center" verticalAlign="middle">
+                        <Flex wrap="wrap" justifyContent="center" alignItems="center" maxWidth={isLargerThan768 ? "200px" : "150px"} mx="auto">
                             {roomStocks ? (
                               roomStocks.length > 0 ? (
                                 Array.isArray(roomStocks[0]) 
@@ -281,21 +278,33 @@ const HotelRoomsTable = () => {
                             )}
                           </Flex>
                         </Td>
+
                         <Td>
                           <Flex justifyContent="center" alignItems="center">
-                          <Checkbox
-                            isChecked={dailyCheck[room.id] ?? room.checked}
-                            onChange={(e) => handleDailyCheckChange(room, e.target.checked)}
-                          />
+                            <Checkbox
+                              isChecked={dailyCheck[room.id] ?? room.checked}
+                              onChange={(e) => handleDailyCheckChange(room, e.target.checked)}
+                              size={isLargerThan768 ? "md" : "sm"}
+                            />
                           </Flex>
                         </Td>
                         <Td>
                           <Flex justifyContent="center" alignItems="center">
-                          <Input
-                            placeholder="Enter comments"
-                            value={comments[room.id] ?? room.comment}
-                            onChange={(e) => handleCommentChange(room, e)}
-                          />
+                            <Textarea
+                              placeholder="Enter comments"
+                              value={comments[room.id] ?? room.comment}
+                              onChange={(e) => handleCommentChange(room, e)}
+                              minH={isLargerThan768 ? "100px" : "80px"}
+                              maxH={isLargerThan768 ? "200px" : "150px"}
+                              minW={isLargerThan768 ? "150px" : "100px"}
+                              maxW={isLargerThan768 ? "300px" : "200px"}
+                              w="100%"
+                              size={isLargerThan768 ? "sm" : "xs"}
+                              resize="both"
+                              borderColor="gray.300"
+                              _hover={{ borderColor: "gray.400" }}
+                              _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px blue.500" }}
+                            />
                           </Flex>
                         </Td>
                       </Tr>
@@ -322,9 +331,8 @@ const HotelRoomsTable = () => {
                           </Accordion>
                         </Td>
                       </Tr>
-                    </React.Fragment>
-                  );
-                })}
+                      </React.Fragment>
+                  ))}
               </Tbody>
             </Table>
           </AccordionPanel>
@@ -349,6 +357,11 @@ const StockButton = ({ room, stock, productClickState, handleProductClick }) => 
       p="4px 8px"
       m="4px 2px"
       display={clickCount === 2 ? "none" : "block"}
+      textAlign="center" // Alineación centrada del texto
+      overflow="hidden"
+      textOverflow='ellipsis' // Texto truncado si es demasiado largo
+      maxW="150px" // Establecer un ancho máximo
+      minH="40px" // Establecer una altura mínima
     >
       {stock.product?.name || 'Unknown Product'}
     </Button>
