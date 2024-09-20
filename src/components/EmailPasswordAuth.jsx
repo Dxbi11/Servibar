@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from '../config/firebaseConfig';
 import { Button, Input, VStack, Text, useToast } from '@chakra-ui/react';
 
@@ -13,16 +13,27 @@ const EmailPasswordAuth = () => {
     e.preventDefault();
     try {
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(userCredential.user);
         toast({
           title: "Account created.",
-          description: "You've successfully signed up.",
+          description: "We've sent you an email verification link. Please check your inbox.",
           status: "success",
-          duration: 3000,
+          duration: 5000,
           isClosable: true,
         });
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (!userCredential.user.emailVerified) {
+          toast({
+            title: "Email not verified",
+            description: "Please verify your email before signing in. Check your inbox for the verification link.",
+            status: "warning",
+            duration: 5000,
+            isClosable: true,
+          });
+          return;
+        }
         toast({
           title: "Signed in.",
           description: "You've successfully signed in.",
