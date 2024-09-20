@@ -1,0 +1,26 @@
+            - name: Deploy to Firebase Hosting 
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - main  # or your default branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Deploy to Firebase
+        uses: AurelienLoyer/action-hosting-deploy@v1.4.0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_SERVIBAR1 }}
+          projectId: your-project-id  # Replace with your Firebase project ID
+          channelId: live
+          
+          # Optional parameters (uncomment and modify as needed):
+          # expires: 7d
+          # target: your-target-name
+          # entryPoint: ./path/to/your/firebase.json
