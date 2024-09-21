@@ -1,24 +1,26 @@
-import { useState, useContext } from 'react';
-import { store } from '../../store';
-import { createFloor } from '../../api';
-import { useToast } from '@chakra-ui/react';
+import { useState, useContext } from "react";
+import { store } from "../../../store";
+import { createFloor } from "../../api";
+import { useToast } from "@chakra-ui/react";
 
 const useCreateFloor = () => {
   const { state, dispatch } = useContext(store);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
   const addFloor = async (floorData) => {
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
       const { floorNumber, hotelId } = floorData;
-      
+
       // Check if floor already exists
       const floorExists = state.ui.floors.some(
-        floor => floor.hotelId === parseInt(hotelId) && floor.floorNumber === parseInt(floorNumber)
+        (floor) =>
+          floor.hotelId === parseInt(hotelId) &&
+          floor.floorNumber === parseInt(floorNumber)
       );
 
       if (floorExists) {
@@ -32,7 +34,7 @@ const useCreateFloor = () => {
         hotelId: parseInt(hotelId),
       });
 
-      dispatch({ type: 'ADD_FLOOR', payload: newFloor });
+      dispatch({ type: "ADD_FLOOR", payload: newFloor });
 
       toast({
         title: "Floor added.",
@@ -45,8 +47,8 @@ const useCreateFloor = () => {
       setIsLoading(false);
       return newFloor;
     } catch (error) {
-      console.error('Error creating floor:', error);
-      setError('Failed to create floor. Please try again.');
+      console.error("Error creating floor:", error);
+      setError("Failed to create floor. Please try again.");
       setIsLoading(false);
       return null;
     }
