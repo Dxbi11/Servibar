@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { store } from '../../../store';
 import {
   Button,
@@ -19,20 +19,17 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { createFloor } from '../../api';
-const AddFloors = ({ onFloorAdded }) => {
-  const {state, dispatch} = useContext(store);
+
+const AddFloors = () => {
+  const { state, dispatch } = useContext(store);
   const hotels = state.ui.hotels;
+  const floors = state.ui.floors;
 
-
-  
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [floorNumber, setFloorNumber] = useState('');
   const [selectedHotel, setSelectedHotel] = useState('');
   const [error, setError] = useState('');
   const toast = useToast();
-  
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,6 +55,7 @@ const AddFloors = ({ onFloorAdded }) => {
         hotelId: parseInt(selectedHotel),
       });
 
+      dispatch({ type: 'ADD_FLOOR', payload: newFloor });
 
       toast({
         title: "Floor added.",
