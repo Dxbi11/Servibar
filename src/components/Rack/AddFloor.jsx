@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { store } from '../../../store';
+import React, { useState, useContext } from "react";
+import { store } from "../../../store";
 import {
   Button,
   Modal,
@@ -16,34 +16,28 @@ import {
   useDisclosure,
   VStack,
   Text,
-} from '@chakra-ui/react';
-import useCreateFloor from '../../hooks/FloorHooks/useCreateFloor.jsx';
+} from "@chakra-ui/react";
+import useCreateFloor from "../../hooks/FloorHooks/useCreateFloor.jsx";
 
 const AddFloors = () => {
-  const { state } = useContext(store);
-  const hotels = state.ui.hotels;
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [floorNumber, setFloorNumber] = useState('');
-  const [selectedHotel, setSelectedHotel] = useState('');
   const { addFloor, error, isLoading } = useCreateFloor();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [floorNumber, setFloorNumber] = useState("");
+  const { state, dispatch } = useContext(store);
+  const hotelId = state.ui.hotelId;
+  const hotels = state.ui.hotels || []; // Get hotels from state, default to empty array if undefined
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!selectedHotel) {
-      return;
-    }
-
-    const newFloor = await addFloor({
-      floorNumber,
-      hotelId: selectedHotel,
-    });
-
-    if (newFloor) {
-      onClose();
-      setFloorNumber('');
-      setSelectedHotel('');
+    try {
+      const newFloor = await addFloor({ floorNumber, hotelId });
+      if (newFloor) {
+        dispatch({ type: "ADD_FLOOR", payload: newFloor });
+        onClose();
+        setFloorNumber("");
+      }
+    } catch (error) {
+      console.error("Error adding floor:", error);
     }
   };
 
@@ -65,8 +59,8 @@ const AddFloors = () => {
                   <FormLabel>Hotel</FormLabel>
                   <Select
                     placeholder="Select hotel"
-                    value={selectedHotel}
-                    onChange={(e) => setSelectedHotel(e.target.value)}
+                    value={hotelId}
+                    onChange={(e) => dispatch({ type: "SET_HOTEL_ID", payload: e.target.value })}
                   >
                     {hotels.map((hotel) => (
                       <option key={hotel.id} value={hotel.id}>
@@ -89,7 +83,12 @@ const AddFloors = () => {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSubmit} isLoading={isLoading}>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={handleSubmit}
+              isLoading={isLoading}
+            >
               Add Floor
             </Button>
             <Button variant="ghost" onClick={onClose}>
