@@ -82,6 +82,14 @@ const stateReducer = (state, action) => {
             roomStock: action.payload,
           },
         };
+      case 'ADD_ROOM_STOCK':
+        return {
+          ...state,
+          ui: {
+            ...state.ui,
+            roomStock: [...state.ui.roomStock, action.payload],
+          },
+        };
       case 'SET_ROOMS':
         return {
           ...state,

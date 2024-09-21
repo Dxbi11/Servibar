@@ -14,6 +14,7 @@ const useDeleteRoomStock = () => {
     }, [dispatch]);
 
     const deleteData = useCallback(async (roomId, productId, stockId) => {
+        
         setIsLoading(true);
         setError(null);
 

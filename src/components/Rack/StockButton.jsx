@@ -1,31 +1,24 @@
-import useDeleteRoomStock from "../../hooks/RoomStockHooks/useDeleteRoomStock";
 import { Button } from "@chakra-ui/react";
 
-const StockButton = ({ room, stock }) => {
-  const { deleteData } = useDeleteRoomStock();
-
-  const handleProductClick = (roomId, productId, stockId) => {
-    deleteData(roomId, productId, stockId);
-  };
-
+const StockButton = ({ room, stock, onClick, selected }) => {
   return (
     <Button
-      onClick={() => handleProductClick(room.id, stock.productId, stock.id)}
-      bg="red"
+      bg={selected ? "green" : "red"} // Cambiar color si está seleccionado
       color="white"
       border="2px solid red"
       borderRadius="12px"
-      p="2px 4px" // Reduce padding
+      p="2px 4px"
       m="4px 2px"
       overflow="hidden"
-      textOverflow="ellipsis" // Texto truncado si es demasiado largo
-      whiteSpace= 'normal'
-      maxW="150px" // Establecer un ancho máximo
-      minH="40px" // Establecer una altura mínima
-      display="flex" // Usar flexbox para centrar el contenido
-      alignItems="center" // Centrar verticalmente
-      justifyContent="center" // Centrar horizontalmente
-      fontSize="sm" // Ajustar el tamaño de fuente si es necesario
+      textOverflow="ellipsis"
+      whiteSpace='normal'
+      maxW="150px"
+      minH="40px"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      fontSize="sm"
+      onClick={onClick} // Manejar clic en el botón
     >
       {stock.product?.name || 'Unknown Product'}
     </Button>

@@ -23,6 +23,7 @@ import {
   Input,
   TagLabel,
   Textarea,
+  Button
 } from "@chakra-ui/react";
 
 import ExportToPDF from "../../hooks/FileExports/rack/ExportToPDFRack";
@@ -41,18 +42,22 @@ const getRoomStatus = (state) => {
   return statuses[state] || { label: "Unknown", color: "gray" };
 };
 
+const locks = ["Locked", "Unlocked"];
+
 const HotelRoomsTable = () => {
-  const { state } = useContext(store);
-  const updateRoomData = useUpdateRoomData();
-  
+  const { state, dispatch } = useContext(store);
+  const {updateRoomData} = useUpdateRoomData();
+  const [selectedLocked, setSelectedLocked] = useState({});
   const [statusState, setStatusState] = useState({});
   const [lockedState, setLockedState] = useState({});
   const [dailyCheck, setDailyCheck] = useState({});
   const [comments, setComments] = useState({});
+  const [pendingComments, setPendingComments] = useState({});
   const [openMissingItemsIndex, setOpenMissingItemsIndex] = useState({});
   const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
-
-  const { rooms, products, roomStock } = state.ui;
+  const rooms = state.ui.rooms;
+  const roomStock = state.ui.roomStock;
+  const products = state.ui.products;
 
   const stocks = useMemo(() => 
     rooms.map((room) => ({
@@ -60,36 +65,83 @@ const HotelRoomsTable = () => {
       stocks: roomStock.filter((stock) => stock.roomId === room.id),
     })), [rooms, roomStock]);
 
-  const missingItems = useMemo(() => 
-    stocks.map((roomStock) => ({
-      roomId: roomStock.roomId,
-      missingItems: products.filter((product) => 
-        !roomStock.stocks.some((stock) => stock.productId === product.id)
-      ),
-    })), [stocks, products]);
-
+    const missingItems = useMemo(() => {
+      if (stocks.length > 0 && products.length > 0) {
+    
+        return stocks.map((roomStock) => {
+          
+    
+          // Filtra los productos que no están presentes en el stock de la habitación
+          const roomMissingItems = products.filter((product) => 
+            !roomStock.stocks.some((stock) => stock.productId === product.id)
+          );
+    
+          
+    
+          return {
+            roomId: roomStock.roomId,
+            missingItems: roomMissingItems,
+          };
+        });
+      }
+    
+      // Retorna un array vacío si no hay stocks o productos
+      return [];
+    }, [stocks, products]);
+    
+    
+    
   const notCheckedRooms = useMemo(() => 
     rooms.filter(room => !room.checked).length, [rooms]);
 
-  const handleSelectChange = useCallback((room, newState) => {
-    setStatusState(prev => ({ ...prev, [room.id]: newState }));
-    updateRoomData(room.id, { state: newState });
+  const handleRoomChange = useCallback((room, updates) => {
+    console.log("Room data to update:", room, updates);
+    const storeData = {
+      ...room, // Copiamos las propiedades del cuarto
+      ...updates // Aplicamos las actualizaciones
+    };
+    
+    // Actualizamos el estado y el store
+    dispatch({ type: "UPDATE_ROOM", payload: storeData });
+    updateRoomData(room, updates);
+  
+    // Actualizamos el estado local si es necesario
+    if (updates.state !== undefined) {
+      setStatusState(prev => ({ ...prev, [room.id]: updates.state }));
+    }
+    if (updates.locked !== undefined) {
+      setLockedState(prev => ({ ...prev, [room.id]: updates.locked }));
+    }
+    
+    if (updates.checked !== undefined) {
+      setDailyCheck(prev => ({ ...prev, [room.id]: updates.checked }));
+    }
+    if (updates.comment !== undefined) {
+      setComments(prev => ({ ...prev, [room.id]: updates.comment }));
+    }
   }, [updateRoomData]);
+  
+  // Funciones individuales para cada acción
+  const handleSelectChange = (room, newState) => handleRoomChange(room, { state: newState });
+  const handleLockChange = (room, e) => {
+    const newLockState = e.target.value === "Locked";
+    setSelectedLocked((prevLocked) => ({ ...prevLocked, [room.id]: e.target.value }));
+    handleRoomChange(room, { locked: newLockState });
+  };
+  
+  const handleDailyCheckChange = (room, isChecked) => handleRoomChange(room, { checked: isChecked });
+  const handleCommentChange = (room, e) => {
+    const newComment = e.target.value;
+    setPendingComments((prevComments) => ({ ...prevComments, [room.id]: newComment }));
+  }
 
-  const handleLockChange = useCallback((room, newLockState) => {
-    setLockedState(prev => ({ ...prev, [room.id]: newLockState }));
-    updateRoomData(room.id, { locked: newLockState === "Locked" });
-  }, [updateRoomData]);
-
-  const handleDailyCheckChange = useCallback((room, isChecked) => {
-    setDailyCheck(prev => ({ ...prev, [room.id]: isChecked }));
-    updateRoomData(room.id, { checked: isChecked });
-  }, [updateRoomData]);
-
-  const handleCommentChange = useCallback((room, newComment) => {
-    setComments(prev => ({ ...prev, [room.id]: newComment }));
-    updateRoomData(room.id, { comment: newComment });
-  }, [updateRoomData]);
+  const handleConfirmComment = (room) => {
+    const newComment = pendingComments[room.id];
+    setComments((prevComments) => ({ ...prevComments, [room.id]: newComment }));
+    handleRoomChange(room, { comment: newComment });
+    setPendingComments((prevPending) => ({ ...prevPending, [room.id]: undefined }));
+  }
+  
 
   const toggleMissingItemsAccordion = useCallback((roomId) => {
     setOpenMissingItemsIndex(prev => ({
@@ -163,24 +215,24 @@ const HotelRoomsTable = () => {
                       <Td>
                         <Select
                           placeholder={room.locked ? "Locked" : "Unlocked"}
-                          value={lockedState[room.id] || (room.locked ? "Locked" : "Unlocked")}
-                          onChange={(e) => handleLockChange(room, e.target.value)}
-                          bg={lockedState[room.id] === "Locked" || room.locked ? "red" : "green"}
-                          borderColor={lockedState[room.id] === "Locked" || room.locked ? "red" : "green"}
+                          value={selectedLocked[room.id] || (room.locked ? "Locked" : "Unlocked")}
+                          onChange={(e) => handleLockChange(room, e)} // Cambiado a e.target.value
+                          bg={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
+                          borderColor={selectedLocked[room.id] === "Locked" || room.locked ? "red" : "green"}
                           color="white"
-                          size={isLargerThan768 ? "md" : "sm"}
                         >
-                          {["Locked", "Unlocked"].map((lock, index) => (
-                            <option key={index} style={{ color: "black" }} value={lock}>
+                          {locks.map((lock, index) => (
+                            <option style={{ color: "black" }} key={index} value={lock}>
                               {lock}
                             </option>
                           ))}
                         </Select>
                       </Td>
+
                       <Td textAlign="center" verticalAlign="middle">
                         <OptimizedStockRendering
                           room={room}
-                          roomStocks={roomStock}
+                          roomStocks={stocks}
                           isLargerThan768={isLargerThan768}
                         />
                       </Td>
@@ -194,31 +246,27 @@ const HotelRoomsTable = () => {
                         </Flex>
                       </Td>
                       <Td>
-                        <Textarea
-                              placeholder="Enter comments"
-                              value={comments[room.id] ?? room.comment}
-                              onChange={(e) => handleCommentChange(room, e)}
-                              minH={isLargerThan768 ? "100px" : "80px"}
-                              maxH={isLargerThan768 ? "200px" : "150px"}
-                              minW={isLargerThan768 ? "150px" : "100px"}
-                              maxW={isLargerThan768 ? "300px" : "200px"}
-                              w="100%"
-                              size={isLargerThan768 ? "sm" : "xs"}
-                              resize="both"
-                              borderColor="gray.300"
-                              _hover={{ borderColor: "gray.400" }}
-                              _focus={{ borderColor: "blue.500", boxShadow: "0 0 0 1px blue.500" }}
-                            />
+                        <Flex>
+                          <Textarea
+                            placeholder="Enter comments"
+                            value={pendingComments[room.id] ?? comments[room.id] ?? room.comment ?? ''}
+                            onChange={(e) => handleCommentChange(room, e)}
+                            mr={2}
+                          />
+                          <Button
+                            colorScheme="teal"
+                            size="sm"
+                            onClick={() => handleConfirmComment(room)}
+                            isDisabled={!pendingComments[room.id]}
+                          >
+                            Confirm
+                          </Button>
+                        </Flex>
                       </Td>
                     </Tr>
                     <Tr>
                       <Td colSpan={6}>
-                        <MissingItemButton
-                          roomId={room.id}
-                          missingItems={missingItems.find(item => item.roomId === room.id)?.missingItems}
-                          open={openMissingItemsIndex[room.id]}
-                          onToggle={() => toggleMissingItemsAccordion(room.id)}
-                        />
+                      <MissingItemButton roomId={room.id} missingItems={missingItems}/>
                       </Td>
                     </Tr>
                   </React.Fragment>

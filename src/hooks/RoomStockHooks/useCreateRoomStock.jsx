@@ -9,10 +9,11 @@ const useCreateRoomStock = () => {
 
     const handleRoomStock = (roomStock) => {
         dispatch({
-            type: 'SET_ROOM_STOCK',
-            payload: [...state.ui.roomStock, roomStock],
+            type: 'ADD_ROOM_STOCK',
+            payload: roomStock,
         });
     };
+    
 
     const createData = async (roomId, productId, quantity) => {
         setIsLoading(true);
@@ -22,6 +23,7 @@ const useCreateRoomStock = () => {
             const roomStock = await createRoomStock(roomId, productId, quantity);
             console.log(roomStock);
             handleRoomStock(roomStock);
+            console.log(state.ui.roomStock);
             return roomStock;
         } catch (error) {
             console.error("Error creating room stock:", error);
