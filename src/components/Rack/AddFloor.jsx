@@ -16,60 +16,34 @@ import {
   useDisclosure,
   VStack,
   Text,
-  useToast,
 } from '@chakra-ui/react';
-import { createFloor } from '../../api';
+import useCreateFloor from '../../hooks/FloorHooks/useCreateFloor.jsx';
 
 const AddFloors = () => {
-  const { state, dispatch } = useContext(store);
+  const { state } = useContext(store);
   const hotels = state.ui.hotels;
-  const floors = state.ui.floors;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [floorNumber, setFloorNumber] = useState('');
   const [selectedHotel, setSelectedHotel] = useState('');
-  const [error, setError] = useState('');
-  const toast = useToast();
+  const { addFloor, error, isLoading } = useCreateFloor();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     if (!selectedHotel) {
-      setError('Please select a hotel.');
       return;
     }
 
-    const floorExists = floors.some(
-      floor => floor.hotelId === parseInt(selectedHotel) && floor.floorNumber === parseInt(floorNumber)
-    );
+    const newFloor = await addFloor({
+      floorNumber,
+      hotelId: selectedHotel,
+    });
 
-    if (floorExists) {
-      setError(`Floor ${floorNumber} already exists in the selected hotel.`);
-      return;
-    }
-
-    try {
-      const newFloor = await createFloor({
-        floorNumber: parseInt(floorNumber),
-        hotelId: parseInt(selectedHotel),
-      });
-
-      dispatch({ type: 'ADD_FLOOR', payload: newFloor });
-
-      toast({
-        title: "Floor added.",
-        description: `Floor ${floorNumber} has been added to the hotel.`,
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+    if (newFloor) {
       onClose();
       setFloorNumber('');
       setSelectedHotel('');
-    } catch (error) {
-      console.error('Error creating floor:', error);
-      setError('Failed to create floor. Please try again.');
     }
   };
 
@@ -115,7 +89,7 @@ const AddFloors = () => {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
+            <Button colorScheme="blue" mr={3} onClick={handleSubmit} isLoading={isLoading}>
               Add Floor
             </Button>
             <Button variant="ghost" onClick={onClose}>
