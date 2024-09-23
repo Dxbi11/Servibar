@@ -158,9 +158,16 @@ const stateReducer = (state, action) => {
           userUUID: action.payload,
         },
       };
+    case 'ADD_FLOOR':
+      return {
+        ...state,
+        ui: {
+          ...state.ui,
+          floors: [...state.ui.floors, action.payload],
+        },
+      };
     default:
-      // Throw an error for any unsupported action types
-      throw new Error();
+      return state; // Changed from throwing an error to returning the current state
   }
 };
 

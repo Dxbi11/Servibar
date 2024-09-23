@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Hotel" ADD COLUMN     "pin" INTEGER NOT NULL DEFAULT 1234;

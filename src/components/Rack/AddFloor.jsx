@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { store } from '../../../store';
+import React, { useState, useContext } from "react";
+import { store } from "../../../store";
 import {
   Button,
   Modal,
@@ -37,22 +37,6 @@ const AddFloors = ({ onFloorAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!selectedHotel) {
-      setError('Please select a hotel.');
-      return;
-    }
-
-    const floorExists = floors.some(
-      floor => floor.hotelId === parseInt(selectedHotel) && floor.floorNumber === parseInt(floorNumber)
-    );
-
-    if (floorExists) {
-      setError(`Floor ${floorNumber} already exists in the selected hotel.`);
-      return;
-    }
-
     try {
       const newFloor = await createFloor({
         floorNumber: parseInt(floorNumber),
@@ -72,8 +56,7 @@ const AddFloors = ({ onFloorAdded }) => {
       setSelectedHotel('');
       handleFloors([...floors, newFloor]);
     } catch (error) {
-      console.error('Error creating floor:', error);
-      setError('Failed to create floor. Please try again.');
+      console.error("Error adding floor:", error);
     }
   };
 
@@ -95,8 +78,8 @@ const AddFloors = ({ onFloorAdded }) => {
                   <FormLabel>Hotel</FormLabel>
                   <Select
                     placeholder="Select hotel"
-                    value={selectedHotel}
-                    onChange={(e) => setSelectedHotel(e.target.value)}
+                    value={hotelId}
+                    onChange={(e) => dispatch({ type: "SET_HOTEL_ID", payload: e.target.value })}
                   >
                     {hotels.map((hotel) => (
                       <option key={hotel.id} value={hotel.id}>
@@ -119,7 +102,12 @@ const AddFloors = ({ onFloorAdded }) => {
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={handleSubmit}
+              isLoading={isLoading}
+            >
               Add Floor
             </Button>
             <Button variant="ghost" onClick={onClose}>
