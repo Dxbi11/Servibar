@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { getFloorsbyHotelId } from "../../api";
+import { store } from "../../../store";
 
 const useFetchFloors = (HotelId) => {
-
+    const { dispatch } = useContext(store);
+    
     const handleFloors = (floors) => {
         dispatch({ type: "SET_FLOORS", payload: floors });
     };

@@ -24,16 +24,21 @@ import useFetchHotels from "../hooks/HotelHooks/useFetchHotels";
 import useFetchStoreHouse from "../hooks/StoreHooks/useFetchStoreHouse";
 import useFetchRoomStock from "../hooks/RoomStockHooks/useFetchRoomStock";
 import useFetchRooms from "../hooks/RoomHooks/useFetchRooms";
+import useFetchFloors from "../hooks/RackHooks/useFetchFloors";
 
 const Home = ({ user }) => {
   const { state, dispatch } = useContext(store);
   const HotelId = state.ui.hotelId;
   const hotels = state.ui.hotels;
+  const floors = state.ui.floors;
+  const [selectedHotelId, setSelectedHotelId] = useState("");
+  const [selectedFloorId, setSelectedFloorId] = useState("1");
+
   useFetchHotels();
   useFetchStoreHouse()
   useFetchRoomStock();
-  useFetchRooms();
-  const [selectedHotelId, setSelectedHotelId] = useState("1");
+  useFetchFloors(selectedHotelId);
+  useFetchRooms(selectedFloorId);
 
   const handleHotelId = (selectedHotelId) => {
     dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });
@@ -61,6 +66,11 @@ const Home = ({ user }) => {
     handleHotelId(selectedHotelId);
   };
 
+  const handleFloorChange = (e) => {
+    const selectedFloorId = e.target.value;
+    console.log(selectedFloorId);
+    setSelectedFloorId(selectedFloorId);
+  };
 
   return (
     <Box p={4} className="min-h-screen bg-gray-100">
@@ -72,6 +82,7 @@ const Home = ({ user }) => {
           Sign out
         </Button>
       </Flex>
+      Select Hotel 🏨
       <Select
         placeholder="Select Hotel"
         value={selectedHotelId}
@@ -82,6 +93,20 @@ const Home = ({ user }) => {
         {hotels.map((hotel) => (
           <option key={hotel.id} value={hotel.id}>
             {hotel.name}
+          </option>
+        ))}
+      </Select>
+      Select Floor 🏢
+      <Select
+        placeholder="Select Floor"
+        value={selectedFloorId}
+        onChange={handleFloorChange}
+        mb={4}
+        className="bg-white shadow"
+      >
+        {floors.map((floor) => (
+          <option key={floor.id} value={floor.id}>
+            {floor.floorNumber}
           </option>
         ))}
       </Select>

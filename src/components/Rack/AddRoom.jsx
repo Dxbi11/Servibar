@@ -28,6 +28,7 @@ const AddRoom = ({ onRoomAdded }) => {
   const hotels = state.ui.hotels;
   const floors = state.ui.floors;
   const products = state.ui.products;
+  const rooms = state.ui.rooms;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [startRoomNumber, setStartRoomNumber] = useState('');
   const [endRoomNumber, setEndRoomNumber] = useState('');
@@ -39,13 +40,16 @@ const AddRoom = ({ onRoomAdded }) => {
   const checked = false;
   useFetchFloors(selectedHotel);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     if (!selectedHotel || !selectedFloor || !startRoomNumber || !endRoomNumber) {
       setError('Please fill in all fields.');
+      return;
+    }
+    if (endRoomNumber > 20) {
+      setError('You cannot add more than 20 rooms at a time.');
       return;
     }
 
@@ -60,6 +64,7 @@ const AddRoom = ({ onRoomAdded }) => {
     try {
       const newRooms = [];
       for (let roomNumber = start; roomNumber <= end; roomNumber++) {
+        console.log(selectedFloor);
         const RoomData = {
           roomNumber,
           hotelId: parseInt(selectedHotel),
@@ -69,6 +74,7 @@ const AddRoom = ({ onRoomAdded }) => {
           comment: comment,
           checked: checked,
         }
+        console.log(RoomData);
         const newRoom = await createRoom(RoomData);
         console.log(RoomData);
         console.log(newRoom);
@@ -121,6 +127,9 @@ const AddRoom = ({ onRoomAdded }) => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Add Rooms</ModalHeader>
+        <Text as="b" color="red.500" fontSize="md" textAlign="center">
+                  * You cannot add more than 20 rooms to any floor.
+                </Text>
           <ModalCloseButton />
           <ModalBody>
             <form onSubmit={handleSubmit}>

@@ -22,7 +22,7 @@ import { createFloor } from '../../api';
 const AddFloors = ({ onFloorAdded }) => {
   const {state, dispatch} = useContext(store);
   const hotels = state.ui.hotels;
-
+  const floors = state.ui.floors;
 
   
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -30,9 +30,10 @@ const AddFloors = ({ onFloorAdded }) => {
   const [selectedHotel, setSelectedHotel] = useState('');
   const [error, setError] = useState('');
   const toast = useToast();
-  
 
-
+  const handleFloors = (floors) => {  
+    dispatch({ type: 'SET_FLOORS', payload: floors });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,6 +70,7 @@ const AddFloors = ({ onFloorAdded }) => {
       onClose();
       setFloorNumber('');
       setSelectedHotel('');
+      handleFloors([...floors, newFloor]);
     } catch (error) {
       console.error('Error creating floor:', error);
       setError('Failed to create floor. Please try again.');
