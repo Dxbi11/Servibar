@@ -1,5 +1,4 @@
 import { useEffect, useContext } from "react";
-import { store } from "../../../store";
 import { getFloorsbyHotelId } from "../../api";
 import { store } from "../../../store";
 

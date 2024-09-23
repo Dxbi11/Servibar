@@ -23,7 +23,6 @@ const AddFloors = ({ onFloorAdded }) => {
   const {state, dispatch} = useContext(store);
   const hotels = state.ui.hotels;
   const floors = state.ui.floors;
-
   
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [floorNumber, setFloorNumber] = useState('');
@@ -78,7 +77,7 @@ const AddFloors = ({ onFloorAdded }) => {
                   <FormLabel>Hotel</FormLabel>
                   <Select
                     placeholder="Select hotel"
-                    value={hotelId}
+                    value={selectedHotel}
                     onChange={(e) => dispatch({ type: "SET_HOTEL_ID", payload: e.target.value })}
                   >
                     {hotels.map((hotel) => (
@@ -106,7 +105,6 @@ const AddFloors = ({ onFloorAdded }) => {
               colorScheme="blue"
               mr={3}
               onClick={handleSubmit}
-              isLoading={isLoading}
             >
               Add Floor
             </Button>
