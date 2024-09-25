@@ -4,9 +4,10 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { format } from 'date-fns';
 
-const ExportToPDF = ({ invoices, showInUSD, exchangeRate }) => {
+const ExportToPDF = ({ invoices, showInUSD, exchangeRate, forPrint }) => {
   const CurrentDay = new Date();
-  const handleExport = () => {
+
+  const generatePDF = () => {
     const doc = new jsPDF();
 
     const tableColumn = ["ID", "Total", "Date", "Comment", "Room"];
@@ -30,13 +31,20 @@ const ExportToPDF = ({ invoices, showInUSD, exchangeRate }) => {
       body: tableRows,
     });
 
-    doc.save(`Invoices ${format(CurrentDay, 'yyyy-MM-dd')}.pdf`);
+    if (forPrint) {
+      doc.autoPrint(); // Automatically open the print dialog
+      doc.output('dataurlnewwindow'); // Open in a new window for print preview
+    } else {
+      doc.save(`Invoices ${format(CurrentDay, 'yyyy-MM-dd')}.pdf`); // Save as PDF
+    }
   };
 
   return (
-    <Button colorScheme="red" onClick={handleExport}>
-      Download PDF
-    </Button>
+    <>
+      <Button colorScheme={forPrint ? 'red': 'blue'} onClick={generatePDF}>
+        {forPrint ? "Print PDF" : "Download PDF"}
+      </Button>
+    </>
   );
 };
 

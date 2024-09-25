@@ -4,7 +4,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { format } from "date-fns";
 
-const ExportProductsToPDF = ({ products }) => {
+const ExportProductsToPDF = ({ products, forPrint }) => {
   const CurrentDay = new Date();
 
   const handleExport = () => {
@@ -27,12 +27,17 @@ const ExportProductsToPDF = ({ products }) => {
       body: tableRows,
     });
 
-    doc.save(`Products ${format(CurrentDay, "yyyy-MM-dd")}.pdf`);
+    if (forPrint) {
+      doc.autoPrint(); // Abrir cuadro de diálogo de impresión
+      doc.output('dataurlnewwindow'); // Abrir en una nueva ventana para vista previa de impresión
+    } else {
+      doc.save(`Products ${format(CurrentDay, "yyyy-MM-dd")}.pdf`); // Guardar como PDF
+    }
   };
 
   return (
-    <Button mr={2} colorScheme="red" onClick={handleExport}>
-      Download PDF
+    <Button mr={2} colorScheme={forPrint ? 'red': 'blue'} onClick={handleExport} ml={4}>
+      {forPrint ? "Print PDF" : "Download PDF"}
     </Button>
   );
 };

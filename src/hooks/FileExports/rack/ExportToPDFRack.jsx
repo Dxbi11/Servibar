@@ -4,7 +4,7 @@ import "jspdf-autotable";
 import { Button } from "@chakra-ui/react";
 import { format } from "date-fns";
 
-const ExportToPDF = ({ rooms, roomStocks }) => {
+const ExportToPDF = ({ rooms, roomStocks, forPrint }) => {
   let CurrentDay = new Date();
   CurrentDay = format(CurrentDay, "yyyy-MM-dd");
   const [filteredRoomStocks, setFilteredRoomStocks] = useState({});
@@ -69,14 +69,24 @@ const ExportToPDF = ({ rooms, roomStocks }) => {
       startY: 20, // Position after title
     });
 
-    // Save the PDF
-    doc.save(`Rooms Rack Report ${CurrentDay}.pdf`);
+    // Save or print the PDF based on the `forPrint` flag
+    if (forPrint) {
+      doc.autoPrint(); // Abrir diálogo de impresión automáticamente
+      doc.output("dataurlnewwindow"); // Abrir en una nueva ventana para vista previa de impresión
+    } else {
+      doc.save(`Rooms Rack Report ${CurrentDay}.pdf`); // Guardar el archivo PDF
+    }
   };
 
   return (
-    <Button colorScheme="blue" onClick={generatePDF} overflow="hidden" textOverflow='ellipsis' // Texto truncado si es demasiado largo
+    <Button
+    ml={4}
+    colorScheme={forPrint ? 'red': 'blue'}
+      onClick={generatePDF}
+      overflow="hidden"
+      textOverflow="ellipsis" // Texto truncado si es demasiado largo
     >
-      Export Rooms to PDF
+      {forPrint ? "Print Rooms Rack PDF" : "Download Rooms Rack PDF"}
     </Button>
   );
 };

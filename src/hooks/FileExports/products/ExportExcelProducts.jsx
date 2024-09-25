@@ -21,7 +21,7 @@ const ExportProductsToExcel = ({ products }) => {
   };
 
   return (
-    <Button colorScheme="blue" onClick={handleExport}>
+    <Button colorScheme="green" onClick={handleExport}>
       Download Excel
     </Button>
   );

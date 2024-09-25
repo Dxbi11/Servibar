@@ -24,7 +24,7 @@ const ExportToExcel = ({ invoices, showInUSD, exchangeRate }) => {
   };
 
   return (
-    <Button colorScheme="blue" onClick={handleExport}>
+    <Button colorScheme="green" onClick={handleExport}>
       Download Excel
     </Button>
   );

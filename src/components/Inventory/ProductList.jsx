@@ -29,6 +29,7 @@ const ProductList = ({ hotelId }) => {
     <div>
       <ExportProductsToPDF products={products} />
       <ExportProductsToExcel products={products} />
+      <ExportProductsToPDF products={products} forPrint={true} />
       <Box p={4} borderWidth={1} borderRadius={8} boxShadow="lg">
         <Table variant="simple">
           <TableCaption>Products by Hotel</TableCaption>

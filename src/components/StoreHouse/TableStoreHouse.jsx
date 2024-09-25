@@ -47,6 +47,7 @@ const TableStoreHouse = () => {
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
         <ExportTableStoreHouseToExcel products={sortedProducts} storeHouse={sortedStoreHouse} />
         <ExportTableStoreHouseToPDF products={sortedProducts} storeHouse={sortedStoreHouse} />
+        <ExportTableStoreHouseToPDF products={sortedProducts} storeHouse={sortedStoreHouse} forPrint={true}/>
       </div>
 
       <TableContainer>

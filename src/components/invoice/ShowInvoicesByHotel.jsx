@@ -166,7 +166,16 @@ const ShowInvoicesByHotel = () => {
               exchangeRate={exchangeRate}
             />
           </Box>
+          <Box ml={4}>
+            <ExportToPDF
+              invoices={invoices}
+              showInUSD={showInUSD}
+              exchangeRate={exchangeRate}
+              forPrint={true}  // Set forPrint to true for the print button
+            />
+          </Box>
         </Box>
+
       </StatGroup>
 
 

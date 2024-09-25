@@ -178,6 +178,7 @@ const HotelRoomsTable = () => {
             <Flex justifyContent="center" mb={4}>
               <ExportToPDF rooms={rooms} roomStocks={roomStock} />
               <ExportToExcel rooms={rooms} roomStocks={roomStock} />
+              <ExportToPDF  rooms={rooms} roomStocks={roomStock} forPrint={true}/>
             </Flex>
             <Table variant="simple" size={isLargerThan768 ? "md" : "sm"}>
               <Thead>

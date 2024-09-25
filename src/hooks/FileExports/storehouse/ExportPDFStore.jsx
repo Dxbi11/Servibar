@@ -4,8 +4,8 @@ import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { format } from 'date-fns';
 
-const ExportTableStoreHouseToPDF = ({ products, storeHouse }) => {
-    const CurrentDay = new Date();
+const ExportTableStoreHouseToPDF = ({ products, storeHouse, forPrint }) => {
+  const CurrentDay = new Date();
   const sortedStoreHouse = [...storeHouse].sort((a, b) => a.productId - b.productId);
   const sortedProducts = [...products].sort((a, b) => a.id - b.id);
 
@@ -25,7 +25,7 @@ const ExportTableStoreHouseToPDF = ({ products, storeHouse }) => {
     const columns = ["Product Name", "Quantity"];
 
     // Crear las filas para el PDF
-    const rows = sortedStoreHouse.map((row, index) => [
+    const rows = sortedStoreHouse.map((row) => [
       sortedProducts.find(product => product.id === row.productId)?.name || "Unknown Product",
       row.quantity
     ]);
@@ -37,14 +37,18 @@ const ExportTableStoreHouseToPDF = ({ products, storeHouse }) => {
       startY: 20, // Posición de la tabla después del título
     });
 
-    // Guardar archivo PDF
-    doc.save(`StoreHouse Inventory Report ${format(CurrentDay, 'yyyy-MM-dd')}.pdf`);
+    if (forPrint) {
+      doc.autoPrint(); // Abrir diálogo de impresión automáticamente
+      doc.output('dataurlnewwindow'); // Abrir en una nueva ventana para vista previa de impresión
+    } else {
+      doc.save(`StoreHouse Inventory Report ${format(CurrentDay, 'yyyy-MM-dd')}.pdf`);
+    }
   };
 
   return (
     <Box>
-      <Button colorScheme="blue" onClick={generatePDF}>
-        Export StoreHouse to PDF
+      <Button  colorScheme={forPrint ? 'red': 'blue'} onClick={generatePDF}>
+        {forPrint ? "Print StoreHouse PDF" : "Download StoreHouse PDF"}
       </Button>
     </Box>
   );
