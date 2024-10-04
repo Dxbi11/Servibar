@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { store } from "../../../store";
 import AddInvoice from "./AddInvoice";
+import ItemReport from "./Reports/ItemReport";
 
 import ShowInvoicesByHotel from "./ShowInvoicesByHotel";
 import {
@@ -31,6 +32,7 @@ const MainInvoiceMenu = () => {
         <TabList justifyContent="center" gap={4}>
           <Tab>New Invoice</Tab>
           <Tab>Invoice History</Tab>
+          <Tab>Reports</Tab>
         </TabList>
         <TabPanels p="1rem">
           <TabPanel>
@@ -47,6 +49,14 @@ const MainInvoiceMenu = () => {
                 Invoices
                 <ShowInvoicesByHotel />
               </Heading>
+            </Box>
+          </TabPanel>
+          <TabPanel>
+            <Box>
+              <Heading as="h2" size="md" mb={4}>
+                Reports
+              </Heading>
+              <ItemReport />
             </Box>
           </TabPanel>
         </TabPanels>

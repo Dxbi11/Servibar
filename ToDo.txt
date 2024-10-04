@@ -1,0 +1,7 @@
+Finish add InvoiceItem with the new prisma scheme
+
+Finish Report by Item and Time
+
+No display required, only PRINT and PDF format
+
+Check if InvoiceItem are working correctly by adding a new Invoice
