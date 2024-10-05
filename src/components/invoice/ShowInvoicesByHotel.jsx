@@ -35,6 +35,7 @@ const ShowInvoicesByHotel = () => {
   const { state } = useContext(store);
   const hotelId = state.ui.hotelId;
   const invoices = state.ui.invoices;
+  console.log(invoices);
   const sortedInvoices = invoices.sort((a, b) => new Date(b.date) - new Date(a.date));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -42,17 +43,20 @@ const ShowInvoicesByHotel = () => {
   const [showInUSD, setShowInUSD] = useState(false);
   const [exchangeRate, setExchangeRate] = useState(1);
   const [customTaxRate, setCustomTaxRate] = useState(0);
-  const [days, setDays] = useState(10); // State for the number of days
+  const [days, setDays] = useState(); // State for the number of days
 
   const today = new Date();
   const pastDate = new Date();
+  today.setHours(0, 0, 0, 0);
+  pastDate.setHours(0, 0, 0, 0);
   pastDate.setDate(pastDate.getDate() - days); // Dynamic days based on user input
 
   const invoicesForToday = invoices.filter(
     (invoice) => new Date(invoice.date).toDateString() === today.toDateString()
   );
 
-  const invoicesForLastNDays = invoices.filter(
+  const invoicesForLastNDays = 
+  invoices.filter(
     (invoice) => new Date(invoice.date) >= pastDate && new Date(invoice.date) <= today
   );
 
@@ -66,14 +70,21 @@ const ShowInvoicesByHotel = () => {
     }, 0);
 
   const totalForToday = calculateTotal(invoicesForToday);
-  const totalForLastNDays = calculateTotal(invoicesForLastNDays);
+  const totalForLastNDays = days > 0 ? calculateTotal(invoicesForLastNDays) : calculateTotal(invoices);
 
   const handleDaysChange = (event) => {
-    const value = parseInt(event.target.value);
-    if (!isNaN(value) && value >= 0) {
-      setDays(value);
+    const value = event.target.value;
+    
+    if (value === '') {
+      setDays(''); // Allow clearing the input field
+    } else {
+      const parsedValue = parseInt(value);
+      if (!isNaN(parsedValue) && parsedValue >= 0) {
+        setDays(parsedValue);
+      }
     }
   };
+  
 
   const handleToggleCurrency = () => {
     setShowInUSD(!showInUSD);
@@ -102,140 +113,158 @@ const ShowInvoicesByHotel = () => {
 
   return (
     <>
-      <StatGroup mb={4} display="flex" alignItems="center" justifyContent="space-between">
-        <Stat>
-          <StatLabel>Total for Today</StatLabel>
-          <StatNumber>
-            {showInUSD
-              ? `₡${(totalForToday * exchangeRate).toFixed(2)}`
-              : `$${totalForToday.toFixed(2)}`}
-          </StatNumber>
-        </Stat>
-        <Stat>
-          <StatLabel>Total for Last {days} Days</StatLabel>
-          <StatNumber>
-            {showInUSD
-              ? `₡${(totalForLastNDays * exchangeRate).toFixed(2)}`
-              : `$${totalForLastNDays.toFixed(2)}`}
-          </StatNumber>
-        </Stat>
+    <StatGroup mb={8} display="flex" alignItems="center" justifyContent="space-between">
+      <Stat mr={4}>
+        <StatLabel>Total for Today</StatLabel>
+        <StatNumber>
+          {showInUSD
+            ? `₡${(totalForToday * exchangeRate).toFixed(2)}`
+            : `$${totalForToday.toFixed(2)}`}
+        </StatNumber>
+      </Stat>
+      <Stat mr={4}>
+        <StatLabel>Total for Last {days} Days</StatLabel>
+        <StatNumber>
+          {showInUSD
+            ? `₡${(totalForLastNDays * exchangeRate).toFixed(2)}`
+            : `$${totalForLastNDays.toFixed(2)}`}
+        </StatNumber>
+      </Stat>
 
+      <Box ml={4} mr={4}>
+        <FormControl>
+          <FormLabel>Days:</FormLabel>
+          <Input
+            type="number"
+            value={days}
+            onChange={handleDaysChange}
+          />
+        </FormControl>
+      </Box>
+
+      <Box display="flex" alignItems="center" mr={4}>
+        <Switch
+          onChange={() => setSubtractTax(!subtractTax)}
+          colorScheme="teal"
+          size="md"
+          mt={2}
+        >
+          Subtract {subtractTax ? `${customTaxRate}%` : "Custom Tax Rate"}
+        </Switch>
+      </Box>
+
+      <Box display="flex" alignItems="center">
+        <Switch
+          onChange={handleToggleCurrency}
+          colorScheme="blue"
+          size="md"
+          mt={2}
+        >
+          {showInUSD ? "Show in USD" : "Show in CRC"}
+        </Switch>
+      </Box>
+
+      <Box display="flex" alignItems="center" mt={4} ml={4}>
+        <ExportToExcel
+          invoices={invoices}
+          showInUSD={showInUSD}
+          exchangeRate={exchangeRate}
+        />
         <Box ml={4}>
-          <FormControl>
-            <FormLabel>Days:</FormLabel>
-            <Input
-              type="number"
-              value={days}
-              onChange={handleDaysChange}
-              min={0}
-            />
-          </FormControl>
-        </Box>
-
-        <Box display="flex" alignItems="center">
-          <Switch
-            onChange={() => setSubtractTax(!subtractTax)}
-            colorScheme="teal"
-            size="md"
-            mt={2}
-          >
-            Subtract {subtractTax ? `${customTaxRate}%` : "Custom Tax Rate"}
-          </Switch>
-          <Box ml={4}>
-            <Switch
-              onChange={handleToggleCurrency}
-              colorScheme="blue"
-              size="md"
-              mt={2}
-            >
-              {showInUSD ? "Show in USD" : "Show in CRC"}
-            </Switch>
-          </Box>
-        </Box>
-
-        <Box display="flex" alignItems="center" mt={4} ml={4}>
-          <ExportToExcel
+          <ExportToPDF
             invoices={invoices}
             showInUSD={showInUSD}
             exchangeRate={exchangeRate}
           />
-          <Box ml={4}>
-            <ExportToPDF
-              invoices={invoices}
-              showInUSD={showInUSD}
-              exchangeRate={exchangeRate}
-            />
-          </Box>
-          <Box ml={4}>
-            <ExportToPDF
-              invoices={invoices}
-              showInUSD={showInUSD}
-              exchangeRate={exchangeRate}
-              forPrint={true}  // Set forPrint to true for the print button
-            />
-          </Box>
         </Box>
-
-      </StatGroup>
-
-
-      <Box display={!showInUSD ? "none" : "block"}>
-        <FormControl as="form" onSubmit={handleRateSubmit} mb={4}>
-          <FormLabel>Exchange Rate:</FormLabel>
-          <Input
-            type="number"
-            step="0.01"
-            min="0"
-            value={exchangeRate}
-            onChange={handleExchangeRateChange}
-            required
+        <Box ml={4}>
+          <ExportToPDF
+            invoices={invoices}
+            showInUSD={showInUSD}
+            exchangeRate={exchangeRate}
+            forPrint={true}  // Set forPrint to true for the print button
           />
-          <Button type="submit" colorScheme="teal" size="sm" mt={2}>
-            Set Rate
-          </Button>
-        </FormControl>
+        </Box>
       </Box>
+    </StatGroup>
 
-      {/* Popover for custom tax rate */}
-      <Popover>
-        <PopoverTrigger>
-          <Button colorScheme="teal" size="sm" mt={2}>
-            Set Custom Tax Rate
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent>
-          <PopoverArrow />
-          <PopoverCloseButton />
-          <PopoverHeader>Custom Tax Rate (%)</PopoverHeader>
-          <PopoverBody>
-            <FormControl>
-              <FormLabel>Enter custom tax rate:</FormLabel>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                max="100"
-                value={customTaxRate}
-                onChange={handleCustomTaxChange}
-              />
-            </FormControl>
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
+    {/* Exchange rate form */}
+    <Box display={!showInUSD ? "none" : "block"} mb={8}>
+      <FormControl as="form" onSubmit={handleRateSubmit} mb={4}>
+        <FormLabel>Exchange Rate:</FormLabel>
+        <Input
+          type="number"
+          step="0.01"
+          min="0"
+          value={exchangeRate}
+          onChange={handleExchangeRateChange}
+          required
+        />
+        <Button type="submit" colorScheme="teal" size="sm" mt={2}>
+          Set Rate
+        </Button>
+      </FormControl>
+    </Box>
 
-      <Table variant="simple">
-        <TableCaption>Invoices for Hotel ID: {hotelId}</TableCaption>
-        <Thead>
-          <Tr>
-            <Th>ID</Th>
-            <Th>Total</Th>
-            <Th>Date</Th>
-            <Th>Comment</Th>
-            <Th>Room</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {sortedInvoices.map((invoice) => (
+    {/* Popover for custom tax rate */}
+    <Popover>
+      <PopoverTrigger>
+        <Button colorScheme="teal" size="sm" mt={2}>
+          Set Custom Tax Rate
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverHeader>Custom Tax Rate (%)</PopoverHeader>
+        <PopoverBody>
+          <FormControl>
+            <FormLabel>Enter custom tax rate:</FormLabel>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              value={customTaxRate}
+              onChange={handleCustomTaxChange}
+            />
+          </FormControl>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+    <>
+    <Box display='flex' justifyContent='center'>
+      {days && days > 0 ? <h1>Showing invoices for the last {days} days</h1> : <h1>Showing all invoices</h1>}
+    </Box>
+    </>
+    {/* Table */}
+    <Table variant="simple" mt={8}>
+      <TableCaption>Invoices for Hotel ID: {hotelId}</TableCaption>
+      <Thead>
+        <Tr>
+          <Th>ID</Th>
+          <Th>Total</Th>
+          <Th>Date</Th>
+          <Th>Comment</Th>
+          <Th>Room</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+      {days && days > 0
+        ? invoicesForLastNDays.map((invoice) => (
+            <Tr key={invoice.id}>
+              <Td>{invoice.id}</Td>
+              <Td>
+                {showInUSD
+                  ? `₡${(invoice.total * exchangeRate).toFixed(2)}`
+                  : `$${invoice.total.toFixed(2)}`}
+              </Td>
+              <Td>{new Date(invoice.date).toLocaleDateString()}</Td>
+              <Td>{invoice.comment}</Td>
+              <Td>{invoice.room}</Td>
+            </Tr>
+          ))
+        : sortedInvoices.map((invoice) => (
             <Tr key={invoice.id}>
               <Td>{invoice.id}</Td>
               <Td>
@@ -248,8 +277,10 @@ const ShowInvoicesByHotel = () => {
               <Td>{invoice.room}</Td>
             </Tr>
           ))}
-        </Tbody>
-      </Table>
+    </Tbody>
+
+    </Table>
+
 
     </>
   );

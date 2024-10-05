@@ -46,7 +46,7 @@ const AddInvoice = () => {
       comment,
       room: parseInt(room),
     };
-    handleSubmit(invoiceData);
+    handleSubmit(invoiceData, selectedProducts);
     // Reset form fields
     setTotal("");
     setDate("");

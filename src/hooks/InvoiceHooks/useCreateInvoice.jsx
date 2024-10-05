@@ -2,6 +2,8 @@ import { useState, useContext } from 'react';
 import { store } from '../../../store';
 import { createInvoice } from '../../api';
 import { useToast } from "@chakra-ui/react";
+import { addInvoiceItem } from "../../api";
+
 
 const useCreateInvoice = () => {
   const { state, dispatch } = useContext(store);
@@ -11,13 +13,22 @@ const useCreateInvoice = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async (invoiceData) => {
+  const handleSubmit = async (invoiceData, selectedProducts) => {
     setLoading(true);
     setError(null);
 
     try {
       const newInvoice = await createInvoice(invoiceData);
-
+      console.log(newInvoice);
+      selectedProducts.forEach(async (product) => {
+        console.log(newInvoice.id);
+        await addInvoiceItem(parseInt(newInvoice.id), {
+          productId: parseInt(product.id),
+          quantity: parseInt(product.quantity),
+          price : parseInt(product.price),
+          name: product.name,
+        });
+      });
       // Dispatch an action to add the new invoice to the context
       dispatch({
         type: 'SET_INVOICES',
