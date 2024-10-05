@@ -25,6 +25,8 @@ const useCreateInvoice = () => {
         await addInvoiceItem(parseInt(newInvoice.id), {
           productId: parseInt(product.id),
           quantity: parseInt(product.quantity),
+          price : parseInt(product.price),
+          name: product.name,
         });
       });
       // Dispatch an action to add the new invoice to the context

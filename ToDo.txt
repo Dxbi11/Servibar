@@ -5,3 +5,7 @@ Finish Report by Item and Time
 No display required, only PRINT and PDF format
 
 Check if InvoiceItem are working correctly by adding a new Invoice
+
+remove date in create invoices. Date has to set automatic
+
+After creating a new invoice, set items on room 
