@@ -14,6 +14,7 @@ const useCreateInvoice = () => {
   const [error, setError] = useState(null);
 
   const handleSubmit = async (invoiceData, selectedProducts) => {
+    console.log(selectedProducts);
     setLoading(true);
     setError(null);
 
