@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { store } from "../../../store";
 import AddInvoice from "./AddInvoice";
 import ItemReport from "./Reports/ItemReport";
-import SalesReport from "./Reports/SalesReport";
+import TotalSalesReport from "./Reports/TotalSalesReport"
 
 import ShowInvoicesByHotel from "./ShowInvoicesByHotel";
 import {
@@ -62,9 +62,9 @@ const MainInvoiceMenu = () => {
               </Heading>
               <ItemReport />
               <Heading as="h2" size="md" mb={4} mt={4} textAlign= "center">
-                Sales Report by Date 🔎
+                Total Sales Report by Date 🔎
               </Heading>
-              <SalesReport />
+              <TotalSalesReport />
             </Box>
           </TabPanel>
         </TabPanels>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useContext, useState } from "react";
 import { store } from "../../../../store";
 import { FormControl, FormLabel, Input, Button } from "@chakra-ui/react";
@@ -10,7 +10,11 @@ const ItemReport = () => {
     const [StartDate, setStartDate] = useState("");
     const [EndDate, setEndDate] = useState("");
     const [filteredInvoices, setFilteredInvoices] = useState([]);
+    const [Items, setItems] = useState([]);
+    const [itemTotals, setItemTotals] = useState([]);
     console.log(StartDate);
+
+
 
     const handleFilterByDate = () => {
         const filteredInvoices = invoices.filter((invoice) => {
@@ -22,6 +26,40 @@ const ItemReport = () => {
         setFilteredInvoices(filteredInvoices);
         console.log(filteredInvoices);
     }
+    useEffect(() => {
+        if (filteredInvoices.length > 0) {
+          const itemTotals = [];
+    
+          filteredInvoices.forEach((invoice) => {
+            invoice.items.forEach((item) => {
+              const existingItem = itemTotals.find((total) => total.name === item.name);
+    
+              if (existingItem) {
+                // If the item already exists, update its total quantity and price
+                existingItem.quantity += item.quantity;
+                existingItem.total += item.price * item.quantity;
+              } else {
+                // If the item doesn't exist, add a new entry
+                itemTotals.push({
+                  name: item.name,
+                  quantity: item.quantity,
+                  total: item.price * item.quantity,
+                });
+              }
+            });
+          });
+    
+          setItems(itemTotals); // Update Items state with the calculated totals
+        } else {
+          setItems([]); // Reset Items if there are no filtered invoices
+        }
+      }, [filteredInvoices]);
+      
+
+    useEffect(() => {
+        console.log(Items);
+    }, [Items]);
+
     return (
         <div>
             <FormControl id="date">
@@ -46,8 +84,8 @@ const ItemReport = () => {
 
             {filteredInvoices.length > 0 && 
             <div>
-                <ExportItemReportPDF invoices={filteredInvoices} StartDate={StartDate} EndDate={EndDate} forPrint={false} />
-                <ExportItemReportPDF invoices={filteredInvoices} StartDate={StartDate} EndDate={EndDate} forPrint={true} />
+                <ExportItemReportPDF invoices={filteredInvoices} StartDate={StartDate} EndDate={EndDate} forPrint={false} Items={Items}/>
+                <ExportItemReportPDF invoices={filteredInvoices} StartDate={StartDate} EndDate={EndDate} forPrint={true} Items={Items} />
             </div>
             }
         </div>

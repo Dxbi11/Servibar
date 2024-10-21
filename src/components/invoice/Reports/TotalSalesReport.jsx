@@ -1,17 +1,18 @@
 import React from "react";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { store } from "../../../../store";
 import { FormControl, FormLabel, Input, Button } from "@chakra-ui/react";
-import ExportSalesReportPDF from "../../../hooks/FileExports/reports/ExportSalesReportPDF";
+import ExportTotalSalesReportPDF from "../../../hooks/FileExports/reports/ExportTotalSalesReportPDF";
 
-const SalesReport = () => {
+const TotalSalesReport = () => {
     const { state } = useContext(store);
     const invoices = state.ui.invoices;
     const [StartDate, setStartDate] = useState("");
     const [EndDate, setEndDate] = useState("");
     const [filteredInvoices, setFilteredInvoices] = useState([]);
     const [substractTax, setSubstractTax] = useState(0);
-    console.log(substractTax);
+    const [Total, setTotal] = useState([]);
+
     const handleFilterByDate = () => {
         const filteredInvoices = invoices.filter((invoice) => {
             const invoiceDate = new Date(invoice.date);
@@ -28,6 +29,42 @@ const SalesReport = () => {
             setSubstractTax(value);
         }
       };
+
+      useEffect(() => {
+        if (filteredInvoices.length > 0) {
+          const TotalSales = [];
+      
+          filteredInvoices.forEach((invoice) => {
+            // Extract the date part only (yyyy-mm-dd)
+            const invoiceDate = new Date(invoice.date).toISOString().split('T')[0];
+      
+            const existingDate = TotalSales.find((total) => total.date === invoiceDate);
+            
+            if (existingDate) {
+              // If the date already exists, update the total sales for that date
+              existingDate.total += invoice.total;
+            } else {
+              // If the date doesn't exist, add a new entry
+              TotalSales.push({
+                date: invoiceDate, // Store the date part only
+                total: invoice.total,
+              });
+            }
+          });
+      
+          console.log("Grouped Total Sales by Date:", TotalSales); // Log the results
+      
+          setTotal(TotalSales); // Update TotalSales state with the calculated totals
+        } else {
+          setTotal([]); // Reset if there are no filtered invoices
+        }
+      }, [filteredInvoices]);
+      
+      
+
+    useEffect(() => {
+        console.log(Total);
+    }, [Total]);
 
     return (
         <div>
@@ -65,19 +102,21 @@ const SalesReport = () => {
 
             {filteredInvoices.length > 0 && (
                 <div>
-                    <ExportSalesReportPDF
+                    <ExportTotalSalesReportPDF
                         invoices={filteredInvoices}
                         StartDate={StartDate}
                         EndDate={EndDate}
                         substractTax={substractTax} // Passed as a number
                         forPrint={false}
+                        Sales={Total}
                     />
-                    <ExportSalesReportPDF
+                    <ExportTotalSalesReportPDF
                         invoices={filteredInvoices}
                         StartDate={StartDate}
                         EndDate={EndDate}
                         substractTax={substractTax} // Passed as a number
                         forPrint={true}
+                        Sales={Total}
                     />
                 </div>
             )}
@@ -85,4 +124,4 @@ const SalesReport = () => {
     );
 };
 
-export default SalesReport;
+export default TotalSalesReport;
