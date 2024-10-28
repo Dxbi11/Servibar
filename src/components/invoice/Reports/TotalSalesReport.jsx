@@ -3,6 +3,7 @@ import { useContext, useState, useEffect } from "react";
 import { store } from "../../../../store";
 import { FormControl, FormLabel, Input, Button } from "@chakra-ui/react";
 import ExportTotalSalesReportPDF from "../../../hooks/FileExports/reports/ExportTotalSalesReportPDF";
+import { format } from "date-fns";
 
 const TotalSalesReport = () => {
     const { state } = useContext(store);
@@ -15,9 +16,9 @@ const TotalSalesReport = () => {
 
     const handleFilterByDate = () => {
         const filteredInvoices = invoices.filter((invoice) => {
-            const invoiceDate = new Date(invoice.date);
-            const startDate = new Date(StartDate);
-            const endDate = new Date(EndDate);
+            const invoiceDate = format(new Date(invoice.date), "yyyy-MM-dd");
+            const startDate = format(StartDate, "yyyy-MM-dd");
+            const endDate = format(EndDate, "yyyy-MM-dd");
             return invoiceDate >= startDate && invoiceDate <= endDate;
         });
         setFilteredInvoices(filteredInvoices);
@@ -36,7 +37,7 @@ const TotalSalesReport = () => {
       
           filteredInvoices.forEach((invoice) => {
             // Extract the date part only (yyyy-mm-dd)
-            const invoiceDate = new Date(invoice.date).toISOString().split('T')[0];
+            const invoiceDate = format(new Date(invoice.date), "yyyy-MM-dd")
       
             const existingDate = TotalSales.find((total) => total.date === invoiceDate);
             
