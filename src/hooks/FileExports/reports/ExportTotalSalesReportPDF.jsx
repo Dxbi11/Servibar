@@ -5,72 +5,94 @@ import "jspdf-autotable";
 import { format } from "date-fns";
 
 const ExportTotalSalesReportPDF = ({ invoices, StartDate, EndDate, forPrint, substractTax, Sales }) => {
-  console.log(Sales);
+
   const handleExport = () => {
     const calculateTotal = (invoicesList) => {
-        return invoicesList.reduce((acc, invoice) => {
-          const total = invoice.total || 0; // Ensure total is at least 0
-          const adjustedTotal = substractTax > 0 
-            ? total * (1 - substractTax / 100) // Apply tax reduction if valid
-            : total; // Otherwise, use the original total
-          return acc + adjustedTotal;
-        }, 0); // Initial value of accumulator set to 0
-      };
+      return invoicesList.reduce((acc, invoice) => {
+        const total = invoice.total || 0;
+        const adjustedTotal = substractTax > 0 
+          ? total * (1 - substractTax / 100)
+          : total;
+        return acc + adjustedTotal;
+      }, 0);
+    };
+
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width; // Get the width of the page
-    const totalSales = calculateTotal(invoices).toFixed(2); // Format total sales to 2 decimal places
+    const pageWidth = doc.internal.pageSize.width;
+    const totalSales = calculateTotal(invoices).toFixed(2);
 
-    // Add a title at the top of the PDF
-    doc.setFontSize(18); // Set font size
-    doc.text("Total Sales Report", pageWidth / 2, 20, { align: 'center' }); // Add title text at coordinates (x: 14, y: 20)
-    doc.setFontSize(12); // Reset font size for other content
+    // Header with title and date range
+    doc.setFontSize(20);
+    doc.text("Sales Report", pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(10);
+    doc.text(`Report Date Range: ${StartDate} to ${EndDate}`, pageWidth / 2, 28, { align: 'center' });
 
-    // Optionally, add a subtitle or date range
-    doc.text(`Sales Date Range: ${format(StartDate, "yyyy-MM-dd")} - ${format(EndDate, "yyyy-MM-dd")}`, pageWidth / 2, 30, { align: 'center' });
+    // Section for Summary of Total Sales
+    doc.setFontSize(12);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(10, 35, pageWidth - 10, 35);
 
-    // Center "Items Summary" text
-    doc.setFontSize(14); // Set font size
-    doc.text("Total Sales Summary", pageWidth / 2, 40, { align: 'center' }); // Centered at y: 40
-    doc.text(`Total Sales: $${totalSales}`, 14, 50); // Add total sales text below the table
+    doc.text("Summary of Sales", 14, 45);
+    doc.setFontSize(10);
+    doc.text(`Overall Total Sales Amount: $${totalSales}`, 14, 50);
+
+    if (substractTax > 0) {
+      doc.text(`(After ${substractTax}% Tax Deduction)`, 14, 55);
+    }
+
+    // Title for "Daily Sales Summary" Table
+    doc.setFontSize(12);
+    doc.text("Sales Summary", 14, 70);
     
-    // Define the item totals table columns and rows
-    const TotalSalesSummaryColumns = ["Date", "Total"];
-    const TotalSalesSummaryRows = Sales.map((sale) => [sale.date,`$${sale.total.toFixed(2)}`]);
-    // Generate the item totals table
+    // "Daily Sales Summary" Table
+    const totalSalesSummaryColumns = ["Date (YYYY-MM-DD)", "Total"];
+    const totalSalesSummaryRows = Sales.map((sale) => [
+      sale.date, 
+      `$${sale.total.toFixed(2)}`
+    ]);
+
     doc.autoTable({
-      head: [TotalSalesSummaryColumns],
-      body: TotalSalesSummaryRows,
-      startY: 60, // Start the table just below the "Total Items Summary"
+      head: [totalSalesSummaryColumns],
+      body: totalSalesSummaryRows,
+      startY: 75, // Adjusted to provide space for the title
+      theme: 'grid',
+      headStyles: { fillColor: [230, 230, 250], textColor: 0 },
+      styles: { fontSize: 10 },
     });
 
-    // Define table columns and rows
-    const tableColumn = ["Date", "Room", "Total"];
-    const tableRows = [];
+    // Title for "Invoice Details" Table
+    doc.setFontSize(12);
+    doc.text("Invoice Details", 14, doc.lastAutoTable.finalY + 20); // Positioning below the first table
+    
+    // Detailed "Invoice Details" Table
+    const tableColumn = ["Invoice Date", "Room Number", "Total Amount"];
+    const tableRows = invoices.map(invoice => [
+      format(new Date(invoice.date), "yyyy-MM-dd"),
+      invoice.room,
+      `$${invoice.total.toFixed(2)}`
+    ]);
 
-    invoices.forEach((invoice) => {
-        const InvoiceData = [
-          format(new Date(invoice.date), "yyyy-MM-dd"), // Format date
-          invoice.room,    // Invoice room
-          `$${invoice.total.toFixed(2)}`,  // Invoice total with 2 decimal places
-        ];
-        tableRows.push(InvoiceData);
-    });
-      
-
-
-    // Generate the table below the title
     doc.autoTable({
       head: [tableColumn],
       body: tableRows,
-      startY: doc.lastAutoTable.finalY + 10, // Start the table below the text (adjusted to avoid overlap)
+      startY: doc.lastAutoTable.finalY + 25, // Adjusted to provide space for the title
+      theme: 'striped',
+      headStyles: { fillColor: [169, 169, 169], textColor: 255 },
+      styles: { fontSize: 10, cellPadding: 4 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
     });
 
-    // Save or print the PDF
+    // Footer with Grand Total Summary
+    doc.setFontSize(12);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(10, doc.lastAutoTable.finalY + 10, pageWidth - 10, doc.lastAutoTable.finalY + 10);
+    doc.text(`Overall Total Sales Amount: $${totalSales}`, 14, doc.lastAutoTable.finalY + 20);
+
     if (forPrint) {
-      doc.autoPrint(); // Open print dialog
-      doc.output('dataurlnewwindow'); // Open in a new window for print preview
+      doc.autoPrint();
+      doc.output('dataurlnewwindow');
     } else {
-      doc.save(`Sales Report (${format(StartDate, "yyyy-MM-dd")} - ${format(EndDate, "yyyy-MM-dd")}).pdf`); // Save as PDF
+      doc.save(`Sales Report (${StartDate} to ${EndDate}).pdf`);
     }
   };
 

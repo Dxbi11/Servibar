@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { store } from "../../../../store";
 import { FormControl, FormLabel, Input, Button } from "@chakra-ui/react";
 import ExportItemReportPDF from "../../../hooks/FileExports/reports/ExportItemReportPDF";
+import { format } from "date-fns";
 
 const ItemReport = () => {
     const { state } = useContext(store);
@@ -18,9 +19,9 @@ const ItemReport = () => {
 
     const handleFilterByDate = () => {
         const filteredInvoices = invoices.filter((invoice) => {
-            const invoiceDate = new Date(invoice.date);
-            const startDate = new Date(StartDate);
-            const endDate = new Date(EndDate);
+            const invoiceDate = format(new Date(invoice.date), "yyyy-MM-dd");
+            const startDate = format(StartDate, "yyyy-MM-dd");
+            const endDate = format(EndDate, "yyyy-MM-dd");
             return invoiceDate >= startDate && invoiceDate <= endDate;
         })
         setFilteredInvoices(filteredInvoices);
