@@ -63,7 +63,21 @@ const ExportTotalSalesReportPDF = ({ invoices, StartDate, EndDate, forPrint, sub
     // Title for "Invoice Details" Table
     doc.setFontSize(12);
     doc.text("Invoice Details", 14, doc.lastAutoTable.finalY + 20); // Positioning below the first table
-    
+
+    // Group invoices by date and assign colors to each date
+    const colorMap = {};
+    let colorIndex = 0;
+    const colors = [[245, 245, 245], [220, 220, 220]]; // Alternating colors
+
+    // Assign a color index for each date
+    invoices.forEach(invoice => {
+      const date = format(new Date(invoice.date), "yyyy-MM-dd");
+      if (!colorMap[date]) {
+        colorMap[date] = colors[colorIndex % colors.length];
+        colorIndex++;
+      }
+    });
+
     // Detailed "Invoice Details" Table
     const tableColumn = ["Invoice Date", "Room Number", "Total Amount"];
     const tableRows = invoices.map(invoice => [
@@ -80,6 +94,13 @@ const ExportTotalSalesReportPDF = ({ invoices, StartDate, EndDate, forPrint, sub
       headStyles: { fillColor: [169, 169, 169], textColor: 255 },
       styles: { fontSize: 10, cellPadding: 4 },
       alternateRowStyles: { fillColor: [245, 245, 245] },
+      willDrawCell: (data) => {
+        if (data.section === 'body') {
+          const date = data.row.raw[0]; // The date in the row data
+          const color = colorMap[date];
+          doc.setFillColor(...color);
+        }
+      }
     });
 
     // Footer with Grand Total Summary
