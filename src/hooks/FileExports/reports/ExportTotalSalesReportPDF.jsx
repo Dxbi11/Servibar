@@ -54,22 +54,22 @@ const ExportTotalSalesReportPDF = ({ invoices, StartDate, EndDate, forPrint, sub
     doc.autoTable({
       head: [totalSalesSummaryColumns],
       body: totalSalesSummaryRows,
-      startY: 75, // Adjusted to provide space for the title
+      startY: 75,
       theme: 'grid',
-      headStyles: { fillColor: [230, 230, 250], textColor: 0 },
+      headStyles: { fillColor: [0, 51, 102], textColor: 255 }, // Dark blue header
       styles: { fontSize: 10 },
+      alternateRowStyles: { fillColor: [173, 216, 230] }, // Light blue rows
     });
 
     // Title for "Invoice Details" Table
     doc.setFontSize(12);
-    doc.text("Invoice Details", 14, doc.lastAutoTable.finalY + 20); // Positioning below the first table
+    doc.text("Invoice Details", 14, doc.lastAutoTable.finalY + 20);
 
-    // Group invoices by date and assign colors to each date
+    // Create a color map to assign colors to each date
     const colorMap = {};
     let colorIndex = 0;
-    const colors = [[245, 245, 245], [220, 220, 220]]; // Alternating colors
+    const colors = [[173, 216, 230], [224, 255, 255]]; // Light blue and light cyan
 
-    // Assign a color index for each date
     invoices.forEach(invoice => {
       const date = format(new Date(invoice.date), "yyyy-MM-dd");
       if (!colorMap[date]) {
@@ -78,7 +78,7 @@ const ExportTotalSalesReportPDF = ({ invoices, StartDate, EndDate, forPrint, sub
       }
     });
 
-    // Detailed "Invoice Details" Table
+    // Detailed "Invoice Details" Table with color based on date
     const tableColumn = ["Invoice Date", "Room Number", "Total Amount"];
     const tableRows = invoices.map(invoice => [
       format(new Date(invoice.date), "yyyy-MM-dd"),
@@ -89,16 +89,17 @@ const ExportTotalSalesReportPDF = ({ invoices, StartDate, EndDate, forPrint, sub
     doc.autoTable({
       head: [tableColumn],
       body: tableRows,
-      startY: doc.lastAutoTable.finalY + 25, // Adjusted to provide space for the title
+      startY: doc.lastAutoTable.finalY + 25,
       theme: 'striped',
-      headStyles: { fillColor: [169, 169, 169], textColor: 255 },
+      headStyles: { fillColor: [0, 51, 102], textColor: 255 }, // Dark blue header
       styles: { fontSize: 10, cellPadding: 4 },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
       willDrawCell: (data) => {
         if (data.section === 'body') {
           const date = data.row.raw[0]; // The date in the row data
           const color = colorMap[date];
-          doc.setFillColor(...color);
+          if (color) {
+            doc.setFillColor(...color); // Apply color based on date
+          }
         }
       }
     });

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { store } from "../../../store";
 import {
   Box,
@@ -15,29 +15,45 @@ import {
   GridItem,
 } from "@chakra-ui/react";
 import useCreateInvoice from "../../hooks/InvoiceHooks/useCreateInvoice";
+import useDeleteRoomStock from '../../hooks/RoomStockHooks/useDeleteRoomStock';
 import ProductSelector from "./ProductSelector";
+import { format } from "date-fns";
+import { use } from "framer-motion/client";
 
 const AddInvoice = () => {
+  const { deleteData } = useDeleteRoomStock();
   const { state } = useContext(store);
   const hotelId = state.ui.hotelId;
+  const rooms = state.ui.rooms;
+  console.log(hotelId);
   const [total, setTotal] = useState("");
-  const [date, setDate] = useState("");
   const [comment, setComment] = useState("");
   const [room, setRoom] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const { handleSubmit, loading, error } = useCreateInvoice();
   const toast = useToast();
-
   const handleCommentChange = (newComment) => {
     setComment(newComment);
   };
 
+  useEffect(() => {
+    // Al cambiar el hotelId, se limpian los productos seleccionados y todos los productos
+    setAllProducts([]);
+    setSelectedProducts([]);
+  }, [hotelId]);
+
   const handleProductsSelected = (products) => {
     setSelectedProducts(products);
     setTotal(products.reduce((sum, product) => sum + (product.price * product.quantity || 0), 0).toFixed(2));
+    
+    // Actualizar allProducts con nombres únicos al seleccionar productos
+    setAllProducts([...new Set(products.map((product) => {product.name, product.id}))]);
   };
-
+  
+  console.log(allProducts);
   const onSubmit = (e) => {
+    const date = format(new Date(), "yyyy-MM-dd");
     e.preventDefault();
     const invoiceData = {
       total: parseFloat(total),
@@ -47,9 +63,13 @@ const AddInvoice = () => {
       room: parseInt(room),
     };
     handleSubmit(invoiceData, selectedProducts);
-    // Reset form fields
+    // ! 1. Verificar si room existe
+    // ! 2. Obtener RoomStocks de Room
+    // ! 3. Map de All products en los RoomStocks con ProductId
+    // allProducts.forEach((product) => {
+    //   deleteData(hotelId, product);
+    // });
     setTotal("");
-    setDate("");
     setComment("");
     setRoom("");
   };
@@ -72,15 +92,6 @@ const AddInvoice = () => {
                 >
                   <NumberInputField />
                 </NumberInput>
-              </FormControl>
-
-              <FormControl id="date">
-                <FormLabel>Date</FormLabel>
-                <Input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                />
               </FormControl>
 
               <FormControl id="comment">
@@ -106,7 +117,7 @@ const AddInvoice = () => {
                 </Button>
               </FormControl>
 
-              <FormControl id="room">
+              <FormControl id="room" isRequired>
                 <FormLabel>Room</FormLabel>
                 <NumberInput
                   value={room}

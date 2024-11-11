@@ -88,12 +88,17 @@ const Receipt = React.memo(({ selectedProducts, total, onReset }) => (
 
 const ProductSelector = ({ onProductsSelected }) => {
   const {state, dispatch} = useContext(store);
-  const HotelId = state.ui.hotelId;
+  const hotelId = state.ui.hotelId;
   const products = state.ui.products;
   const [selectedProducts, setSelectedProducts] = useState({});
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
+
+  useEffect(() => {
+    // Al cambiar el hotelId, se limpian los productos seleccionados y todos los productos
+    setSelectedProducts([]);
+  }, [hotelId]);
 
   const handleProductSelect = React.useCallback((product) => {
     setSelectedProducts((prevSelected) => {
