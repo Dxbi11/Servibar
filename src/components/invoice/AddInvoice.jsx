@@ -65,23 +65,28 @@ const AddInvoice = () => {
     return RoomData;
   }
 
+  useEffect(() => {
+    console.log(roomStocks)
+  }, [roomStocks])
+
   const filterRoomstockOfRoom = (RoomData) => {
     const RoomStock = roomStocks.filter(stock => stock.roomId == RoomData.id);
     setInvoiceRoomstock(RoomStock);
   }
 
   // Trigger room stock processing whenever invoiceRoomstock updates
-  useEffect(() => {
-    if (invoiceRoomstock.length > 0) {
-      allProducts.forEach((product) => {
-        const roomStock = invoiceRoomstock.find((stock) => stock.productId == product[1]);
-        console.log(roomStock);
-        if (!roomStock) {
-          createData(invoiceRoomstock[0].roomId, product[1], 1); // Assuming RoomData is the roomId for all products here
-        }
-      });
-    }
-  }, [invoiceRoomstock, allProducts, createData]);
+  const restockMissingItems = (RoomData) => {
+    allProducts.forEach((product) => {
+      const roomStock = invoiceRoomstock.find((stock) => stock.productId == product[1]);
+      console.log(roomStock);
+      if (!roomStock) {
+        createData(RoomData.id, product[1], 1); // Assuming RoomData is the roomId for all products here
+      }
+      else {
+        console.log(`${roomStock.product.name} already exist in RoomStock`)
+      }
+    });
+  }
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -98,6 +103,7 @@ const AddInvoice = () => {
       room: parseInt(room),
     };
     handleSubmit(invoiceData, selectedProducts);
+    restockMissingItems(RoomData)
 
     setTotal("");
     setComment("");
