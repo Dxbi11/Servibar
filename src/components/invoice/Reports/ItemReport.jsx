@@ -13,7 +13,7 @@ const ItemReport = () => {
     const [filteredInvoices, setFilteredInvoices] = useState([]);
     const [Items, setItems] = useState([]);
     const [itemTotals, setItemTotals] = useState([]);
-    console.log(StartDate);
+
 
 
 
@@ -56,10 +56,6 @@ const ItemReport = () => {
         }
       }, [filteredInvoices]);
       
-
-    useEffect(() => {
-        console.log(Items);
-    }, [Items]);
 
     return (
         <div>

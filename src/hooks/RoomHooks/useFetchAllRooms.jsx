@@ -2,14 +2,14 @@ import { useEffect, useState, useContext } from "react";
 import { store } from "../../../store";
 import { getRoomsByHotelId } from "../../api";
 
-const useFetchRooms = (floorId) => {
+const useFetchAllRooms = () => {
     const { state, dispatch } = useContext(store);
     const HotelId = state.ui.hotelId;
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const handleRooms = (rooms) => {
-        dispatch({ type: "SET_ROOMS", payload: rooms });
+    const handleAllRooms = (rooms) => {
+        dispatch({ type: "SET_ALL_ROOMS", payload: rooms });
     };
 
     const fetchData = async () => {
@@ -17,8 +17,7 @@ const useFetchRooms = (floorId) => {
         setError(null);
         try {
             const roomsData = await getRoomsByHotelId(HotelId);
-            const filteredRooms = roomsData.filter(room => room.floorId == floorId);
-            handleRooms(filteredRooms);
+            handleAllRooms(roomsData);
             
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -29,12 +28,12 @@ const useFetchRooms = (floorId) => {
     };
 
     useEffect(() => {
-        if (HotelId && floorId) {
+        if (HotelId) {
             fetchData();
         }
-    }, [HotelId, floorId]);
+    }, [HotelId]);
 
     return { isLoading, error };
 }
 
-export default useFetchRooms;
+export default useFetchAllRooms;

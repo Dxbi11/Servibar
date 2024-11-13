@@ -24,6 +24,7 @@ import useFetchHotels from "../hooks/HotelHooks/useFetchHotels";
 import useFetchStoreHouse from "../hooks/StoreHooks/useFetchStoreHouse";
 import useFetchRoomStock from "../hooks/RoomStockHooks/useFetchRoomStock";
 import useFetchRooms from "../hooks/RoomHooks/useFetchRooms";
+import useFetchAllRooms from "../hooks/RoomHooks/useFetchAllRooms";
 import useFetchFloors from "../hooks/RackHooks/useFetchFloors";
 
 const Home = ({ user }) => {
@@ -39,6 +40,7 @@ const Home = ({ user }) => {
   useFetchRoomStock();
   useFetchFloors(selectedHotelId);
   useFetchRooms(selectedFloorId);
+  useFetchAllRooms();
 
   const handleHotelId = (selectedHotelId) => {
     dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });

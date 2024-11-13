@@ -13,6 +13,7 @@ const ui = {
   hotels: [],
   floors: [],
   rooms: [],
+  AllRooms: [],
   invoices: [],
   storeHouse: [],	
   hotelId: null,
@@ -96,6 +97,14 @@ const stateReducer = (state, action) => {
           ui: {
             ...state.ui,
             rooms: action.payload,
+          },
+        };
+      case 'SET_ALL_ROOMS':
+        return {
+          ...state,
+          ui: {
+            ...state.ui,
+            AllRooms: action.payload,
           },
         };
       case 'SET_FLOORS':

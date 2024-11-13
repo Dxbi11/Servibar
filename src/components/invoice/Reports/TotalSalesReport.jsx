@@ -63,10 +63,6 @@ const TotalSalesReport = () => {
       
       
 
-    useEffect(() => {
-        console.log(Total);
-    }, [Total]);
-
     return (
         <div>
             <FormControl id="start-date">

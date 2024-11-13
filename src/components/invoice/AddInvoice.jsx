@@ -15,30 +15,31 @@ import {
   GridItem,
 } from "@chakra-ui/react";
 import useCreateInvoice from "../../hooks/InvoiceHooks/useCreateInvoice";
-import useDeleteRoomStock from '../../hooks/RoomStockHooks/useDeleteRoomStock';
+import useCreateRoomStock from "../../hooks/RoomStockHooks/useCreateRoomStock";
 import ProductSelector from "./ProductSelector";
 import { format } from "date-fns";
 import { use } from "framer-motion/client";
 
 const AddInvoice = () => {
-  const { deleteData } = useDeleteRoomStock();
+  const { createData } = useCreateRoomStock();
   const { state } = useContext(store);
   const hotelId = state.ui.hotelId;
-  const rooms = state.ui.rooms;
-  console.log(hotelId);
+  const Allrooms = state.ui.AllRooms;
+  const roomStocks = state.ui.roomStock;
   const [total, setTotal] = useState("");
   const [comment, setComment] = useState("");
   const [room, setRoom] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [invoiceRoomstock, setInvoiceRoomstock] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const { handleSubmit, loading, error } = useCreateInvoice();
   const toast = useToast();
+
   const handleCommentChange = (newComment) => {
     setComment(newComment);
   };
 
   useEffect(() => {
-    // Al cambiar el hotelId, se limpian los productos seleccionados y todos los productos
     setAllProducts([]);
     setSelectedProducts([]);
   }, [hotelId]);
@@ -46,15 +47,49 @@ const AddInvoice = () => {
   const handleProductsSelected = (products) => {
     setSelectedProducts(products);
     setTotal(products.reduce((sum, product) => sum + (product.price * product.quantity || 0), 0).toFixed(2));
-    
-    // Actualizar allProducts con nombres únicos al seleccionar productos
-    setAllProducts([...new Set(products.map((product) => {product.name, product.id}))]);
+    setAllProducts([...new Set(products.map((product) => [product.name, product.id]))]);
   };
   
-  console.log(allProducts);
+  const verifyRoom = (Room) => {
+    const RoomData = Allrooms.find((room) => room.roomNumber == Room);
+    if (!RoomData) {
+      toast({
+        title: "Room not found",
+        description: "Room not found",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+      return null;
+    }
+    return RoomData;
+  }
+
+  const filterRoomstockOfRoom = (RoomData) => {
+    const RoomStock = roomStocks.filter(stock => stock.roomId == RoomData.id);
+    setInvoiceRoomstock(RoomStock);
+  }
+
+  // Trigger room stock processing whenever invoiceRoomstock updates
+  useEffect(() => {
+    if (invoiceRoomstock.length > 0) {
+      allProducts.forEach((product) => {
+        const roomStock = invoiceRoomstock.find((stock) => stock.productId == product[1]);
+        console.log(roomStock);
+        if (!roomStock) {
+          createData(invoiceRoomstock[0].roomId, product[1], 1); // Assuming RoomData is the roomId for all products here
+        }
+      });
+    }
+  }, [invoiceRoomstock, allProducts, createData]);
+
   const onSubmit = (e) => {
-    const date = format(new Date(), "yyyy-MM-dd");
     e.preventDefault();
+    const RoomData = verifyRoom(room);
+    if (!RoomData) return;
+    filterRoomstockOfRoom(RoomData);
+    const date = format(new Date(), "yyyy-MM-dd");
+
     const invoiceData = {
       total: parseFloat(total),
       date: date ? new Date(date) : undefined,
@@ -63,12 +98,7 @@ const AddInvoice = () => {
       room: parseInt(room),
     };
     handleSubmit(invoiceData, selectedProducts);
-    // ! 1. Verificar si room existe
-    // ! 2. Obtener RoomStocks de Room
-    // ! 3. Map de All products en los RoomStocks con ProductId
-    // allProducts.forEach((product) => {
-    //   deleteData(hotelId, product);
-    // });
+
     setTotal("");
     setComment("");
     setRoom("");

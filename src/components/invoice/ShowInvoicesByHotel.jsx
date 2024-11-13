@@ -35,7 +35,6 @@ const ShowInvoicesByHotel = () => {
   const { state } = useContext(store);
   const hotelId = state.ui.hotelId;
   const invoices = state.ui.invoices;
-  console.log(invoices);
   const sortedInvoices = invoices.sort((a, b) => new Date(b.date) - new Date(a.date));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
