@@ -1,23 +1,31 @@
-import React, { useRef, useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { store } from "../../store";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
-import { Button } from "@chakra-ui/react";
-import HotelRoomsTable from "./Rack/HotelRoomsTable";
-import RackMenu from "./Rack/RackMenu";
-import MainInvoiceMenu from "./invoice/MainInvoiceMenu";
-import StoreHouse from "./StoreHouse/StoreHouse";
 import {
+  Button,
+  Input,
   Select,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  Box,
+  Flex,
+  Heading,
   Tabs,
   TabList,
   TabPanels,
   Tab,
   TabPanel,
-  Box,
-  Flex,
-  Heading,
 } from "@chakra-ui/react";
+import HotelRoomsTable from "./Rack/HotelRoomsTable";
+import RackMenu from "./Rack/RackMenu";
+import MainInvoiceMenu from "./invoice/MainInvoiceMenu";
+import StoreHouse from "./StoreHouse/StoreHouse";
 import MainInventory from "./Inventory/MainInventory";
 
 import useFetchHotels from "../hooks/HotelHooks/useFetchHotels";
@@ -28,14 +36,16 @@ import useFetchFloors from "../hooks/RackHooks/useFetchFloors";
 
 const Home = ({ user }) => {
   const { state, dispatch } = useContext(store);
-  const HotelId = state.ui.hotelId;
   const hotels = state.ui.hotels;
   const floors = state.ui.floors;
   const [selectedHotelId, setSelectedHotelId] = useState("");
   const [selectedFloorId, setSelectedFloorId] = useState("1");
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [pin, setPin] = useState("");
+  const [hotelToValidate, setHotelToValidate] = useState(null);
 
   useFetchHotels();
-  useFetchStoreHouse()
+  useFetchStoreHouse();
   useFetchRoomStock();
   useFetchFloors(selectedHotelId);
   useFetchRooms(selectedFloorId);
@@ -44,11 +54,46 @@ const Home = ({ user }) => {
     dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });
   };
 
-  useEffect(() => {
-    if (!HotelId) {
-      dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });
+  const handleHotelChange = (e) => {
+    
+    const hotelId = e.target.value;
+    console.log("Selected hotel ID:", hotelId, typeof hotelId);
+  
+    const selectedHotel = hotels.find((hotel) => hotel.id === parseInt(hotelId));
+
+
+  
+    if (selectedHotel) {
+      setHotelToValidate(selectedHotel); // Set the hotel for validation
+      setIsPinModalOpen(true);          // Open the modal
+    } else {
+      console.error("Selected hotel not found!", hotels); // Log the `hotels` array for debugging
     }
-  }, [selectedHotelId]);
+  };
+  
+  
+
+  const handlePinSubmit = () => {
+    if (!hotelToValidate) {
+      console.error("No hotel selected for PIN validation.");
+      return;
+    }
+  
+    if (!hotelToValidate.pin) {
+      console.error("Selected hotel does not have a PIN defined.");
+      return;
+    }
+  
+    if (parseInt(pin) === hotelToValidate.pin) {
+      setSelectedHotelId(hotelToValidate.id);
+      handleHotelId(hotelToValidate.id);
+      setIsPinModalOpen(false);
+      setPin("");
+    } else {
+      alert("Incorrect PIN. Please try again.");
+    }
+  };
+  
 
   const handleSignOut = () => {
     signOut(auth)
@@ -60,15 +105,8 @@ const Home = ({ user }) => {
       });
   };
 
-  const handleHotelChange = (e) => {
-    const selectedHotelId = e.target.value;
-    setSelectedHotelId(selectedHotelId);
-    handleHotelId(selectedHotelId);
-  };
-
   const handleFloorChange = (e) => {
     const selectedFloorId = e.target.value;
-    console.log(selectedFloorId);
     setSelectedFloorId(selectedFloorId);
   };
 
@@ -82,6 +120,7 @@ const Home = ({ user }) => {
           Sign out
         </Button>
       </Flex>
+
       Select Hotel 🏨
       <Select
         placeholder="Select Hotel"
@@ -96,6 +135,7 @@ const Home = ({ user }) => {
           </option>
         ))}
       </Select>
+
       Select Floor 🏢
       <Select
         placeholder="Select Floor"
@@ -110,6 +150,7 @@ const Home = ({ user }) => {
           </option>
         ))}
       </Select>
+
       <Tabs variant="enclosed" colorScheme="teal">
         <TabList>
           <Tab>Rack</Tab>
@@ -137,6 +178,37 @@ const Home = ({ user }) => {
           </TabPanel>
         </TabPanels>
       </Tabs>
+
+      {/* PIN Validation Modal */}
+      <Modal isOpen={isPinModalOpen} onClose={() => setIsPinModalOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Enter PIN for {hotelToValidate?.name}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Input
+              type="password"
+              placeholder="Enter PIN"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={handlePinSubmit} mr={3}>
+              Submit
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setIsPinModalOpen(false);
+                setPin("");
+              }}
+            >
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
