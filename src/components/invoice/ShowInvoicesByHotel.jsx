@@ -45,7 +45,7 @@ const ShowInvoicesByHotel = () => {
   const [showInUSD, setShowInUSD] = useState(false);
   const [exchangeRate, setExchangeRate] = useState(1);
   const [customTaxRate, setCustomTaxRate] = useState(0);
-  const [days, setDays] = useState(); // State for the number of days
+  const [days, setDays] = useState(0); // State for the number of days
 
   const today = new Date();
   const pastDate = new Date();
@@ -93,10 +93,15 @@ const ShowInvoicesByHotel = () => {
   };
 
   const handleExchangeRateChange = (event) => {
-    const value = parseFloat(event.target.value);
-    if (!isNaN(value)) {
-      setExchangeRate(value);
+    const value = event.target.value;
+    setExchangeRate(value === "" ? null : parseFloat(value));
+    if (value > 0) {
+      setShowInUSD(true);
     }
+    else {
+      setShowInUSD(false);
+    }
+
   };
 
   const handleRateSubmit = (event) => {
@@ -105,110 +110,89 @@ const ShowInvoicesByHotel = () => {
   };
 
   const handleCustomTaxChange = (event) => {
-    const value = parseFloat(event.target.value);
-    if (!isNaN(value)) {
-      setCustomTaxRate(value);
-    }
+    const value = event.target.value;
+    setCustomTaxRate(value === "" ? null : parseFloat(value));
   };
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading invoices: {error.message}</div>;
 
   return (
     <>
-    <StatGroup mb={8} display="flex" alignItems="center" justifyContent="space-between">
-      <Stat mr={4}>
-        <StatLabel>Total for Today</StatLabel>
-        <StatNumber>
-          {showInUSD
-            ? `₡${(totalForToday * exchangeRate).toFixed(2)}`
-            : `$${totalForToday.toFixed(2)}`}
-        </StatNumber>
-      </Stat>
-      <Stat mr={4}>
-        <StatLabel>Total for Last {days} Days</StatLabel>
-        <StatNumber>
-          {showInUSD
-            ? `₡${(totalForLastNDays * exchangeRate).toFixed(2)}`
-            : `$${totalForLastNDays.toFixed(2)}`}
-        </StatNumber>
-      </Stat>
+    <StatGroup mb={8} display="flex" flexDirection="column" alignItems="center">
+      <Stack spacing={6} align="center" width="100%">
+        
+        
+        <Box display="flex" flexDirection="row" alignItems="center" justifyContent="center" gap={12}>
+          <Stat textAlign="center">
+            <StatLabel>Total for Today</StatLabel>
+            <StatNumber>
+              {showInUSD
+                ? `₡${(totalForToday * exchangeRate).toFixed(2)}`
+                : `$${totalForToday.toFixed(2)}`}
+            </StatNumber>
+          </Stat>
 
-      <Box ml={4} mr={4}>
-        <FormControl>
-          <FormLabel>Days:</FormLabel>
-          <Input
-            type="number"
-            value={days}
-            onChange={handleDaysChange}
-          />
-        </FormControl>
-      </Box>
+          <Stat textAlign="center">
+            <StatLabel>{days > 0 ? `Total for Last ${days} Days` : "Total sales"}</StatLabel>
+            <StatNumber>
+              {showInUSD
+                ? `₡${(totalForLastNDays * exchangeRate).toFixed(2)}`
+                : `$${totalForLastNDays.toFixed(2)}`}
+            </StatNumber>
+            {subtractTax && (
+              <Text textColor="red" fontSize={16} fontWeight="bold">
+                Subtract {customTaxRate}%
+              </Text>
+            )}
+          </Stat>
+        </Box>
 
-      <Stack spacing={2} align="center" mr={8}>
-        <Text>Subtract {subtractTax ? `${customTaxRate}%` : "Custom Tax Rate"}</Text>
-        <Switch
-          onChange={() => setSubtractTax(!subtractTax)}
-          colorScheme="teal"
-          size="md"
-        />
-      </Stack>
-
-
-      <Stack spacing={2} align="center">
-        <Text>{showInUSD ? "Show in USD" : "Show in CRC"}</Text>
-        <Switch
-          onChange={handleToggleCurrency}
-          colorScheme="blue"
-          size="md"
-        >
-        </Switch>
-      </Stack>
-    </StatGroup>
-
-    {/* Exchange rate form */}
-    <Box display={!showInUSD ? "none" : "block"} mb={8}>
-      <FormControl as="form" onSubmit={handleRateSubmit} mb={4}>
-        <FormLabel>Exchange Rate:</FormLabel>
-        <Input
-          type="number"
-          step="0.01"
-          min="0"
-          value={exchangeRate}
-          onChange={handleExchangeRateChange}
-          required
-        />
-        <Button type="submit" colorScheme="teal" size="sm" mt={2}>
-          Set Rate
-        </Button>
-      </FormControl>
-    </Box>
-
-    {/* Popover for custom tax rate */}
-    <Popover>
-      <PopoverTrigger>
-        <Button colorScheme="teal" size="sm" mt={2}>
-          Set Custom Tax Rate
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent>
-        <PopoverArrow />
-        <PopoverCloseButton />
-        <PopoverHeader>Custom Tax Rate (%)</PopoverHeader>
-        <PopoverBody>
-          <FormControl>
-            <FormLabel>Enter custom tax rate:</FormLabel>
+        
+        <Box display="flex" gap={4} justifyContent="center" alignItems="flex-end">
+          <FormControl textAlign="center" maxWidth="200px">
+            <FormLabel>Days:</FormLabel>
+            <Input type="number" value={days} onChange={handleDaysChange} textAlign="center" />
+          </FormControl>
+            <FormControl textAlign="center" maxWidth="200px" ml={8}>
+              <FormLabel>Enter custom tax rate:</FormLabel>
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                max="100"
+                value={customTaxRate === null ? "" : customTaxRate}
+                onChange={handleCustomTaxChange}
+                textAlign="center"
+              />
+            </FormControl>
+              <Button 
+                mr={8}
+                colorScheme={subtractTax ? "red": "teal"} 
+                onClick={() => setSubtractTax(!subtractTax)} 
+                fontSize="sm"
+                alignSelf="flex-end" 
+                width="50%"
+              >
+                {subtractTax ? "desactivate tax rate" : "Set custom tax rate"}
+              </Button>
+          <FormControl as="form" onSubmit={handleRateSubmit} textAlign="center" maxWidth="250px">
+            <FormLabel>Exchange Rate:</FormLabel>
             <Input
               type="number"
               step="0.01"
               min="0"
-              max="100"
-              value={customTaxRate}
-              onChange={handleCustomTaxChange}
+              value={exchangeRate}
+              onChange={handleExchangeRateChange}
+              required
+              textAlign="center"
             />
           </FormControl>
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
+        </Box>
+
+      </Stack>
+    </StatGroup>
+
+
     <>
     <Box display='flex' justifyContent='center'>
       {days && days > 0 ? <h1>Showing invoices for the last {days} days</h1> : <h1>Showing all invoices</h1>}
