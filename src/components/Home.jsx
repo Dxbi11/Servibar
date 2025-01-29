@@ -21,6 +21,7 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Text,
 } from "@chakra-ui/react";
 import HotelRoomsTable from "./Rack/HotelRoomsTable";
 import RackMenu from "./Rack/RackMenu";
@@ -39,7 +40,7 @@ const Home = ({ user }) => {
   const hotels = state.ui.hotels;
   const floors = state.ui.floors;
   const [selectedHotelId, setSelectedHotelId] = useState("");
-  const [selectedFloorId, setSelectedFloorId] = useState("1");
+  const [selectedFloorId, setSelectedFloorId] = useState("");
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [pin, setPin] = useState("");
   const [hotelToValidate, setHotelToValidate] = useState(null);
@@ -71,7 +72,9 @@ const Home = ({ user }) => {
     }
   };
   
-  
+  useEffect(() => {
+    console.log("CHECK THIS", selectedFloorId);
+  }, [selectedHotelId]);
 
   const handlePinSubmit = () => {
     if (!hotelToValidate) {
@@ -135,50 +138,54 @@ const Home = ({ user }) => {
           </option>
         ))}
       </Select>
+      {parseInt(selectedHotelId) >= 0 ? 
+        <div>Select Floor 🏢
+        <Select
+          placeholder="Select Floor"
+          value={selectedFloorId}
+          onChange={handleFloorChange}
+          mb={4}
+          className="bg-white shadow"
+        >
+          {floors.map((floor) => (
+            <option key={floor.id} value={floor.id}>
+              {floor.floorNumber}
+            </option>
+          ))}
+        </Select>
+          {parseFloat(selectedFloorId) >= 0 ? 
+        <Tabs variant="enclosed" colorScheme="teal">
+          <TabList>
+            <Tab>Rack</Tab>
+            <Tab>Invoice</Tab>
+            <Tab>Inventory</Tab>
+            <Tab>Settings</Tab>
+            <Tab>Store House</Tab>
+          </TabList>
 
-      Select Floor 🏢
-      <Select
-        placeholder="Select Floor"
-        value={selectedFloorId}
-        onChange={handleFloorChange}
-        mb={4}
-        className="bg-white shadow"
-      >
-        {floors.map((floor) => (
-          <option key={floor.id} value={floor.id}>
-            {floor.floorNumber}
-          </option>
-        ))}
-      </Select>
-
-      <Tabs variant="enclosed" colorScheme="teal">
-        <TabList>
-          <Tab>Rack</Tab>
-          <Tab>Invoice</Tab>
-          <Tab>Inventory</Tab>
-          <Tab>Settings</Tab>
-          <Tab>Store House</Tab>
-        </TabList>
-
-        <TabPanels>
-          <TabPanel>
-            <HotelRoomsTable />
-          </TabPanel>
-          <TabPanel>
-            <MainInvoiceMenu />
-          </TabPanel>
-          <TabPanel>
-            <MainInventory />
-          </TabPanel>
-          <TabPanel>
-            <RackMenu />
-          </TabPanel>
-          <TabPanel>
-            <StoreHouse />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-
+          <TabPanels>
+            <TabPanel>
+              <HotelRoomsTable selectedFloorId={selectedFloorId}/>
+            </TabPanel>
+            <TabPanel>
+              <MainInvoiceMenu />
+            </TabPanel>
+            <TabPanel>
+              <MainInventory />
+            </TabPanel>
+            <TabPanel>
+              <RackMenu />
+            </TabPanel>
+            <TabPanel>
+              <StoreHouse />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+        : <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Por favor, seleccione un piso.</Text>}
+        
+        </div>
+      
+      : <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Por favor, seleccione un hotel.</Text>}
       {/* PIN Validation Modal */}
       <Modal isOpen={isPinModalOpen} onClose={() => setIsPinModalOpen(false)}>
         <ModalOverlay />

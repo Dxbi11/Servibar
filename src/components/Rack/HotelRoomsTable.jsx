@@ -44,7 +44,7 @@ const getRoomStatus = (state) => {
 
 const locks = ["Locked", "Unlocked"];
 
-const HotelRoomsTable = () => {
+const HotelRoomsTable = ({selectedFloorId}) => {
   const { state, dispatch } = useContext(store);
   const {updateRoomData} = useUpdateRoomData();
   const [selectedLocked, setSelectedLocked] = useState({});
@@ -165,7 +165,7 @@ const HotelRoomsTable = () => {
           <h2>
             <AccordionButton _expanded={{ bg: "teal.500", color: "white" }} _hover={{ bg: "teal.400" }}>
               <Flex direction={isLargerThan768 ? "row" : "column"} justify="space-between" align="center" width="100%">
-                <Text fontWeight="bold" mr={4}>Selected Hotel</Text>
+                <Text fontWeight="bold" mr={4}>Floor {selectedFloorId}</Text>
                 <Tag mr={2} ml={4} size='lg' colorScheme='red' borderRadius='full' display={notCheckedRooms > 0 ? "flex" : "none"}>
                   <Box mr={2} as="b">{notCheckedRooms}</Box>
                   <TagLabel>Rooms not checked</TagLabel>
