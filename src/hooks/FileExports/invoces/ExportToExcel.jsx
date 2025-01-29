@@ -7,11 +7,10 @@ const ExportToExcel = ({ invoices, showInUSD, exchangeRate }) => {
   const CurrentDay = new Date();
   const handleExport = () => {
     const data = invoices.map((invoice) => ({
-      ID: invoice.id,
+      Date: new Date(invoice.date).toLocaleDateString(),
       Total: showInUSD
         ? `₡${(invoice.total * exchangeRate).toFixed(2)}`
         : `$${invoice.total.toFixed(2)}`,
-      Date: new Date(invoice.date).toLocaleDateString(),
       Comment: invoice.comment,
       Room: invoice.room,
     }));

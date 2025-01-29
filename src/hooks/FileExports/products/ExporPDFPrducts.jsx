@@ -36,7 +36,7 @@ const ExportProductsToPDF = ({ products, forPrint }) => {
   };
 
   return (
-    <Button mr={2} colorScheme={forPrint ? 'red': 'blue'} onClick={handleExport} ml={4}>
+    <Button colorScheme={forPrint ? 'red': 'blue'} onClick={handleExport} ml={4}>
       {forPrint ? "Print PDF" : "Download PDF"}
     </Button>
   );

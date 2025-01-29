@@ -25,6 +25,8 @@ import {
   PopoverCloseButton,
   PopoverHeader,
   PopoverBody,
+  Stack,
+  Text,
 } from "@chakra-ui/react";
 import useFetchInvoices from "../../hooks/InvoiceHooks/useFetchInvoices";
 import ExportToExcel from "../../hooks/FileExports/invoces/ExportToExcel";
@@ -142,50 +144,25 @@ const ShowInvoicesByHotel = () => {
         </FormControl>
       </Box>
 
-      <Box display="flex" alignItems="center" mr={4}>
+      <Stack spacing={2} align="center" mr={8}>
+        <Text>Subtract {subtractTax ? `${customTaxRate}%` : "Custom Tax Rate"}</Text>
         <Switch
           onChange={() => setSubtractTax(!subtractTax)}
           colorScheme="teal"
           size="md"
-          mt={2}
-        >
-          Subtract {subtractTax ? `${customTaxRate}%` : "Custom Tax Rate"}
-        </Switch>
-      </Box>
+        />
+      </Stack>
 
-      <Box display="flex" alignItems="center">
+
+      <Stack spacing={2} align="center">
+        <Text>{showInUSD ? "Show in USD" : "Show in CRC"}</Text>
         <Switch
           onChange={handleToggleCurrency}
           colorScheme="blue"
           size="md"
-          mt={2}
         >
-          {showInUSD ? "Show in USD" : "Show in CRC"}
         </Switch>
-      </Box>
-
-      <Box display="flex" alignItems="center" mt={4} ml={4}>
-        <ExportToExcel
-          invoices={invoices}
-          showInUSD={showInUSD}
-          exchangeRate={exchangeRate}
-        />
-        <Box ml={4}>
-          <ExportToPDF
-            invoices={invoices}
-            showInUSD={showInUSD}
-            exchangeRate={exchangeRate}
-          />
-        </Box>
-        <Box ml={4}>
-          <ExportToPDF
-            invoices={invoices}
-            showInUSD={showInUSD}
-            exchangeRate={exchangeRate}
-            forPrint={true}  // Set forPrint to true for the print button
-          />
-        </Box>
-      </Box>
+      </Stack>
     </StatGroup>
 
     {/* Exchange rate form */}
@@ -236,15 +213,36 @@ const ShowInvoicesByHotel = () => {
     <Box display='flex' justifyContent='center'>
       {days && days > 0 ? <h1>Showing invoices for the last {days} days</h1> : <h1>Showing all invoices</h1>}
     </Box>
+    <Box display="flex" justifyContent="center" mt={4}>
+        <ExportToExcel
+          invoices={invoices}
+          showInUSD={showInUSD}
+          exchangeRate={exchangeRate}
+        />
+        <Box ml={4}>
+          <ExportToPDF
+            invoices={invoices}
+            showInUSD={showInUSD}
+            exchangeRate={exchangeRate}
+          />
+        </Box>
+        <Box ml={4}>
+          <ExportToPDF
+            invoices={invoices}
+            showInUSD={showInUSD}
+            exchangeRate={exchangeRate}
+            forPrint={true}  // Set forPrint to true for the print button
+          />
+        </Box>
+      </Box>
     </>
     {/* Table */}
     <Table variant="simple" mt={8}>
       <TableCaption>Invoices for Hotel ID: {hotelId}</TableCaption>
       <Thead>
         <Tr>
-          <Th>ID</Th>
-          <Th>Total</Th>
           <Th>Date</Th>
+          <Th>Total</Th>
           <Th>Comment</Th>
           <Th>Room</Th>
         </Tr>
@@ -253,26 +251,24 @@ const ShowInvoicesByHotel = () => {
       {days && days > 0
         ? invoicesForLastNDays.map((invoice) => (
             <Tr key={invoice.id}>
-              <Td>{invoice.id}</Td>
+              <Td>{new Date(invoice.date).toLocaleDateString()}</Td>
               <Td>
                 {showInUSD
                   ? `₡${(invoice.total * exchangeRate).toFixed(2)}`
                   : `$${invoice.total.toFixed(2)}`}
               </Td>
-              <Td>{new Date(invoice.date).toLocaleDateString()}</Td>
               <Td>{invoice.comment}</Td>
               <Td>{invoice.room}</Td>
             </Tr>
           ))
         : sortedInvoices.map((invoice) => (
             <Tr key={invoice.id}>
-              <Td>{invoice.id}</Td>
+              <Td>{new Date(invoice.date).toLocaleDateString()}</Td>
               <Td>
                 {showInUSD
                   ? `₡${(invoice.total * exchangeRate).toFixed(2)}`
                   : `$${invoice.total.toFixed(2)}`}
               </Td>
-              <Td>{new Date(invoice.date).toLocaleDateString()}</Td>
               <Td>{invoice.comment}</Td>
               <Td>{invoice.room}</Td>
             </Tr>
