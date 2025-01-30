@@ -18,7 +18,7 @@ const getColorFromId = (id) => {
   return `hsl(${hue}, 70%, 80%)`;
 };
 
-const ProductButton = React.memo(({ product, onSelect }) => (
+const ProductButton = React.memo(({ product, onSelect, ShowInCRC, exchangeRate }) => (
   <Button
     onClick={() => onSelect(product)}
     bg={getColorFromId(product.id)}
@@ -58,13 +58,13 @@ const ProductButton = React.memo(({ product, onSelect }) => (
         {product.name}
       </Text>
       <Text fontSize={["3xs", "2xs", "xs"]} fontWeight="semibold">
-        ${product.price?.toFixed(2) || "N/A"}
+        {ShowInCRC ? `₡${(product.price?.toFixed(2) * exchangeRate).toFixed(2) || "N/A"}` : `$${product.price?.toFixed(2) || "N/A"}`}
       </Text>
     </VStack>
   </Button>
 ));
 
-const Receipt = React.memo(({ selectedProducts, total, onReset }) => (
+const Receipt = React.memo(({ selectedProducts, total, onReset, ShowInCRC, exchangeRate}) => (
   <VStack spacing={4} align="stretch" p={4} bg="gray.50" borderRadius="md" boxShadow="sm">
     <Text fontWeight="bold" fontSize="xl" borderBottom="2px" borderColor="gray.200" pb={2}>
       Receipt Preview
@@ -72,13 +72,13 @@ const Receipt = React.memo(({ selectedProducts, total, onReset }) => (
     {selectedProducts.map((product) => (
       <HStack key={product.id} justify="space-between" py={1}>
         <Text fontWeight="medium">{product.name} (x{product.quantity})</Text>
-        <Text fontWeight="semibold">${(product.price * product.quantity).toFixed(2) || "N/A"}</Text>
+        <Text fontWeight="semibold">{ShowInCRC ? `₡${((product.price * exchangeRate) * product.quantity).toFixed(2) || "N/A"}` : `$${product.price?.toFixed(2) || "N/A"}`}</Text>
       </HStack>
     ))}
     <Divider />
     <HStack justify="space-between" fontWeight="bold">
       <Text fontSize="lg">Total:</Text>
-      <Text fontSize="lg" color="blue.600">${total}</Text>
+      <Text fontSize="lg" color="blue.600">{ShowInCRC ? `₡${(total * exchangeRate).toFixed(2)}` : `$${total}`}</Text>
     </HStack>
     <Button onClick={onReset} colorScheme="red" size="sm" mt={2}>
       Reset
@@ -86,7 +86,7 @@ const Receipt = React.memo(({ selectedProducts, total, onReset }) => (
   </VStack>
 ));
 
-const ProductSelector = ({ onProductsSelected }) => {
+const ProductSelector = ({ onProductsSelected, ShowInCRC, exchangeRate}) => {
   const {state, dispatch} = useContext(store);
   const HotelId = state.ui.hotelId;
   const products = state.ui.products;
@@ -141,6 +141,8 @@ const ProductSelector = ({ onProductsSelected }) => {
               key={product.id}
               product={product}
               onSelect={handleProductSelect}
+              ShowInCRC={ShowInCRC}
+              exchangeRate={exchangeRate}
             />
           ))}
         </Grid>
@@ -150,6 +152,8 @@ const ProductSelector = ({ onProductsSelected }) => {
           selectedProducts={Object.values(selectedProducts)}
           total={total}
           onReset={handleReset}
+          ShowInCRC={ShowInCRC}
+          exchangeRate={exchangeRate}
         />
       </Box>
     </HStack>

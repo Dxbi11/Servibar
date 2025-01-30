@@ -42,8 +42,8 @@ const ShowInvoicesByHotel = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [subtractTax, setSubtractTax] = useState(false);
-  const [showInUSD, setShowInUSD] = useState(false);
-  const [exchangeRate, setExchangeRate] = useState(1);
+  const [ShowInCRC, setShowInCRC] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState()
   const [customTaxRate, setCustomTaxRate] = useState(0);
   const [days, setDays] = useState(0); // State for the number of days
 
@@ -89,17 +89,17 @@ const ShowInvoicesByHotel = () => {
   
 
   const handleToggleCurrency = () => {
-    setShowInUSD(!showInUSD);
+    setShowInCRC(!ShowInCRC);
   };
 
   const handleExchangeRateChange = (event) => {
     const value = event.target.value;
     setExchangeRate(value === "" ? null : parseFloat(value));
     if (value > 0) {
-      setShowInUSD(true);
+      setShowInCRC(true);
     }
     else {
-      setShowInUSD(false);
+      setShowInCRC(false);
     }
 
   };
@@ -126,7 +126,7 @@ const ShowInvoicesByHotel = () => {
           <Stat textAlign="center">
             <StatLabel>Total for Today</StatLabel>
             <StatNumber>
-              {showInUSD
+              {ShowInCRC
                 ? `₡${(totalForToday * exchangeRate).toFixed(2)}`
                 : `$${totalForToday.toFixed(2)}`}
             </StatNumber>
@@ -135,7 +135,7 @@ const ShowInvoicesByHotel = () => {
           <Stat textAlign="center">
             <StatLabel>{days > 0 ? `Total for Last ${days} Days` : "Total sales"}</StatLabel>
             <StatNumber>
-              {showInUSD
+              {ShowInCRC
                 ? `₡${(totalForLastNDays * exchangeRate).toFixed(2)}`
                 : `$${totalForLastNDays.toFixed(2)}`}
             </StatNumber>
@@ -176,11 +176,12 @@ const ShowInvoicesByHotel = () => {
                 {subtractTax ? "desactivate tax rate" : "Set custom tax rate"}
               </Button>
           <FormControl as="form" onSubmit={handleRateSubmit} textAlign="center" maxWidth="250px">
-            <FormLabel>Exchange Rate:</FormLabel>
+            <FormLabel>Exchange Rate (CRC):</FormLabel>
             <Input
               type="number"
               step="0.01"
               min="0"
+              placeholder="₡"
               value={exchangeRate}
               onChange={handleExchangeRateChange}
               required
@@ -200,20 +201,20 @@ const ShowInvoicesByHotel = () => {
     <Box display="flex" justifyContent="center" mt={4}>
         <ExportToExcel
           invoices={invoices}
-          showInUSD={showInUSD}
+          ShowInCRC={ShowInCRC}
           exchangeRate={exchangeRate}
         />
         <Box ml={4}>
           <ExportToPDF
             invoices={invoices}
-            showInUSD={showInUSD}
+            ShowInCRC={ShowInCRC}
             exchangeRate={exchangeRate}
           />
         </Box>
         <Box ml={4}>
           <ExportToPDF
             invoices={invoices}
-            showInUSD={showInUSD}
+            ShowInCRC={ShowInCRC}
             exchangeRate={exchangeRate}
             forPrint={true}  // Set forPrint to true for the print button
           />
@@ -237,7 +238,7 @@ const ShowInvoicesByHotel = () => {
             <Tr key={invoice.id}>
               <Td>{new Date(invoice.date).toLocaleDateString()}</Td>
               <Td>
-                {showInUSD
+                {ShowInCRC
                   ? `₡${(invoice.total * exchangeRate).toFixed(2)}`
                   : `$${invoice.total.toFixed(2)}`}
               </Td>
@@ -249,7 +250,7 @@ const ShowInvoicesByHotel = () => {
             <Tr key={invoice.id}>
               <Td>{new Date(invoice.date).toLocaleDateString()}</Td>
               <Td>
-                {showInUSD
+                {ShowInCRC
                   ? `₡${(invoice.total * exchangeRate).toFixed(2)}`
                   : `$${invoice.total.toFixed(2)}`}
               </Td>

@@ -1,7 +1,7 @@
 import React from "react";
 import { useContext, useState, useEffect } from "react";
 import { store } from "../../../../store";
-import { FormControl, FormLabel, Input, Button } from "@chakra-ui/react";
+import { FormControl, FormLabel, Input, Button, Box } from "@chakra-ui/react";
 import ExportTotalSalesReportPDF from "../../../hooks/FileExports/reports/ExportTotalSalesReportPDF";
 import { format } from "date-fns";
 
@@ -98,11 +98,13 @@ const TotalSalesReport = () => {
                 />
             </FormControl>
             {StartDate !== "" && EndDate !== "" ? (
-                <Button onClick={handleFilterByDate}>Generate Report</Button>
+                <Box display="flex" justifyContent="center" mt={4}>
+                    <Button onClick={handleFilterByDate}>Generate Report</Button>
+                </Box>
             ) : null}
 
             {filteredInvoices.length > 0 && (
-                <div>
+                <Box display="flex" justifyContent="center" mt={4}>
                     <ExportTotalSalesReportPDF
                         invoices={filteredInvoices}
                         StartDate={StartDate}
@@ -119,7 +121,7 @@ const TotalSalesReport = () => {
                         forPrint={true}
                         Sales={Total}
                     />
-                </div>
+                </Box>
             )}
         </div>
     );

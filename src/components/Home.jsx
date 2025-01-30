@@ -41,6 +41,7 @@ const Home = ({ user }) => {
   const floors = state.ui.floors;
   const [selectedHotelId, setSelectedHotelId] = useState("");
   const [selectedFloorId, setSelectedFloorId] = useState("");
+  const [FloorData, setFloorData] = useState({});
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [pin, setPin] = useState("");
   const [hotelToValidate, setHotelToValidate] = useState(null);
@@ -74,7 +75,8 @@ const Home = ({ user }) => {
   
   useEffect(() => {
     console.log("CHECK THIS", selectedFloorId);
-  }, [selectedHotelId]);
+    console.log("CHECK THIS", FloorData);
+  }, [selectedFloorId]);
 
   const handlePinSubmit = () => {
     if (!hotelToValidate) {
@@ -111,6 +113,8 @@ const Home = ({ user }) => {
   const handleFloorChange = (e) => {
     const selectedFloorId = e.target.value;
     setSelectedFloorId(selectedFloorId);
+    const FloorData = floors.find((floor) => floor.id === parseInt(selectedFloorId));
+    setFloorData(FloorData)
   };
 
   return (
@@ -165,7 +169,7 @@ const Home = ({ user }) => {
 
           <TabPanels>
             <TabPanel>
-              <HotelRoomsTable selectedFloorId={selectedFloorId}/>
+              <HotelRoomsTable FloorData={FloorData}/>
             </TabPanel>
             <TabPanel>
               <MainInvoiceMenu />

@@ -13,6 +13,7 @@ import {
   useToast,
   Grid,
   GridItem,
+
 } from "@chakra-ui/react";
 import useCreateInvoice from "../../hooks/InvoiceHooks/useCreateInvoice";
 import ProductSelector from "./ProductSelector";
@@ -25,6 +26,9 @@ const AddInvoice = () => {
   const [comment, setComment] = useState("");
   const [room, setRoom] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [exchangeRate, setExchangeRate] = useState()
+  const [ShowInCRC, setShowInCRC] = useState(false);
+  
   const { handleSubmit, loading, error } = useCreateInvoice();
   const toast = useToast();
 
@@ -35,6 +39,22 @@ const AddInvoice = () => {
   const handleProductsSelected = (products) => {
     setSelectedProducts(products);
     setTotal(products.reduce((sum, product) => sum + (product.price * product.quantity || 0), 0).toFixed(2));
+  };
+  const handleRateSubmit = (event) => {
+    event.preventDefault();
+    // Additional validation if needed
+  };
+
+  const handleExchangeRateChange = (event) => {
+    const value = event.target.value;
+    setExchangeRate(value === "" ? null : parseFloat(value));
+    if (value > 0) {
+      setShowInCRC(true);
+    }
+    else {
+      setShowInCRC(false);
+    }
+
   };
 
   const onSubmit = (e) => {
@@ -59,14 +79,18 @@ const AddInvoice = () => {
       <form onSubmit={onSubmit}>
         <Grid templateColumns="2fr 1fr" gap={6}>
           <GridItem>
-            <ProductSelector onProductsSelected={handleProductsSelected} />
+            <ProductSelector 
+            onProductsSelected={handleProductsSelected} 
+            ShowInCRC={ShowInCRC}
+            exchangeRate={exchangeRate}
+            />
           </GridItem>
           <GridItem>
             <VStack spacing={4}>
               <FormControl id="total" isRequired>
                 <FormLabel>Total</FormLabel>
                 <NumberInput
-                  value={total}
+                  value={ShowInCRC ? (total * exchangeRate).toFixed(2) : total}
                   onChange={(valueString) => setTotal(valueString)}
                   precision={2}
                 >
@@ -114,6 +138,20 @@ const AddInvoice = () => {
                 >
                   <NumberInputField />
                 </NumberInput>
+              </FormControl>
+
+              <FormControl as="form" onSubmit={handleRateSubmit} textAlign="center" maxWidth="250px">
+                <FormLabel>Exchange Rate (CRC):</FormLabel>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="₡"
+                  value={exchangeRate}
+                  onChange={handleExchangeRateChange}
+                  required
+                  textAlign="center"
+                />
               </FormControl>
 
               <Button type="submit" colorScheme="blue" width="full" isLoading={loading}>

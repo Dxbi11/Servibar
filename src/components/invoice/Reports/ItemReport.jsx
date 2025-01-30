@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useContext, useState } from "react";
 import { store } from "../../../../store";
-import { FormControl, FormLabel, Input, Button } from "@chakra-ui/react";
+import { FormControl, FormLabel, Input, Button, Box } from "@chakra-ui/react";
 import ExportItemReportPDF from "../../../hooks/FileExports/reports/ExportItemReportPDF";
 import { format } from "date-fns";
 
@@ -80,14 +80,17 @@ const ItemReport = () => {
                   />
             </FormControl>
             {StartDate !== '' && EndDate !== "" ? (
-                <Button onClick={() => handleFilterByDate()}>Generate Report</Button>
+                <Box display="flex" justifyContent="center" mt={4}>
+                  <Button onClick={() => handleFilterByDate()}>Generate Report</Button>
+                </Box>
+              
             ): null}
 
             {filteredInvoices.length > 0 && 
-            <div>
+            <Box display="flex" justifyContent="center" mt={4}>
                 <ExportItemReportPDF invoices={filteredInvoices} StartDate={StartDate} EndDate={EndDate} forPrint={false} Items={Items}/>
                 <ExportItemReportPDF invoices={filteredInvoices} StartDate={StartDate} EndDate={EndDate} forPrint={true} Items={Items} />
-            </div>
+            </Box>
             }
         </div>
     )
