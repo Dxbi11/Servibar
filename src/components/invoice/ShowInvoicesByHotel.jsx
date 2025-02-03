@@ -31,6 +31,7 @@ import {
 import useFetchInvoices from "../../hooks/InvoiceHooks/useFetchInvoices";
 import ExportToExcel from "../../hooks/FileExports/invoces/ExportToExcel";
 import ExportToPDF from "../../hooks/FileExports/invoces/ExportToPDF";
+import ExportRowInvoiceReport from "../../hooks/FileExports/reports/ExportRowInvoiceReport";
 
 const ShowInvoicesByHotel = () => {
   useFetchInvoices();
@@ -230,6 +231,7 @@ const ShowInvoicesByHotel = () => {
           <Th>Total</Th>
           <Th>Comment</Th>
           <Th>Room</Th>
+          <Th>Actions</Th>
         </Tr>
       </Thead>
       <Tbody>
@@ -244,6 +246,7 @@ const ShowInvoicesByHotel = () => {
               </Td>
               <Td>{invoice.comment}</Td>
               <Td>{invoice.room}</Td>
+              <Td><ExportRowInvoiceReport forPrint={true} invoice={invoice} /></Td>
             </Tr>
           ))
         : sortedInvoices.map((invoice) => (
@@ -256,6 +259,7 @@ const ShowInvoicesByHotel = () => {
               </Td>
               <Td>{invoice.comment}</Td>
               <Td>{invoice.room}</Td>
+              <Td><ExportRowInvoiceReport forPrint={true} invoice={invoice} /></Td>
             </Tr>
           ))}
     </Tbody>
