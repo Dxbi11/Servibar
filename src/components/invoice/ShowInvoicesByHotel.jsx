@@ -47,6 +47,7 @@ const ShowInvoicesByHotel = () => {
   const [exchangeRate, setExchangeRate] = useState()
   const [customTaxRate, setCustomTaxRate] = useState(0);
   const [days, setDays] = useState(0); // State for the number of days
+  const [editingMontoHotel, setEditingMontoHotel] = useState({});
 
   const today = new Date();
   const pastDate = new Date();
@@ -114,6 +115,24 @@ const ShowInvoicesByHotel = () => {
     const value = event.target.value;
     setCustomTaxRate(value === "" ? null : parseFloat(value));
   };
+
+  const handleMontoHotelChange = (invoiceId, value) => {
+    setEditingMontoHotel({
+      ...editingMontoHotel,
+      [invoiceId]: value
+    });
+  };
+
+  const handleSaveMontoHotel = async (invoiceId) => {
+    try {
+      // Here you would implement the API call to save the new montohotel value
+      console.log(`Saving montohotel for invoice ${invoiceId}: ${editingMontoHotel[invoiceId]}`);
+      // After successful save, you might want to refresh the invoices data
+    } catch (error) {
+      console.error('Error saving montohotel:', error);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading invoices: {error.message}</div>;
 
@@ -227,8 +246,10 @@ const ShowInvoicesByHotel = () => {
       <TableCaption>Invoices for Hotel ID: {hotelId}</TableCaption>
       <Thead>
         <Tr>
+          <Th>ID</Th>
           <Th>Date</Th>
           <Th>Total</Th>
+          <Th>Monto Hotel</Th>
           <Th>Comment</Th>
           <Th>Room</Th>
           <Th>Actions</Th>
@@ -238,11 +259,30 @@ const ShowInvoicesByHotel = () => {
       {days && days > 0
         ? invoicesForLastNDays.map((invoice) => (
             <Tr key={invoice.id}>
+              <Td>{invoice.id}</Td>
               <Td>{new Date(invoice.date).toLocaleDateString()}</Td>
               <Td>
                 {ShowInCRC
                   ? `₡${(invoice.total * exchangeRate).toFixed(2)}`
                   : `$${invoice.total.toFixed(2)}`}
+              </Td>
+              <Td>
+                <Stack direction="row" spacing={2} align="center">
+                  <Input
+                    size="sm"
+                    width="33%"
+                    value={editingMontoHotel[invoice.id] ?? invoice.montohotel ?? ''}
+                    onChange={(e) => handleMontoHotelChange(invoice.id, e.target.value)}
+                    placeholder="Enter monto hotel"
+                  />
+                  <Button
+                    size="sm"
+                    colorScheme="teal"
+                    onClick={() => handleSaveMontoHotel(invoice.id)}
+                  >
+                    Save
+                  </Button>
+                </Stack>
               </Td>
               <Td>{invoice.comment}</Td>
               <Td>{invoice.room}</Td>
@@ -251,11 +291,30 @@ const ShowInvoicesByHotel = () => {
           ))
         : sortedInvoices.map((invoice) => (
             <Tr key={invoice.id}>
+              <Td>{invoice.id}</Td>
               <Td>{new Date(invoice.date).toLocaleDateString()}</Td>
               <Td>
                 {ShowInCRC
                   ? `₡${(invoice.total * exchangeRate).toFixed(2)}`
                   : `$${invoice.total.toFixed(2)}`}
+              </Td>
+              <Td>
+                <Stack direction="row" spacing={2} align="center">
+                  <Input
+                    size="sm"
+                    width="33%"
+                    value={editingMontoHotel[invoice.id] ?? invoice.montohotel ?? ''}
+                    onChange={(e) => handleMontoHotelChange(invoice.id, e.target.value)}
+                    placeholder="Enter monto hotel"
+                  />
+                  <Button
+                    size="sm"
+                    colorScheme="teal"
+                    onClick={() => handleSaveMontoHotel(invoice.id)}
+                  >
+                    Save
+                  </Button>
+                </Stack>
               </Td>
               <Td>{invoice.comment}</Td>
               <Td>{invoice.room}</Td>
