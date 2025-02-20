@@ -32,10 +32,12 @@ import useFetchInvoices from "../../hooks/InvoiceHooks/useFetchInvoices";
 import ExportToExcel from "../../hooks/FileExports/invoces/ExportToExcel";
 import ExportToPDF from "../../hooks/FileExports/invoces/ExportToPDF";
 import ExportRowInvoiceReport from "../../hooks/FileExports/reports/ExportRowInvoiceReport";
+import { updateInvoice } from '../../api';
+import { useToast } from "@chakra-ui/react";
 
 const ShowInvoicesByHotel = () => {
   useFetchInvoices();
-  const { state } = useContext(store);
+  const { state, dispatch } = useContext(store);
   const hotelId = state.ui.hotelId;
   const invoices = state.ui.invoices;
   console.log(invoices);
@@ -125,11 +127,36 @@ const ShowInvoicesByHotel = () => {
 
   const handleSaveMontoHotel = async (invoiceId) => {
     try {
-      // Here you would implement the API call to save the new montohotel value
-      console.log(`Saving montohotel for invoice ${invoiceId}: ${editingMontoHotel[invoiceId]}`);
-      // After successful save, you might want to refresh the invoices data
+      setLoading(true);
+      const updatedInvoice = await updateInvoice(invoiceId, {
+        montohotel: parseFloat(editingMontoHotel[invoiceId])
+      });
+      
+      // Update the invoices in the store
+      dispatch({
+        type: 'SET_INVOICES',
+        payload: invoices.map(invoice => 
+          invoice.id === invoiceId ? { ...invoice, montohotel: updatedInvoice.montohotel } : invoice
+        )
+      });
+
+      toast({
+        title: "Monto hotel updated successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Error saving montohotel:', error);
+      toast({
+        title: "Failed to update monto hotel",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
