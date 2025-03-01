@@ -197,9 +197,15 @@ export const createInvoice = async (invoiceData) => {
 };
 
 export const updateInvoice = async (invoiceId, invoiceData) => {
-  const response = await api.put(`/invoices/${invoiceId}`, invoiceData);
-  return response.data;
+  try {
+    const response = await api.put(`/invoices/${invoiceId}`, invoiceData);
+    return response.data;
+  } catch (error) {
+    console.error("Error en updateInvoice:", error.response?.data || error.message);
+    throw error;
+  }
 };
+
 
 export const deleteInvoice = async (invoiceId) => {
   await api.delete(`/invoices/${invoiceId}`);

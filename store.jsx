@@ -116,6 +116,16 @@ const stateReducer = (state, action) => {
                   ),
               },
           };
+        case 'UPDATE_INVOICE':
+          return {
+              ...state,
+              ui: {
+                  ...state.ui,
+                  invoices: state.ui.invoices.map(invoice =>
+                      invoice.id === action.payload.id ? action.payload : invoice
+                  ),
+              },
+          };
         case 'SET_INVOICES':
           return {
               ...state,

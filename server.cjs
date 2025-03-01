@@ -531,11 +531,11 @@ app.post('/invoices', async (req, res) => {
 
 
 app.put('/invoices/:id', async (req, res) => {
-  const { total } = req.body;
+  const { total, montohotel } = req.body;
   try {
     const updatedInvoice = await prisma.invoice.update({
       where: { id: parseInt(req.params.id) },
-      data: { total },
+      data: { total, montohotel },
       include: { items: true },
     });
     res.json(updatedInvoice);

@@ -37,6 +37,7 @@ import { useToast } from "@chakra-ui/react";
 
 const ShowInvoicesByHotel = () => {
   useFetchInvoices();
+  const { toast } = useToast()
   const { state, dispatch } = useContext(store);
   const hotelId = state.ui.hotelId;
   const invoices = state.ui.invoices;
@@ -49,6 +50,7 @@ const ShowInvoicesByHotel = () => {
   const [exchangeRate, setExchangeRate] = useState()
   const [customTaxRate, setCustomTaxRate] = useState(0);
   const [days, setDays] = useState(0); // State for the number of days
+  const [montos, setMontos] = useState({});	
   const [editingMontoHotel, setEditingMontoHotel] = useState({});
 
   const today = new Date();
@@ -118,47 +120,42 @@ const ShowInvoicesByHotel = () => {
     setCustomTaxRate(value === "" ? null : parseFloat(value));
   };
 
-  const handleMontoHotelChange = (invoiceId, value) => {
-    setEditingMontoHotel({
-      ...editingMontoHotel,
-      [invoiceId]: value
-    });
+  const handleMontoHotelChange = (invoice, e) => {
+    const newMonto = e.target.value;
+    setEditingMontoHotel((prev) => ({ ...prev, [invoice.id]: newMonto }));
   };
-
-  const handleSaveMontoHotel = async (invoiceId) => {
-    try {
-      setLoading(true);
-      const updatedInvoice = await updateInvoice(invoiceId, {
-        montohotel: parseFloat(editingMontoHotel[invoiceId])
+  
+  const handleSaveMontoHotel = async (invoice) => {
+    const newValue = editingMontoHotel[invoice.id];
+  
+    if (newValue !== undefined && !isNaN(parseFloat(newValue))) {
+      const parsedValue = parseFloat(newValue);
+      dispatch({
+        type: "UPDATE_INVOICE",
+        payload: { ...invoice, montohotel: parsedValue },
       });
       
-      // Update the invoices in the store
-      dispatch({
-        type: 'SET_INVOICES',
-        payload: invoices.map(invoice => 
-          invoice.id === invoiceId ? { ...invoice, montohotel: updatedInvoice.montohotel } : invoice
-        )
-      });
-
-      toast({
-        title: "Monto hotel updated successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-      });
-    } catch (error) {
-      console.error('Error saving montohotel:', error);
-      toast({
-        title: "Failed to update monto hotel",
-        description: error.message,
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    } finally {
-      setLoading(false);
+      
+      try {
+        const updatedInvoice = await updateInvoice(invoice.id, {
+          montohotel: parsedValue, // Asegurar que se envía el dato
+        });
+        console.log("Respuesta de la API:", updatedInvoice);
+        
+        setMontos((prev) => ({ ...prev, [invoice.id]: updatedInvoice.montohotel }));
+  
+        setEditingMontoHotel((prev) => {
+          const updated = { ...prev };
+          delete updated[invoice.id];
+          return updated;
+        });
+      } catch (error) {
+        console.error("Error al actualizar la factura:", error);
+      }
     }
   };
+  
+  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading invoices: {error.message}</div>;
@@ -297,20 +294,20 @@ const ShowInvoicesByHotel = () => {
                 <Stack direction="row" spacing={2} align="center">
                   <Input
                     size="sm"
-                    width="33%"
-                    value={editingMontoHotel[invoice.id] ?? invoice.montohotel ?? ''}
-                    onChange={(e) => handleMontoHotelChange(invoice.id, e.target.value)}
+                    width="100%"
+                    value={editingMontoHotel[invoice.id] ?? montos[invoice.id] ?? invoice.montohotel ?? ""}
+                    onChange={(e) => handleMontoHotelChange(invoice, e)}
                     placeholder="Enter monto hotel"
                   />
                   <Button
                     size="sm"
                     colorScheme="teal"
-                    onClick={() => handleSaveMontoHotel(invoice.id)}
+                    onClick={() => handleSaveMontoHotel(invoice)}
                   >
                     Save
                   </Button>
                 </Stack>
-              </Td>
+              </Td>;
               <Td>{invoice.comment}</Td>
               <Td>{invoice.room}</Td>
               <Td><ExportRowInvoiceReport forPrint={true} invoice={invoice} /></Td>
@@ -329,15 +326,15 @@ const ShowInvoicesByHotel = () => {
                 <Stack direction="row" spacing={2} align="center">
                   <Input
                     size="sm"
-                    width="33%"
-                    value={editingMontoHotel[invoice.id] ?? invoice.montohotel ?? ''}
-                    onChange={(e) => handleMontoHotelChange(invoice.id, e.target.value)}
+                    width="100%"
+                    value={editingMontoHotel[invoice.id] ?? montos[invoice.id] ?? invoice.montohotel ?? ""}
+                    onChange={(e) => handleMontoHotelChange(invoice, e)}
                     placeholder="Enter monto hotel"
                   />
                   <Button
                     size="sm"
                     colorScheme="teal"
-                    onClick={() => handleSaveMontoHotel(invoice.id)}
+                    onClick={() => handleSaveMontoHotel(invoice)}
                   >
                     Save
                   </Button>
