@@ -55,11 +55,12 @@ const Home = ({ user }) => {
   const handleHotelId = (selectedHotelId) => {
     dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });
   };
-
+  const handleFloorId = (selectedFloorId) => {
+    dispatch({ type: "SET_FLOOR_ID", payload: selectedFloorId });
+  };
   const handleHotelChange = (e) => {
     
     const hotelId = e.target.value;
-    console.log("Selected hotel ID:", hotelId, typeof hotelId);
   
     const selectedHotel = hotels.find((hotel) => hotel.id === parseInt(hotelId));
 
@@ -72,11 +73,6 @@ const Home = ({ user }) => {
       console.error("Selected hotel not found!", hotels); // Log the `hotels` array for debugging
     }
   };
-  
-  useEffect(() => {
-    console.log("CHECK THIS", selectedFloorId);
-    console.log("CHECK THIS", FloorData);
-  }, [selectedFloorId]);
 
   const handlePinSubmit = () => {
     if (!hotelToValidate) {
@@ -113,6 +109,7 @@ const Home = ({ user }) => {
   const handleFloorChange = (e) => {
     const selectedFloorId = e.target.value;
     setSelectedFloorId(selectedFloorId);
+    handleFloorId(selectedFloorId);
     const FloorData = floors.find((floor) => floor.id === parseInt(selectedFloorId));
     setFloorData(FloorData)
   };
@@ -185,11 +182,37 @@ const Home = ({ user }) => {
             </TabPanel>
           </TabPanels>
         </Tabs>
-        : <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Por favor, seleccione un piso.</Text>}
-        
-        </div>
-      
-      : <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Por favor, seleccione un hotel.</Text>}
+        : 
+      (
+      <>
+      <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Por favor, seleccione un piso.</Text>
+              <Tabs variant="enclosed" colorScheme="teal">
+          <TabList>
+            <Tab>Settings</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <RackMenu />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+  </>)}
+  </div>
+      : 
+      (
+      <>
+      <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Por favor, seleccione un hotel.</Text>
+              <Tabs variant="enclosed" colorScheme="teal">
+          <TabList>
+            <Tab>Settings</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <RackMenu />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+  </>)}
       {/* PIN Validation Modal */}
       <Modal isOpen={isPinModalOpen} onClose={() => setIsPinModalOpen(false)}>
         <ModalOverlay />

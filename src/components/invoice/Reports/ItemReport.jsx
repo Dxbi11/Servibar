@@ -13,9 +13,6 @@ const ItemReport = () => {
     const [filteredInvoices, setFilteredInvoices] = useState([]);
     const [Items, setItems] = useState([]);
     const [itemTotals, setItemTotals] = useState([]);
-    console.log(StartDate);
-
-
 
     const handleFilterByDate = () => {
         const filteredInvoices = invoices.filter((invoice) => {
@@ -25,7 +22,6 @@ const ItemReport = () => {
             return invoiceDate >= startDate && invoiceDate <= endDate;
         })
         setFilteredInvoices(filteredInvoices);
-        console.log(filteredInvoices);
     }
     useEffect(() => {
         if (filteredInvoices.length > 0) {
@@ -56,10 +52,6 @@ const ItemReport = () => {
         }
       }, [filteredInvoices]);
       
-
-    useEffect(() => {
-        console.log(Items);
-    }, [Items]);
 
     return (
         <div>

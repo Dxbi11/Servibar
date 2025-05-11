@@ -66,6 +66,14 @@ const stateReducer = (state, action) => {
             hotelId: action.payload,
           },
         };
+      case 'SET_FLOOR_ID':
+        return {
+          ...state,
+          ui: {
+            ...state.ui,
+            floorId: action.payload,
+          },
+        };
       case 'SET_HOTELS':
         return {
           ...state,

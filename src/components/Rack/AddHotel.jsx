@@ -62,9 +62,10 @@ const AddHotelForm = () => {
               />
               <Input
                 type="text"
-                placeholder="PIN (optional, 4 digits)"
+                placeholder="PIN (4 digits)"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
+                required
                 maxLength={4}
               />
               <Button

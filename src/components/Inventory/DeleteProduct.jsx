@@ -11,7 +11,7 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import { getProductsByHotelId, deleteProduct } from "../../api"; // Adjust the import path as necessary
+import { getProductsByHotelId, deleteProduct, getAllProducts } from "../../api"; // Adjust the import path as necessary
 
 const DeleteProduct = () => {
   const { state, dispatch } = useContext(store);
@@ -30,10 +30,12 @@ const DeleteProduct = () => {
         isClosable: true,
       });
       return;
-    }
-
-    try {
-      await deleteProduct(selectedProduct);
+    }    try {
+      const selectedProductId = parseInt(selectedProduct);
+      await deleteProduct(selectedProductId);
+        // Update local state for immediate UI feedback
+      dispatch({ type: "SET_PRODUCTS", payload: products.filter(p => p.id !== selectedProductId) });
+      
       toast({
         title: "Product deleted.",
         description: "The product has been deleted successfully.",
@@ -41,8 +43,6 @@ const DeleteProduct = () => {
         duration: 5000,
         isClosable: true,
       });
-      // Refresh product list
-      setProducts(products.filter((product) => product.id !== selectedProduct));
       setSelectedProduct("");
     } catch (error) {
       toast({

@@ -23,7 +23,7 @@ const AddFloors = ({ onFloorAdded }) => {
   const {state, dispatch} = useContext(store);
   const hotels = state.ui.hotels;
   const floors = state.ui.floors;
-  
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [floorNumber, setFloorNumber] = useState('');
   const [selectedHotel, setSelectedHotel] = useState('');
@@ -78,7 +78,7 @@ const AddFloors = ({ onFloorAdded }) => {
                   <Select
                     placeholder="Select hotel"
                     value={selectedHotel}
-                    onChange={(e) => dispatch({ type: "SET_HOTEL_ID", payload: e.target.value })}
+                    onChange={(e) => (setSelectedHotel(e.target.value), dispatch({ type: "SET_HOTEL_ID", payload: e.target.value }))}
                   >
                     {hotels.map((hotel) => (
                       <option key={hotel.id} value={hotel.id}>

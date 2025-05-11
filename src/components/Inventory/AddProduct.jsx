@@ -70,9 +70,9 @@ const AddProduct = () => {
           productId,
           quantity: 0,
         };
-        console.log(roomStock);
+
         const roomStockCreated =  createData(roomStock.roomId, roomStock.productId, roomStock.quantity);
-        console.log(roomStockCreated);
+
         });
       }
       // Luego creamos la entrada en StoreHouse
