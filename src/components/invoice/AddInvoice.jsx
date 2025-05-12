@@ -101,6 +101,7 @@ const AddInvoice = () => {
               <FormControl id="date">
                 <FormLabel>Date</FormLabel>
                 <Input
+                  required
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
@@ -133,6 +134,7 @@ const AddInvoice = () => {
               <FormControl id="room">
                 <FormLabel>Room</FormLabel>
                 <NumberInput
+                  required
                   value={room}
                   onChange={(valueString) => setRoom(valueString)}
                 >

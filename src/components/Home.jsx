@@ -126,9 +126,7 @@ const Home = ({ user }) => {
         <Button colorScheme="red" onClick={handleSignOut}>
           Sign out
         </Button>
-      </Flex>
-
-      Select Hotel 🏨
+      </Flex>      Select Hotel 🏨
       <Select
         placeholder="Select Hotel"
         value={selectedHotelId}
@@ -142,8 +140,7 @@ const Home = ({ user }) => {
           </option>
         ))}
       </Select>
-      {parseInt(selectedHotelId) >= 0 ? 
-        <div>Select Floor 🏢
+      {parseInt(selectedHotelId) >= 0 ?        <div>Select Floor 🏢
         <Select
           placeholder="Select Floor"
           value={selectedFloorId}
@@ -186,9 +183,8 @@ const Home = ({ user }) => {
           </TabPanels>
         </Tabs>
         : 
-      (
-      <>
-      <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Por favor, seleccione un piso.</Text>
+      (      <>
+      <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Please select a floor.</Text>
               <Tabs variant="enclosed" colorScheme="teal">
           <TabList>
             <Tab>Settings</Tab>
@@ -202,9 +198,8 @@ const Home = ({ user }) => {
   </>)}
   </div>
       : 
-      (
-      <>
-      <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Por favor, seleccione un hotel.</Text>
+      (      <>
+      <Text fontWeight="bold" color='red' textAlign="center" fontSize="xl" mt={16}>⚠️ Please select a hotel.</Text>
               <Tabs variant="enclosed" colorScheme="teal">
           <TabList>
             <Tab>Settings</Tab>
