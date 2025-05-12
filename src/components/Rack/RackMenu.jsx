@@ -19,7 +19,8 @@ const RackItem = ({ icon, title, description, children, color }) => (
   </Box>
 );
 
-const RackManagement = () => {
+const RackManagement = ({authorized, setAuthorized }) => {
+  console.log(authorized);
   return (
     <Box p={6} bg="white" borderRadius="lg" boxShadow="md">
       <Heading as="h1" size="xl" mb={6} textAlign="center">Rack Management</Heading>
@@ -32,30 +33,30 @@ const RackManagement = () => {
         >
           <AddHotelForm />
         </RackItem>
-        <RackItem 
+        {authorized === true ? <RackItem 
           icon={AddIcon} 
           title="Add Floors" 
           description="Add floors to a hotel"
           color="green"
         >
           <AddFloors />
-        </RackItem>
-        <RackItem 
+        </RackItem> : null}
+        {authorized === true ? <RackItem 
           icon={FaDoorOpen} 
           title="Add Room" 
           description="Create a new room"
           color="purple"
         >
           <AddRoom />
-        </RackItem>
-        <RackItem 
+        </RackItem> : null}
+        {authorized === true ? <RackItem 
           icon={DeleteIcon} 
           title="Delete" 
           description="Remove items"
           color="red"
         >
-          <DeleteModal />
-        </RackItem>
+          <DeleteModal authorized= {authorized} setAuthorized={setAuthorized}/>
+        </RackItem> : null}
       </VStack>
     </Box>
   );

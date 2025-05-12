@@ -45,7 +45,7 @@ const Home = ({ user }) => {
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [pin, setPin] = useState("");
   const [hotelToValidate, setHotelToValidate] = useState(null);
-
+  const [authorized, setAuthorized] = useState(false);
   useFetchHotels();
   useFetchStoreHouse();
   useFetchRoomStock();
@@ -68,7 +68,8 @@ const Home = ({ user }) => {
   
     if (selectedHotel) {
       setHotelToValidate(selectedHotel); // Set the hotel for validation
-      setIsPinModalOpen(true);          // Open the modal
+      setIsPinModalOpen(true);  
+             // Open the modal
     } else {
       console.error("Selected hotel not found!", hotels); // Log the `hotels` array for debugging
     }
@@ -90,6 +91,7 @@ const Home = ({ user }) => {
       handleHotelId(hotelToValidate.id);
       setIsPinModalOpen(false);
       setPin("");
+      setAuthorized(true) 
     } else {
       alert("Incorrect PIN. Please try again.");
     }
@@ -109,6 +111,7 @@ const Home = ({ user }) => {
   const handleFloorChange = (e) => {
     const selectedFloorId = e.target.value;
     setSelectedFloorId(selectedFloorId);
+    setAuthorized(false);
     handleFloorId(selectedFloorId);
     const FloorData = floors.find((floor) => floor.id === parseInt(selectedFloorId));
     setFloorData(FloorData)
@@ -175,7 +178,7 @@ const Home = ({ user }) => {
               <MainInventory />
             </TabPanel>
             <TabPanel>
-              <RackMenu />
+              <RackMenu authorized={authorized} setAuthorized={setAuthorized}/>
             </TabPanel>
             <TabPanel>
               <StoreHouse />
@@ -192,7 +195,7 @@ const Home = ({ user }) => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <RackMenu />
+              <RackMenu authorized={authorized} setAuthorized={setAuthorized}/>
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -208,7 +211,7 @@ const Home = ({ user }) => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <RackMenu />
+              <RackMenu authorized={authorized}  setAuthorized={setAuthorized}/>
             </TabPanel>
           </TabPanels>
         </Tabs>

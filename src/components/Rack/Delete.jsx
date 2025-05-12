@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { store } from '../../../store';
 import {
   Button,
@@ -16,12 +16,10 @@ import {
   VStack,
   Text,
   useToast,
+  Input,
 } from '@chakra-ui/react';
 
 import { 
-  getAllHotels, 
-  getAllFloors, 
-  getAllRooms, 
   deleteHotel, 
   deleteFloor, 
   deleteRoom 
@@ -29,19 +27,108 @@ import {
 
 import useFetchHotels from '../../hooks/HotelHooks/useFetchHotels';
 
-const DeleteModal = ({ onDelete }) => { 
+const DeleteModal = ({ onDelete, authorized, setAuthorized }) => { 
   const {state, dispatch} = useContext(store);
   const hotels = state.ui.hotels;
   const floors = state.ui.floors;
   const rooms = state.ui.rooms;
   const selectedFloorId = state.ui.floorId;
+  const hotelId = state.ui.hotelId;
+  const hotelData = hotels.find(h => h.id === hotelId);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [deleteType, setDeleteType] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
   const [error, setError] = useState('');
   const toast = useToast();
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [pin, setPin] = useState("");
+  const [hotelToValidate, setHotelToValidate] = useState(null);
 
   useFetchHotels();
+
+  const handlePinSubmit = () => {
+    if (!hotelToValidate) {
+      console.error("No hotel selected for PIN validation.");
+      return;
+    }
+  
+    if (!hotelToValidate.pin) {
+      console.error("Selected hotel does not have a PIN defined.");
+      return;
+    }
+  
+    if (parseInt(pin) === hotelToValidate.pin) {
+      proceedWithHotelDeletion(hotelToValidate.id);
+      setIsPinModalOpen(false);
+      setPin("");
+    } else {
+      toast({
+        title: "Authentication Failed",
+        description: "Incorrect PIN. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const proceedWithHotelDeletion = async (hotelId) => {
+    try {
+      const selectedItemId = parseInt(hotelId);
+      
+      // First identify all floors in this hotel
+      const hotelFloors = floors.filter(floor => floor.hotelId === selectedItemId);
+      
+      // For each floor, identify and delete all rooms
+      for (const floor of hotelFloors) {
+        const floorRooms = rooms.filter(room => room.floorId === floor.id);
+        for (const room of floorRooms) {
+          await deleteRoom(room.id);
+          // Update local state for immediate UI feedback
+          dispatch({ type: "SET_ROOMS", payload: rooms.filter(r => r.id !== room.id) });
+        }
+        
+        // Then delete the floor
+        await deleteFloor(floor.id);
+        // Update local state for immediate UI feedback
+        dispatch({ type: "SET_FLOORS", payload: floors.filter(f => f.id !== floor.id) });
+      }
+      
+      // Finally delete the hotel
+      await deleteHotel(selectedItemId);
+      // Update local state for immediate UI feedback
+      dispatch({ type: "SET_HOTELS", payload: hotels.filter(h => h.id !== selectedItemId) });
+
+      // Call onDelete if it's provided
+      if (typeof onDelete === 'function') {
+        onDelete(deleteType, selectedItemId);
+      }
+
+      toast({
+        title: "Hotel deleted",
+        description: "The hotel has been deleted successfully.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+
+      // Close modal and reset form
+      onClose();
+      setDeleteType('');
+      setSelectedItem('');
+      setAuthorized(false);
+    } catch (error) {
+      console.error(`Error deleting hotel:`, error);
+      setError(`Failed to delete hotel: ${error.message}. Please try again.`);
+      toast({
+        title: "Delete failed",
+        description: `Failed to delete the hotel.`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
 
   const handleDelete = async () => {
     setError('');
@@ -56,29 +143,16 @@ const DeleteModal = ({ onDelete }) => {
       
       switch (deleteType) {
         case 'hotel':
-          // First identify all floors in this hotel
-          const hotelFloors = floors.filter(floor => floor.hotelId === selectedItemId);
-          
-          // For each floor, identify and delete all rooms
-          for (const floor of hotelFloors) {
-            const floorRooms = rooms.filter(room => room.floorId === floor.id);
-            for (const room of floorRooms) {
-              await deleteRoom(room.id);
-              // Update local state for immediate UI feedback
-              dispatch({ type: "SET_ROOMS", payload: rooms.filter(r => r.id !== room.id) });
-            }
-            
-            // Then delete the floor
-            await deleteFloor(floor.id);
-            // Update local state for immediate UI feedback
-            dispatch({ type: "SET_FLOORS", payload: floors.filter(f => f.id !== floor.id) });
+          // Get the hotel data to validate
+          const hotelToDelete = hotels.find(h => h.id === selectedItemId);
+          if (!hotelToDelete) {
+            throw new Error('Hotel not found');
           }
-          
-          // Finally delete the hotel
-          await deleteHotel(selectedItemId);
-          // Update local state for immediate UI feedback
-          dispatch({ type: "SET_HOTELS", payload: hotels.filter(h => h.id !== selectedItemId) });
-          break;
+           // Set authorized to false to trigger PIN validation
+          // Open PIN modal for validation before deletion
+          setHotelToValidate(hotelToDelete);
+          setIsPinModalOpen(true);
+          return; // Stop here and wait for PIN validation
           
         case 'floor':
           // Get all rooms for the selected floor
@@ -107,8 +181,8 @@ const DeleteModal = ({ onDelete }) => {
           throw new Error('Invalid delete type');
       }
 
-      // Call onDelete if it's provided
-      if (typeof onDelete === 'function') {
+      // Call onDelete if it's provided (for floor and room only, hotel handled separately)
+      if (deleteType !== 'hotel' && typeof onDelete === 'function') {
         onDelete(deleteType, selectedItem);
       }
 
@@ -124,7 +198,6 @@ const DeleteModal = ({ onDelete }) => {
       onClose();
       setDeleteType('');
       setSelectedItem('');
-      
 
     } catch (error) {
       console.error(`Error deleting ${deleteType}:`, error);
@@ -138,14 +211,15 @@ const DeleteModal = ({ onDelete }) => {
       });
     }
   };
+
   const renderItemOptions = () => {
     switch (deleteType) {
       case 'hotel':
-        return hotels.map(hotel => (
-          <option key={hotel.id} value={hotel.id}>
-            {hotel.name} 
+        return (
+          <option key={hotelData.id} value={hotelData.id}>
+            {hotelData.name} 
           </option>
-        ));
+        );
       case 'floor':
         return floors.map(floor => {
           const floorRoomsCount = rooms.filter(r => r.floorId === floor.id).length;
@@ -223,6 +297,37 @@ const DeleteModal = ({ onDelete }) => {
               Delete
             </Button>
             <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* PIN Validation Modal */}
+      <Modal isOpen={isPinModalOpen} onClose={() => setIsPinModalOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Enter PIN for {hotelToValidate?.name}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Input
+              type="password"
+              placeholder="Enter PIN"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={handlePinSubmit} mr={3}>
+              Submit
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setIsPinModalOpen(false);
+                setPin("");
+              }}
+            >
               Cancel
             </Button>
           </ModalFooter>
