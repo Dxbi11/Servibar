@@ -32,8 +32,7 @@ const DeleteProduct = () => {
       return;
     }    try {
       const selectedProductId = parseInt(selectedProduct);
-      await deleteProduct(selectedProductId);
-        // Update local state for immediate UI feedback
+      await deleteProduct(selectedProductId);      // Update local state for immediate UI feedback
       dispatch({ type: "SET_PRODUCTS", payload: products.filter(p => p.id !== selectedProductId) });
       
       toast({
@@ -44,6 +43,12 @@ const DeleteProduct = () => {
         isClosable: true,
       });
       setSelectedProduct("");
+      
+      // Set a short timeout to allow the success toast to be visible before refreshing
+      setTimeout(() => {
+        // Refresh the whole page
+        window.location.reload();
+      }, 1500); // 1.5 seconds delay for the toast to be visible
     } catch (error) {
       toast({
         title: "Error",

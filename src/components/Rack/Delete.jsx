@@ -16,7 +16,7 @@ import {
   VStack,
   Text,
   useToast,
-  Input,
+  Box,
 } from '@chakra-ui/react';
 
 import { 
@@ -39,120 +39,63 @@ const DeleteModal = ({ onDelete, authorized, setAuthorized }) => {
   const [deleteType, setDeleteType] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
   const [error, setError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const toast = useToast();
-  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
-  const [pin, setPin] = useState("");
-  const [hotelToValidate, setHotelToValidate] = useState(null);
 
   useFetchHotels();
 
-  const handlePinSubmit = () => {
-    if (!hotelToValidate) {
-      console.error("No hotel selected for PIN validation.");
-      return;
-    }
-  
-    if (!hotelToValidate.pin) {
-      console.error("Selected hotel does not have a PIN defined.");
-      return;
-    }
-  
-    if (parseInt(pin) === hotelToValidate.pin) {
-      proceedWithHotelDeletion(hotelToValidate.id);
-      setIsPinModalOpen(false);
-      setPin("");
-    } else {
-      toast({
-        title: "Authentication Failed",
-        description: "Incorrect PIN. Please try again.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  };
-
-  const proceedWithHotelDeletion = async (hotelId) => {
-    try {
-      const selectedItemId = parseInt(hotelId);
-      
-      // First identify all floors in this hotel
-      const hotelFloors = floors.filter(floor => floor.hotelId === selectedItemId);
-      
-      // For each floor, identify and delete all rooms
-      for (const floor of hotelFloors) {
-        const floorRooms = rooms.filter(room => room.floorId === floor.id);
-        for (const room of floorRooms) {
-          await deleteRoom(room.id);
-          // Update local state for immediate UI feedback
-          dispatch({ type: "SET_ROOMS", payload: rooms.filter(r => r.id !== room.id) });
-        }
-        
-        // Then delete the floor
-        await deleteFloor(floor.id);
-        // Update local state for immediate UI feedback
-        dispatch({ type: "SET_FLOORS", payload: floors.filter(f => f.id !== floor.id) });
-      }
-      
-      // Finally delete the hotel
-      await deleteHotel(selectedItemId);
-      // Update local state for immediate UI feedback
-      dispatch({ type: "SET_HOTELS", payload: hotels.filter(h => h.id !== selectedItemId) });
-
-      // Call onDelete if it's provided
-      if (typeof onDelete === 'function') {
-        onDelete(deleteType, selectedItemId);
-      }
-
-      toast({
-        title: "Hotel deleted",
-        description: "The hotel has been deleted successfully.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-
-      // Close modal and reset form
-      onClose();
-      setDeleteType('');
-      setSelectedItem('');
-      setAuthorized(false);
-    } catch (error) {
-      console.error(`Error deleting hotel:`, error);
-      setError(`Failed to delete hotel: ${error.message}. Please try again.`);
-      toast({
-        title: "Delete failed",
-        description: `Failed to delete the hotel.`,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  };
-
   const handleDelete = async () => {
     setError('');
-
+    
     if (!deleteType || !selectedItem) {
       setError('Please select both a delete type and an item to delete.');
       return;
     }
+    
+    // Set deleting state to true to disable the button
+    setIsDeleting(true);
     
     try {
       const selectedItemId = parseInt(selectedItem);
       
       switch (deleteType) {
         case 'hotel':
-          // Get the hotel data to validate
+          // Get the hotel data
           const hotelToDelete = hotels.find(h => h.id === selectedItemId);
           if (!hotelToDelete) {
             throw new Error('Hotel not found');
           }
-           // Set authorized to false to trigger PIN validation
-          // Open PIN modal for validation before deletion
-          setHotelToValidate(hotelToDelete);
-          setIsPinModalOpen(true);
-          return; // Stop here and wait for PIN validation
+          
+          // First identify all floors in this hotel
+          const hotelFloors = floors.filter(floor => floor.hotelId === selectedItemId);
+          
+          // For each floor, identify and delete all rooms
+          for (const floor of hotelFloors) {
+            const floorRooms = rooms.filter(room => room.floorId === floor.id);
+            for (const room of floorRooms) {
+              await deleteRoom(room.id);
+              // Update local state for immediate UI feedback
+              dispatch({ type: "SET_ROOMS", payload: rooms.filter(r => r.id !== room.id) });
+            }
+            
+            // Then delete the floor
+            await deleteFloor(floor.id);
+            // Update local state for immediate UI feedback
+            dispatch({ type: "SET_FLOORS", payload: floors.filter(f => f.id !== floor.id) });
+          }
+          
+          // Finally delete the hotel
+          await deleteHotel(selectedItemId);
+          // Update local state for immediate UI feedback
+          dispatch({ type: "SET_HOTELS", payload: hotels.filter(h => h.id !== selectedItemId) });
+          
+          // Clear selected hotel ID if the deleted hotel is currently selected
+          if (hotelId === selectedItemId) {
+            dispatch({ type: "SET_HOTEL_ID", payload: null });
+            // When hotel is deleted, also clear selected floor ID
+            dispatch({ type: "SET_FLOOR_ID", payload: null });
+          }
+          break;
           
         case 'floor':
           // Get all rooms for the selected floor
@@ -169,6 +112,9 @@ const DeleteModal = ({ onDelete, authorized, setAuthorized }) => {
           await deleteFloor(selectedItemId);
           // Update local state for immediate UI feedback
           dispatch({ type: "SET_FLOORS", payload: floors.filter(f => f.id !== selectedItemId) });
+          
+            dispatch({ type: "SET_FLOOR_ID", payload: null });
+
           break;
           
         case 'room':
@@ -181,9 +127,9 @@ const DeleteModal = ({ onDelete, authorized, setAuthorized }) => {
           throw new Error('Invalid delete type');
       }
 
-      // Call onDelete if it's provided (for floor and room only, hotel handled separately)
-      if (deleteType !== 'hotel' && typeof onDelete === 'function') {
-        onDelete(deleteType, selectedItem);
+      // Call onDelete if it's provided
+      if (typeof onDelete === 'function') {
+        onDelete(deleteType, selectedItemId);
       }
 
       toast({
@@ -198,6 +144,8 @@ const DeleteModal = ({ onDelete, authorized, setAuthorized }) => {
       onClose();
       setDeleteType('');
       setSelectedItem('');
+      if (setAuthorized) setAuthorized(false);
+      setIsDeleting(false); // Reset deleting state
 
     } catch (error) {
       console.error(`Error deleting ${deleteType}:`, error);
@@ -209,17 +157,19 @@ const DeleteModal = ({ onDelete, authorized, setAuthorized }) => {
         duration: 5000,
         isClosable: true,
       });
+      setIsDeleting(false); // Reset deleting state on error
     }
   };
 
   const renderItemOptions = () => {
     switch (deleteType) {
       case 'hotel':
-        return (
-          <option key={hotelData.id} value={hotelData.id}>
-            {hotelData.name} 
+        return hotels.map(hotels => {
+          return (
+          <option key={hotels.id} value={hotels.id}>
+            {hotels.name} 
           </option>
-        );
+          );});
       case 'floor':
         return floors.map(floor => {
           const floorRoomsCount = rooms.filter(r => r.floorId === floor.id).length;
@@ -269,7 +219,9 @@ const DeleteModal = ({ onDelete, authorized, setAuthorized }) => {
                   onChange={(e) => {
                     setDeleteType(e.target.value);
                     setSelectedItem('');
+                    setError(''); // Clear any existing errors when changing selection
                   }}
+                  isDisabled={isDeleting}
                 >
                   <option value="hotel">Hotel</option>
                   <option value="floor">Floor</option>
@@ -282,51 +234,48 @@ const DeleteModal = ({ onDelete, authorized, setAuthorized }) => {
                   <Select
                     placeholder={`Select ${deleteType} to delete`}
                     value={selectedItem}
-                    onChange={(e) => setSelectedItem(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedItem(e.target.value);
+                      setError(''); // Clear any existing errors when changing selection
+                    }}
+                    isDisabled={isDeleting}
                   >
                     {renderItemOptions()}
                   </Select>
                 </FormControl>
               )}
-              {error && <Text color="red.500">{error}</Text>}
+              {error && (
+                <Box 
+                  w="100%" 
+                  p={3} 
+                  bg="red.50" 
+                  borderRadius="md" 
+                  borderLeft="4px" 
+                  borderColor="red.500"
+                >
+                  <Text color="red.500" fontWeight="medium">
+                    {error}
+                  </Text>
+                </Box>
+              )}
             </VStack>
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="red" mr={3} onClick={handleDelete}>
+            <Button 
+              colorScheme="red" 
+              mr={3} 
+              onClick={handleDelete}
+              isLoading={isDeleting}
+              loadingText="Deleting..."
+              isDisabled={isDeleting || !deleteType || !selectedItem}
+            >
               Delete
             </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      {/* PIN Validation Modal */}
-      <Modal isOpen={isPinModalOpen} onClose={() => setIsPinModalOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Enter PIN for {hotelToValidate?.name}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Input
-              type="password"
-              placeholder="Enter PIN"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" onClick={handlePinSubmit} mr={3}>
-              Submit
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setIsPinModalOpen(false);
-                setPin("");
-              }}
+            <Button 
+              variant="ghost" 
+              onClick={onClose}
+              isDisabled={isDeleting}
             >
               Cancel
             </Button>

@@ -39,18 +39,20 @@ const Home = ({ user }) => {
   const { state, dispatch } = useContext(store);
   const hotels = state.ui.hotels;
   const floors = state.ui.floors;
+  const hotelID = state.ui.hotelId;
+  const floorID = state.ui.floorId;
   const [selectedHotelId, setSelectedHotelId] = useState("");
   const [selectedFloorId, setSelectedFloorId] = useState("");
   const [FloorData, setFloorData] = useState({});
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [pin, setPin] = useState("");
   const [hotelToValidate, setHotelToValidate] = useState(null);
-  const [authorized, setAuthorized] = useState(false);
   useFetchHotels();
   useFetchStoreHouse();
   useFetchRoomStock();
   useFetchFloors(selectedHotelId);
   useFetchRooms(selectedFloorId);
+
 
   const handleHotelId = (selectedHotelId) => {
     dispatch({ type: "SET_HOTEL_ID", payload: selectedHotelId });
@@ -63,6 +65,7 @@ const Home = ({ user }) => {
     const hotelId = e.target.value;
   
     const selectedHotel = hotels.find((hotel) => hotel.id === parseInt(hotelId));
+  
 
 
   
@@ -91,7 +94,6 @@ const Home = ({ user }) => {
       handleHotelId(hotelToValidate.id);
       setIsPinModalOpen(false);
       setPin("");
-      setAuthorized(true) 
     } else {
       alert("Incorrect PIN. Please try again.");
     }
@@ -111,7 +113,6 @@ const Home = ({ user }) => {
   const handleFloorChange = (e) => {
     const selectedFloorId = e.target.value;
     setSelectedFloorId(selectedFloorId);
-    setAuthorized(false);
     handleFloorId(selectedFloorId);
     const FloorData = floors.find((floor) => floor.id === parseInt(selectedFloorId));
     setFloorData(FloorData)
@@ -140,7 +141,7 @@ const Home = ({ user }) => {
           </option>
         ))}
       </Select>
-      {parseInt(selectedHotelId) >= 0 ?        <div>Select Floor 🏢
+      {parseInt(hotelID) >= 0 ?        <div>Select Floor 🏢
         <Select
           placeholder="Select Floor"
           value={selectedFloorId}
@@ -154,7 +155,7 @@ const Home = ({ user }) => {
             </option>
           ))}
         </Select>
-          {parseFloat(selectedFloorId) >= 0 ? 
+          {parseFloat(floorID) >= 0 ? 
         <Tabs variant="enclosed" colorScheme="teal">
           <TabList>
             <Tab>Rack</Tab>
@@ -175,7 +176,7 @@ const Home = ({ user }) => {
               <MainInventory />
             </TabPanel>
             <TabPanel>
-              <RackMenu authorized={authorized} setAuthorized={setAuthorized}/>
+              <RackMenu/>
             </TabPanel>
             <TabPanel>
               <StoreHouse />
@@ -191,7 +192,7 @@ const Home = ({ user }) => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <RackMenu authorized={authorized} setAuthorized={setAuthorized}/>
+              <RackMenu/>
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -206,7 +207,7 @@ const Home = ({ user }) => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <RackMenu authorized={authorized}  setAuthorized={setAuthorized}/>
+              <RackMenu/>
             </TabPanel>
           </TabPanels>
         </Tabs>

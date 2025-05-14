@@ -17,10 +17,12 @@ import {
   VStack,
   Text,
   useToast,
+  Box,
 } from '@chakra-ui/react';
 import { createFloor } from '../../api';
+
 const AddFloors = ({ onFloorAdded }) => {
-  const {state, dispatch} = useContext(store);
+  const { state, dispatch } = useContext(store);
   const hotels = state.ui.hotels;
   const floors = state.ui.floors;
 
@@ -28,20 +30,48 @@ const AddFloors = ({ onFloorAdded }) => {
   const [floorNumber, setFloorNumber] = useState('');
   const [selectedHotel, setSelectedHotel] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
-  const handleFloors = (floors) => {  
+  const handleFloors = (floors) => {
     dispatch({ type: 'SET_FLOORS', payload: floors });
+  };
+
+  const resetForm = () => {
+    setFloorNumber('');
+    setSelectedHotel('');
+    setError('');
+    setIsSubmitting(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
+    if (!selectedHotel || !floorNumber) {
+      setError('Please fill in all fields.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const floorNum = parseInt(floorNumber);
+    if (isNaN(floorNum)) {
+      setError('Floor number must be a valid numeric value.');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const newFloor = await createFloor({
-        floorNumber: parseInt(floorNumber),
+        floorNumber: floorNum,
         hotelId: parseInt(selectedHotel),
       });
-
 
       toast({
         title: "Floor added.",
@@ -50,12 +80,13 @@ const AddFloors = ({ onFloorAdded }) => {
         duration: 5000,
         isClosable: true,
       });
-      onClose();
-      setFloorNumber('');
-      setSelectedHotel('');
+
       handleFloors([...floors, newFloor]);
+      handleClose();
     } catch (error) {
       console.error("Error adding floor:", error);
+      setError(`Error adding floor: ${error.message || 'Please try again.'}`);
+      setIsSubmitting(false);
     }
   };
 
@@ -65,7 +96,7 @@ const AddFloors = ({ onFloorAdded }) => {
         Add New Floor
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={handleClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Add New Floor</ModalHeader>
@@ -78,7 +109,11 @@ const AddFloors = ({ onFloorAdded }) => {
                   <Select
                     placeholder="Select hotel"
                     value={selectedHotel}
-                    onChange={(e) => (setSelectedHotel(e.target.value), dispatch({ type: "SET_HOTEL_ID", payload: e.target.value }))}
+                    onChange={(e) => {
+                      setSelectedHotel(e.target.value);
+                      dispatch({ type: "SET_HOTEL_ID", payload: e.target.value });
+                    }}
+                    isDisabled={isSubmitting}
                   >
                     {hotels.map((hotel) => (
                       <option key={hotel.id} value={hotel.id}>
@@ -93,24 +128,40 @@ const AddFloors = ({ onFloorAdded }) => {
                     type="number"
                     value={floorNumber}
                     onChange={(e) => setFloorNumber(e.target.value)}
+                    isDisabled={isSubmitting}
                   />
                 </FormControl>
-                {error && <Text color="red.500">{error}</Text>}
               </VStack>
             </form>
           </ModalBody>
 
-          <ModalFooter>
-            <Button
-              colorScheme="blue"
-              mr={3}
-              onClick={handleSubmit}
-            >
-              Add Floor
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
+          <ModalFooter flexDirection="column" alignItems="stretch">
+            <Box display="flex" justifyContent="space-between" width="100%">
+              <Button 
+                variant="ghost" 
+                onClick={handleClose}
+                isDisabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={handleSubmit}
+                isLoading={isSubmitting}
+                loadingText="Adding..."
+                isDisabled={isSubmitting}
+              >
+                Add Floor
+              </Button>
+            </Box>
+            
+            {error && (
+              <Box mt={4} width="100%">
+                <Text color="red.500" textAlign="center">
+                  {error}
+                </Text>
+              </Box>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>

@@ -17,6 +17,7 @@ import {
   Text,
   useDisclosure,
   useToast,
+  Box,
 } from '@chakra-ui/react';
 import { createRoom } from '../../api';
 import useCreateRoomStock from '../../hooks/RoomStockHooks/useCreateRoomStock';
@@ -35,36 +36,62 @@ const AddRoom = ({ onRoomAdded }) => {
   const [selectedHotel, setSelectedHotel] = useState('');
   const [selectedFloor, setSelectedFloor] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
   const comment = "";
   const checked = false;
+
   useFetchFloors(selectedHotel);
+
+  const resetForm = () => {
+    setStartRoomNumber('');
+    setEndRoomNumber('');
+    setSelectedHotel('');
+    setSelectedFloor('');
+    setError('');
+    setIsSubmitting(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
 
     if (!selectedHotel || !selectedFloor || !startRoomNumber || !endRoomNumber) {
       setError('Please fill in all fields.');
-      return;
-    }
-    if (endRoomNumber > 20) {
-      setError('You cannot add more than 20 rooms at a time.');
+      setIsSubmitting(false);
       return;
     }
 
     const start = parseInt(startRoomNumber);
     const end = parseInt(endRoomNumber);
 
+    if (isNaN(start) || isNaN(end)) {
+      setError('Room numbers must be valid numeric values.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (end - start + 1 > 20) {
+      setError('You cannot add more than 20 rooms at once.');
+      setIsSubmitting(false);
+      return;
+    }
+
     if (start > end) {
       setError('Start room number cannot be greater than end room number.');
+      setIsSubmitting(false);
       return;
     }
 
     try {
       const newRooms = [];
       for (let roomNumber = start; roomNumber <= end; roomNumber++) {
-        console.log(selectedFloor);
         const RoomData = {
           roomNumber,
           hotelId: parseInt(selectedHotel),
@@ -73,26 +100,22 @@ const AddRoom = ({ onRoomAdded }) => {
           state: 0,
           comment: comment,
           checked: checked,
-        }
-        console.log(RoomData);
+        };
         const newRoom = await createRoom(RoomData);
-        console.log(RoomData);
-        console.log(newRoom);
         newRooms.push(newRoom);
+
         if (products.length > 0) {
-        products.forEach(product => {
-          const roomStock = {
-            roomId: newRoom.id,
-            productId: product.id,
-            quantity: 0,
-          };
-          const roomStockCreated =  createData(roomStock.roomId, roomStock.productId, roomStock.quantity);
-          console.log(roomStockCreated);
+          products.forEach(product => {
+            const roomStock = {
+              roomId: newRoom.id,
+              productId: product.id,
+              quantity: 0,
+            };
+            createData(roomStock.roomId, roomStock.productId, roomStock.quantity);
           });
         }
       }
 
-      // Dispatch an action to add the new rooms to the context
       dispatch({
         type: 'SET_ROOMS',
         payload: [...state.ui.rooms, ...newRooms],
@@ -106,14 +129,11 @@ const AddRoom = ({ onRoomAdded }) => {
         isClosable: true,
       });
 
-      onClose();
-      setStartRoomNumber('');
-      setEndRoomNumber('');
-      setSelectedHotel('');
-      setSelectedFloor('');
+      handleClose();
     } catch (error) {
       console.error('Error creating rooms:', error);
-      setError('Failed to create rooms. Please try again.');
+      setError(`Error creating rooms: ${error.message || 'Please try again.'}`);
+      setIsSubmitting(false);
     }
   };
 
@@ -123,13 +143,13 @@ const AddRoom = ({ onRoomAdded }) => {
         Add Rooms
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={handleClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Add Rooms</ModalHeader>
-        <Text as="b" color="red.500" fontSize="md" textAlign="center">
-                  * You cannot add more than 20 rooms to any floor.
-                </Text>
+          <Text as="b" color="red.500" fontSize="md" textAlign="center">
+            * You cannot add more than 20 rooms to any floor.
+          </Text>
           <ModalCloseButton />
           <ModalBody>
             <form onSubmit={handleSubmit}>
@@ -140,6 +160,7 @@ const AddRoom = ({ onRoomAdded }) => {
                     placeholder="Select hotel"
                     value={selectedHotel}
                     onChange={(e) => setSelectedHotel(e.target.value)}
+                    isDisabled={isSubmitting}
                   >
                     {hotels.map((hotel) => (
                       <option key={hotel.id} value={hotel.id}>
@@ -154,6 +175,7 @@ const AddRoom = ({ onRoomAdded }) => {
                     placeholder="Select floor"
                     value={selectedFloor}
                     onChange={(e) => setSelectedFloor(e.target.value)}
+                    isDisabled={isSubmitting}
                   >
                     {floors.map((floor) => (
                       <option key={floor.id} value={floor.id}>
@@ -168,6 +190,7 @@ const AddRoom = ({ onRoomAdded }) => {
                     type="number"
                     value={startRoomNumber}
                     onChange={(e) => setStartRoomNumber(e.target.value)}
+                    isDisabled={isSubmitting}
                   />
                 </FormControl>
                 <FormControl isRequired>
@@ -176,20 +199,40 @@ const AddRoom = ({ onRoomAdded }) => {
                     type="number"
                     value={endRoomNumber}
                     onChange={(e) => setEndRoomNumber(e.target.value)}
+                    isDisabled={isSubmitting}
                   />
                 </FormControl>
-                {error && <Text color="red.500">{error}</Text>}
               </VStack>
             </form>
           </ModalBody>
 
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
-              Add Rooms
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
+          <ModalFooter flexDirection="column" alignItems="stretch">
+            <Box display="flex" justifyContent="space-between" width="100%">
+              <Button
+                variant="ghost"
+                onClick={handleClose}
+                isDisabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={handleSubmit}
+                isLoading={isSubmitting}
+                loadingText="Adding..."
+                isDisabled={isSubmitting}
+              >
+                Add Rooms
+              </Button>
+            </Box>
+
+            {error && (
+              <Box mt={4} width="100%">
+                <Text color="red.500" textAlign="center">
+                  {error}
+                </Text>
+              </Box>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
