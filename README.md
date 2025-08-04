@@ -1,6 +1,6 @@
 # project agenda
 
-- main obective: to have an MVP by july 28th
+
 
 
 ## features
